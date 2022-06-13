@@ -12,6 +12,9 @@ addons:
   apt:
     packages:
       - expect-dev # provides unbuffer utility
+      - swig
+      - python3-pykcs11
+      - python3-pypdf2
 
 stages:
   - test
