@@ -57,6 +57,7 @@ class InputLine(BrowsableObject):
 
 class HrPayslip(models.Model):
     _name = "hr.payslip"
+    _description = "Employee Payslip"
     _inherit = [
         "mixin.transaction_confirm",
         "mixin.transaction_done",
@@ -370,11 +371,6 @@ class HrPayslip(models.Model):
         res = _super.action_cancel(cancel_reason)
         for document in self.sudo():
             moves = document.move_id
-            if moves.state == "posted":
-                msg_err = _(
-                    "You cannot cancel a payslip which journal is already posted!"
-                )
-                raise UserError(msg_err)
             document.write(
                 {
                     "move_line_debit_id": False,
