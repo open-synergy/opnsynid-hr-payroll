@@ -40,3 +40,9 @@ class HrSalaryStructure(models.Model):
         for document in self:
             all_rules += document.rule_ids._recursive_search_of_rules()
         return all_rules
+
+    def _get_parent_structure(self):
+        parent = self.mapped("parent_id")
+        if parent:
+            parent = parent._get_parent_structure()
+        return parent + self

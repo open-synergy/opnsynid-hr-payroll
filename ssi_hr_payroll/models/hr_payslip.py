@@ -57,7 +57,6 @@ class InputLine(BrowsableObject):
 
 class HrPayslip(models.Model):
     _name = "hr.payslip"
-    _description = "Employee Payslip"
     _inherit = [
         "mixin.transaction_confirm",
         "mixin.transaction_done",
@@ -297,7 +296,8 @@ class HrPayslip(models.Model):
             "inputs": inputs,
         }
 
-        rule_ids = obj_hr_salary_struc.browse(structure_id).get_all_rules()
+        structure_ids = obj_hr_salary_struc.browse(structure_id)._get_parent_structure()
+        rule_ids = structure_ids.get_all_rules()
 
         sorted_rule_ids = [id for id, sequence in sorted(rule_ids, key=lambda x: x[1])]
         sorted_rules = obj_hr_salary_rule.browse(sorted_rule_ids)
@@ -328,6 +328,49 @@ class HrPayslip(models.Model):
                 blacklist += [id for id, seq in rule._recursive_search_of_rules()]
 
         return list(result_dict.values())
+
+    def _get_input_line_ids(self):
+        self.ensure_one()
+        res = []
+        obj_hr_salary_struc = self.env["hr.salary_structure"]
+        obj_hr_salary_rule = self.env["hr.salary_rule"]
+
+        structure_id = self.structure_id.id
+
+        structure_ids = obj_hr_salary_struc.browse(structure_id)._get_parent_structure()
+        rule_ids = structure_ids.get_all_rules()
+        sorted_rule_ids = [id for id, sequence in sorted(rule_ids, key=lambda x: x[1])]
+        input_type_ids = obj_hr_salary_rule.browse(sorted_rule_ids).mapped(
+            "input_type_ids"
+        )
+        for input_type in input_type_ids:
+            res.append(
+                {
+                    "input_type_id": input_type.id,
+                }
+            )
+        return res
+
+    @api.onchange(
+        "type_id",
+    )
+    def onchange_journal_id(self):
+        self.journal_id = False
+        if self.type_id:
+            self.journal_id = self.type_id.journal_id
+
+    @api.onchange(
+        "structure_id",
+    )
+    def onchange_input_line_ids(self):
+        res = []
+        self.input_line_ids = False
+        if self.structure_id:
+            input_line_ids = self._get_input_line_ids()
+            if input_line_ids:
+                for input_line in input_line_ids:
+                    res.append((0, 0, input_line))
+        self.input_line_ids = res
 
     def action_compute_payslip(self):
         for document in self.sudo():
@@ -371,6 +414,11 @@ class HrPayslip(models.Model):
         res = _super.action_cancel(cancel_reason)
         for document in self.sudo():
             moves = document.move_id
+            if moves.state == "posted":
+                msg_err = _(
+                    "You cannot cancel a payslip which journal is already posted!"
+                )
+                raise UserError(msg_err)
             document.write(
                 {
                     "move_line_debit_id": False,
