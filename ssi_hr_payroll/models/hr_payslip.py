@@ -57,6 +57,7 @@ class InputLine(BrowsableObject):
 
 class HrPayslip(models.Model):
     _name = "hr.payslip"
+    _description = "Employee Payslip"
     _inherit = [
         "mixin.transaction_confirm",
         "mixin.transaction_done",
