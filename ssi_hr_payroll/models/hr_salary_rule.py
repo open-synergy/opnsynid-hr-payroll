@@ -59,6 +59,7 @@ class HrSalaryRule(models.Model):
 #    (sum of amount of all rules belonging to that category).
 # worked_days: object containing the computed worked days
 # inputs: object containing the computed inputs
+# emp_inputs: object containing the employee computed inputs.
 
 # Note: returned value have to be set in the variable 'result'
 
@@ -79,6 +80,7 @@ result = True""",
 #    (sum of amount of all rules belonging to that category).
 # worked_days: object containing the computed worked days.
 # inputs: object containing the computed inputs.
+# emp_inputs: object containing the employee computed inputs.
 
 # Note: returned value have to be set in the variable 'result'
 
