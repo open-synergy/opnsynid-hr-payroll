@@ -11,4 +11,7 @@ from . import (
     hr_payslip_input,
     hr_payslip_line,
     hr_payslip,
+    hr_employee_input_type,
+    hr_employee_input,
+    hr_employee,
 )

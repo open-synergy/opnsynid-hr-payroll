@@ -55,6 +55,20 @@ class InputLine(BrowsableObject):
         return self.env.cr.fetchone()[0] or 0.0
 
 
+class EmployeeInputLine(BrowsableObject):
+    def sum(self, code):
+        self.env.cr.execute(
+            """
+            SELECT sum(b.amount) as sum
+            FROM hr_employee as a
+            JOIN hr_employee_input as b ON a.id=b.employee_id
+            JOIN hr_employee_input_type as c ON b.input_type_id=c.id
+            WHERE a.id = %s AND c.code = %s""",
+            (self.employee_id, code),
+        )
+        return self.env.cr.fetchone()[0] or 0.0
+
+
 class HrPayslip(models.Model):
     _name = "hr.payslip"
     _description = "Employee Payslip"
@@ -271,6 +285,7 @@ class HrPayslip(models.Model):
         result_dict = {}
         rules_dict = {}
         inputs_dict = {}
+        emp_inputs_dict = {}
         blacklist = []
 
         obj_hr_payslip = self.env["hr.payslip"]
@@ -283,10 +298,16 @@ class HrPayslip(models.Model):
         for input_line in self.input_line_ids:
             inputs_dict[input_line.input_type_id.code] = input_line
 
+        for emp_input_line in employee.input_line_ids:
+            emp_inputs_dict[emp_input_line.input_type_id.code] = emp_input_line
+
         payslip = obj_hr_payslip.browse(payslip_id)
 
         categories = BrowsableObject(payslip.employee_id.id, {}, self.env)
         inputs = InputLine(payslip.employee_id.id, inputs_dict, self.env)
+        emp_inputs = EmployeeInputLine(
+            payslip.employee_id.id, emp_inputs_dict, self.env
+        )
         payslips = Payslips(payslip.employee_id.id, self, self.env)
         rules = BrowsableObject(payslip.employee_id.id, rules_dict, self.env)
 
@@ -295,6 +316,7 @@ class HrPayslip(models.Model):
             "rules": rules,
             "payslip": payslips,
             "inputs": inputs,
+            "emp_inputs": emp_inputs,
         }
 
         structure_ids = obj_hr_salary_struc.browse(structure_id)._get_parent_structure()

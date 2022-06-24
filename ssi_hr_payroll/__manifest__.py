@@ -3,7 +3,7 @@
 # License LGPL-3.0 or later (http://www.gnu.org/licenses/lgpl-3.0-standalone.html).
 {
     "name": "Employee Payslip",
-    "version": "14.0.1.1.1",
+    "version": "14.0.1.2.0",
     "website": "https://simetri-sinergi.id",
     "author": "OpenSynergy Indonesia, PT. Simetri Sinergi Indonesia",
     "license": "LGPL-3",
@@ -36,6 +36,9 @@
         "views/hr_payslip_input_views.xml",
         "views/hr_payslip_line_views.xml",
         "views/hr_payslip_views.xml",
+        "views/hr_employee_input_type_views.xml",
+        "views/hr_employee_input_views.xml",
+        "views/hr_employee_views.xml",
     ],
     "demo": [
         "demo/account_account_demo.xml",
