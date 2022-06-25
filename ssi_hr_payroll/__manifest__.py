@@ -47,6 +47,7 @@
         "demo/hr_salary_contribution_demo.xml",
         "demo/hr_salary_rule_category_demo.xml",
         "demo/hr_payslip_input_type_demo.xml",
+        "demo/hr_employee_input_type_demo.xml",
         "demo/hr_salary_rule_demo.xml",
         "demo/hr_salary_structure_demo.xml",
     ],

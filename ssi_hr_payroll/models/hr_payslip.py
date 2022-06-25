@@ -149,7 +149,7 @@ class HrPayslip(models.Model):
         comodel_name="hr.payslip_line",
         inverse_name="payslip_id",
         readonly=True,
-        states={"draft": [("readonly", False)]},
+        copy=False,
     )
     input_line_ids = fields.One2many(
         string="Input Types",
@@ -157,6 +157,7 @@ class HrPayslip(models.Model):
         inverse_name="payslip_id",
         readonly=True,
         states={"draft": [("readonly", False)]},
+        copy=True,
     )
     date = fields.Date(
         string="Date",
@@ -172,7 +173,7 @@ class HrPayslip(models.Model):
         states={"draft": [("readonly", False)]},
     )
     move_id = fields.Many2one(
-        string="Move",
+        string="# Accounting Entry",
         comodel_name="account.move",
         readonly=True,
         copy=False,
@@ -394,6 +395,14 @@ class HrPayslip(models.Model):
                 for input_line in input_line_ids:
                     res.append((0, 0, input_line))
         self.input_line_ids = res
+
+    @api.onchange(
+        "employee_id",
+    )
+    def onchange_structure_id(self):
+        self.structure_id = False
+        if self.employee_id:
+            self.structure_id = self.employee_id.salary_structure_id
 
     def action_compute_payslip(self):
         for document in self.sudo():
