@@ -71,9 +71,9 @@ class HrPayslipLine(models.Model):
         self.ensure_one()
         partner_id = False
         contribution = self.rule_id.contribution_id
-        if contribution:
+        if contribution and contribution.partner_id:
             partner_id = contribution.partner_id.id
-        else:
+        elif contribution and not contribution.partner_id:
             partner_id = self.payslip_id.employee_id.address_home_id.id
         return partner_id
 

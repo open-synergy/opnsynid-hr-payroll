@@ -9,9 +9,11 @@
   <field name="sequence" eval="1" />
   <field name="category_id" ref="rule_categ_demo1" />
   <field name="debit_account_id" ref="demo_account2" />
-  <field name="amount_python">result = inputs.T001 and inputs.T001.amount or 0.0</field>
+  <field
+            name="amount_python"
+        >result = emp_inputs.T001 and emp_inputs.T001.amount or 0.0</field>
   <field name="appear_on_payslip" eval="1" />
-  <field name="input_type_ids" eval="[(6,0,[ref('hr_payslip_input_type_demo1')])]" />
+  <field name="input_type_ids" eval="[(6,0,[])]" />
 </record>
 
 <record id="salary_rule_demo2" model="hr.salary_rule">
@@ -30,6 +32,8 @@
   <field name="category_id" ref="rule_categ_demo5" />
   <field name="amount_python">result = categories.GROSS + categories.DED</field>
   <field name="appear_on_payslip" eval="1" />
+  <field name="debit_account_id" ref="demo_account1" />
+  <field name="contribution_id" ref="salary_contribution_demo1" />
 </record>
 
 <record id="salary_rule_demo4" model="hr.salary_rule">
@@ -38,9 +42,11 @@
   <field name="sequence" eval="101" />
   <field name="category_id" ref="rule_categ_demo2" />
   <field name="debit_account_id" ref="demo_account3" />
-  <field name="amount_python">result = inputs.T002 and inputs.T002.amount or 0.0</field>
+  <field
+            name="amount_python"
+        >result = emp_inputs.T002 and emp_inputs.T002.amount or 0.0</field>
   <field name="appear_on_payslip" eval="1" />
-  <field name="input_type_ids" eval="[(6,0,[ref('hr_payslip_input_type_demo2')])]" />
+  <field name="input_type_ids" eval="[(6,0,[])]" />
 </record>
 
 <record id="salary_rule_demo5" model="hr.salary_rule">
@@ -49,9 +55,11 @@
   <field name="sequence" eval="102" />
   <field name="category_id" ref="rule_categ_demo2" />
   <field name="debit_account_id" ref="demo_account3" />
-  <field name="amount_python">result = inputs.T003 and inputs.T003.amount or 0.0</field>
+  <field
+            name="amount_python"
+        >result = emp_inputs.T003 and emp_inputs.T003.amount or 0.0</field>
   <field name="appear_on_payslip" eval="1" />
-  <field name="input_type_ids" eval="[(6,0,[ref('hr_payslip_input_type_demo3')])]" />
+  <field name="input_type_ids" eval="[(6,0,[])]" />
 </record>
 
 <record id="salary_rule_demo6" model="hr.salary_rule">

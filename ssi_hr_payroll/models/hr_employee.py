@@ -7,9 +7,12 @@ from odoo import fields, models
 
 class HrEmployee(models.Model):
     _inherit = "hr.employee"
-
     _description = "Employee Input"
 
+    salary_structure_id = fields.Many2one(
+        string="Salary Structure",
+        comodel_name="hr.salary_structure",
+    )
     input_line_ids = fields.One2many(
         string="Input Types",
         comodel_name="hr.employee_input",

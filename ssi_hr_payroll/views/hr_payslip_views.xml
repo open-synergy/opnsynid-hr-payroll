@@ -97,7 +97,7 @@
                         confirm="Compute Payslip. Are you sure?"
                         order="1"
                         class="oe_highlight"
-                        attrs="{'invisible':[('state','not in', ('draft', 'confirm'))]}"
+                        attrs="{'invisible':[('state','!=', 'draft')]}"
                     />
             </xpath>
             <xpath expr="//group[@name='header_left']" position="inside">
@@ -116,12 +116,12 @@
             </xpath>
             <xpath expr="//notebook/page[@name='note']" position="before">
                 <page name="page_detail" string="Details">
-                    <field name="line_ids" colspan="4" nolabel="1" />
+                    <field name="line_ids" colspan="4" nolabel="1" mode="tree" />
                 </page>
                 <page name="page_input_lines" string="Input Lines">
                     <field name="input_line_ids" colspan="4" nolabel="1" />
                 </page>
-                <page name="page_accounting" string="Accountings">
+                <page name="page_accounting" string="Accounting">
                     <group name="grp_accounting" colspan="4" cols="2">
                         <field name="move_id" />
                         <field name="move_line_debit_id" />
@@ -134,7 +134,7 @@
 </record>
 
 <record id="hr_payslip_action" model="ir.actions.act_window">
-    <field name="name">Payslip</field>
+    <field name="name">Payslips</field>
     <field name="type">ir.actions.act_window</field>
     <field name="res_model">hr.payslip</field>
     <field name="view_mode">tree,form</field>
