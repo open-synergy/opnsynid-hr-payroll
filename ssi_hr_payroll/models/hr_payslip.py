@@ -407,7 +407,7 @@ class HrPayslip(models.Model):
     def action_compute_payslip(self):
         for document in self.sudo():
             document.line_ids.unlink()
-            document.write(self._prepare_payslip_line_data())
+            document.write(document._prepare_payslip_line_data())
 
     def action_done(self):
         _super = super(HrPayslip, self)
