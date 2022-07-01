@@ -48,6 +48,8 @@
         <data>
             <xpath expr="//field[@name='display_name']" position="after">
                 <field name="type_id" />
+                <field name="date_start" />
+                <field name="date_end" />
                 <field name="date" />
             </xpath>
         </data>
@@ -74,13 +76,15 @@
                 </div>
             </xpath>
             <xpath expr="//notebook/page[@name='note']" position="before">
-                <page name="page_employee" string="Employees">
+                <page name="employee" string="Employees">
                     <group>
                     <button
                                 name="action_reload_employee"
                                 string="Reload"
                                 type="object"
                                 icon="fa-refresh"
+                                class="oe_highlight"
+                                states="draft"
                             />
                     </group>
                     <div>
@@ -103,13 +107,14 @@
                             domain="[('id','in',allowed_employee_ids)]"
                         />
                 </page>
-                <page name="page_payslip" string="Payslips">
+                <page name="payslip" string="Payslips">
                     <group>
                     <button
                                 name="action_compute_payslip"
                                 string="Re-Compute"
                                 type="object"
-                                icon="fa-refresh"
+                                icon="fa-calculator"
+                                class="oe_highlight"
                                 attrs="{'invisible': [('state', '!=', 'open')]}"
                             />
                     </group>
