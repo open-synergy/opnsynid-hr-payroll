@@ -45,6 +45,7 @@ class HrPayslipBatch(models.Model):
         "manual_number_ok",
     ]
     _header_button_order = [
+        "action_open",
         "action_confirm",
         "action_approve_approval",
         "action_reject_approval",
@@ -108,11 +109,16 @@ class HrPayslipBatch(models.Model):
         relation="rel_payslip_batch_2_employee",
         column1="batch_id",
         column2="employee_id",
+        readonly=True,
+        attrs={
+            "readonly": [("draft", False)],
+        },
     )
     payslip_ids = fields.One2many(
         string="Payslips",
         comodel_name="hr.payslip",
         inverse_name="batch_id",
+        readonly=True,
     )
     state = fields.Selection(
         string="State",
