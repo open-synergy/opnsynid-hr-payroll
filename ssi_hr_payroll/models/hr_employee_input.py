@@ -25,4 +25,5 @@ class HrEmployeeInput(models.Model):
     amount = fields.Float(
         string="Amount",
         required=True,
+        default=0.0,
     )
