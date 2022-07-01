@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<!-- Copyright 2022 OpenSynergy Indonesia
+     Copyright 2022 PT. Simetri Sinergi Indonesia
+     License LGPL-3.0 or later (http://www.gnu.org/licenses/lgpl). -->
+<odoo>
+<record id="hr_payslip_view_form" model="ir.ui.view">
+    <field name="name">hr.payslip.batch.form</field>
+    <field name="model">hr.payslip</field>
+    <field name="mode">primary</field>
+    <field name="inherit_id" ref="ssi_hr_payroll.hr_payslip_view_form" />
+    <field name="arch" type="xml">
+        <data>
+            <xpath expr="//field[@name='move_line_credit_id']" position="after">
+                <field name="batch_id" />
+            </xpath>
+        </data>
+    </field>
+</record>
+
+<record id="hr_payslip_view_search" model="ir.ui.view">
+    <field name="name">hr.payslip.batch.search</field>
+    <field name="model">hr.payslip</field>
+    <field name="mode">primary</field>
+    <field name="inherit_id" ref="ssi_hr_payroll.hr_payslip_view_search" />
+    <field name="arch" type="xml">
+        <data>
+            <xpath expr="//field[@name='date_end']" position="after">
+                <field name="batch_id" />
+            </xpath>
+            <xpath expr="//filter[@name='grp_date_end']" position="after">
+                <filter
+                        name="grp_batch"
+                        string="Payslip Batch"
+                        context="{'group_by':'batch_id'}"
+                    />
+            </xpath>
+        </data>
+    </field>
+</record>
+</odoo>

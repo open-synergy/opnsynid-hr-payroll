@@ -1,0 +1,56 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<!-- Copyright 2022 OpenSynergy Indonesia
+     Copyright 2022 PT. Simetri Sinergi Indonesia
+     License LGPL-3.0 or later (http://www.gnu.org/licenses/lgpl). -->
+<odoo>
+    <!-- Workflow -->
+    <record id="hr_payslip_batch_viewer_group" model="res.groups">
+        <field name="name">Viewer</field>
+        <field name="category_id" ref="hr_payslip_batch_module_category" />
+    </record>
+    <record id="hr_payslip_batch_user_group" model="res.groups">
+        <field name="name">User</field>
+        <field name="category_id" ref="hr_payslip_batch_module_category" />
+        <field name="implied_ids" eval="[(4, ref('hr_payslip_batch_viewer_group'))]" />
+    </record>
+    <record id="hr_payslip_batch_validator_group" model="res.groups">
+        <field name="name">Validator</field>
+        <field name="category_id" ref="hr_payslip_batch_module_category" />
+        <field name="implied_ids" eval="[(4, ref('hr_payslip_batch_user_group'))]" />
+        <field
+            name="users"
+            eval="[(4, ref('base.user_root')), (4, ref('base.user_admin'))]"
+        />
+    </record>
+    <!-- Data Ownership -->
+    <record id="hr_payslip_batch_all_group" model="res.groups">
+        <field name="name">All</field>
+        <field
+            name="category_id"
+            ref="hr_payslip_batch_data_ownership_module_category"
+        />
+        <field name="implied_ids" eval="[(4, ref('base.group_user'))]" />
+    </record>
+
+    <record id="hr_payslip_batch_company_group" model="res.groups">
+        <field name="name">Company</field>
+        <field
+            name="category_id"
+            ref="hr_payslip_batch_data_ownership_module_category"
+        />
+        <field name="implied_ids" eval="[(4, ref('hr_payslip_batch_all_group'))]" />
+        <field
+            name="users"
+            eval="[(4, ref('base.user_root')), (4, ref('base.user_admin'))]"
+        />
+    </record>
+
+    <record id="hr_payslip_batch_all_company_group" model="res.groups">
+        <field name="name">All Company</field>
+        <field
+            name="category_id"
+            ref="hr_payslip_batch_data_ownership_module_category"
+        />
+        <field name="implied_ids" eval="[(4, ref('hr_payslip_batch_company_group'))]" />
+    </record>
+</odoo>
