@@ -3,3 +3,4 @@
 ssi-mixin https://github.com/open-synergy/ssi-mixin 14.0
 opnsynid-hr-employee-directory https://github.com/open-synergy/opnsynid-hr-employee-directory.git 14.0
 oca-server-tools https://github.com/OCA/server-tools.git 14.0
+opnsynid-hr-timesheet https://github.com/open-synergy/opnsynid-hr-timesheet.git 14.0
