@@ -103,7 +103,6 @@
                             name="employee_ids"
                             colspan="4"
                             nolabel="1"
-                            mode="tree"
                             domain="[('id','in',allowed_employee_ids)]"
                         />
                 </page>
