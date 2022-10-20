@@ -196,18 +196,38 @@ class HrPayslipBatch(models.Model):
                 payslip.action_compute_payslip()
 
     def action_reload_employee(self):
-        return True
+        for record in self.sudo():
+            record._reload_employee()
+
+    def _reload_employee(self):
+        self.ensure_one()
+        self.write({"employee_ids": [(6, 0, self.allowed_employee_ids.ids)]})
 
     def action_open(self):
         _super = super(HrPayslipBatch, self)
         res = _super.action_open()
         for document in self.sudo():
-            if not document.employee_ids:
-                msgErr = _("You need to add an employee before starting.")
-                raise UserError(msgErr)
+            if not document._check_employee_ids():
+                error_message = _(
+                    """
+                Context: Start payslip batch
+                Database ID: %s
+                Problem: No employees selected
+                Solution: Select employees
+                """
+                    % (document.id)
+                )
+                raise UserError(error_message)
             else:
                 document._generate_payslip()
         return res
+
+    def _check_employee_ids(self):
+        self.ensure_one()
+        result = True
+        if not self.employee_ids:
+            result = False
+        return result
 
     def action_confirm(self):
         _super = super(HrPayslipBatch, self)
