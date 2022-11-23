@@ -25,7 +25,7 @@ class HrPayslip(models.Model):
             timesheets = Timesheet.search(criteria)
             for timesheet in timesheets:
                 computation_ids += timesheet.computation_ids.ids
-            payslip.timesheet_computation_ids = [(6, 0, computation_ids)]
+            payslip.timesheet_computation_ids = computation_ids
 
     timesheet_computation_ids = fields.Many2many(
         string="Timesheet Computations",
