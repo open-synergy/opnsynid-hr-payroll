@@ -110,9 +110,7 @@ class HrPayslipBatch(models.Model):
         column1="batch_id",
         column2="employee_id",
         readonly=True,
-        attrs={
-            "readonly": [("draft", False)],
-        },
+        states={"draft": [("readonly", False)]},
     )
     payslip_ids = fields.One2many(
         string="Payslips",
