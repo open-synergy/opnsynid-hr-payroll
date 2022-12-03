@@ -168,13 +168,20 @@ class HrPayslipBatch(models.Model):
         result["batch_id"] = self.id
         return result
 
+    def _trigger_onchange(self, payslip):
+        self.ensure_one()
+        payslip.onchange_input_line_ids()
+        payslip.onchange_department_id()
+        payslip.onchange_manager_id()
+        payslip.onchange_job_id()
+
     def _generate_payslip(self):
         self.ensure_one()
         obj_hr_payslip = self.env["hr.payslip"]
         if not self.payslip_ids:
             for employee in self.employee_ids:
                 payslip = obj_hr_payslip.create(self._prepare_payslip_data(employee))
-                payslip.onchange_input_line_ids()
+                self._trigger_onchange(payslip)
                 payslip.write(self._prepare_payslip_batch_line_data(payslip))
 
     def _check_payslip_state(self, list_state):
