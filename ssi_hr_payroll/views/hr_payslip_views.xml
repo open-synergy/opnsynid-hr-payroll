@@ -119,6 +119,16 @@
                     <field name="line_ids" colspan="4" nolabel="1" mode="tree" />
                 </page>
                 <page name="page_input_lines" string="Input Lines">
+                    <group>
+                    <button
+                                name="action_reload_input_lines"
+                                string="Reload"
+                                type="object"
+                                icon="fa-refresh"
+                                class="oe_highlight"
+                                states="draft"
+                            />
+                    </group>
                     <field name="input_line_ids" colspan="4" nolabel="1" />
                 </page>
                 <page name="page_accounting" string="Accounting">
