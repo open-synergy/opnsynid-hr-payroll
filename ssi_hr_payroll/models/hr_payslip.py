@@ -467,3 +467,11 @@ class HrPayslip(models.Model):
                 )
             moves.with_context(force_delete=True).unlink()
         return res
+
+    def action_reload_input_lines(self):
+        for record in self.sudo():
+            record._reload_input_lines()
+
+    def _reload_input_lines(self):
+        self.ensure_one()
+        self.onchange_input_line_ids()
