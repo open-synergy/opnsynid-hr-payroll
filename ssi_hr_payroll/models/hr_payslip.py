@@ -233,6 +233,7 @@ class HrPayslip(models.Model):
         data = {
             "narration": name,
             "ref": self.name,
+            "name": self.name,
             "journal_id": self.journal_id.id,
             "date": self.date or self.date_to,
         }
@@ -447,10 +448,7 @@ class HrPayslip(models.Model):
         for document in self.sudo():
             moves = document.move_id
             if moves.state == "posted":
-                msg_err = _(
-                    "You cannot cancel a payslip which journal is already posted!"
-                )
-                raise UserError(msg_err)
+                moves.button_cancel()
             document.write(
                 {
                     "move_line_debit_id": False,
