@@ -9,6 +9,8 @@
           <field name="arch" type="xml">
               <tree string="Details" editable="bottom">
                     <field name="input_type_id" />
+                    <field name="start_date" />
+                    <field name="end_date" />
                     <field name="amount" />
               </tree>
           </field>

@@ -296,14 +296,17 @@ class HrPayslip(models.Model):
 
         employee = self.employee_id
         structure_id = self.structure_id.id
+        payslip = obj_hr_payslip.browse(payslip_id)
 
         for input_line in self.input_line_ids:
             inputs_dict[input_line.input_type_id.code] = input_line
 
         for emp_input_line in employee.input_line_ids:
+            if emp_input_line.start_date and payslip.date < emp_input_line.start_date:
+                continue
+            if emp_input_line.end_date and payslip.date > emp_input_line.end_date:
+                continue
             emp_inputs_dict[emp_input_line.input_type_id.code] = emp_input_line
-
-        payslip = obj_hr_payslip.browse(payslip_id)
 
         categories = BrowsableObject(payslip.employee_id.id, {}, self.env)
         inputs = InputLine(payslip.employee_id.id, inputs_dict, self.env)

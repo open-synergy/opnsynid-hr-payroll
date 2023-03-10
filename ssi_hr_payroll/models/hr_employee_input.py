@@ -27,3 +27,9 @@ class HrEmployeeInput(models.Model):
         required=True,
         default=0.0,
     )
+    start_date = fields.Date(
+        string='Start Date',
+        required=False)
+    end_date = fields.Date(
+        string='End Date',
+        required=False)

@@ -9,6 +9,7 @@
     "license": "LGPL-3",
     "installable": True,
     "depends": [
+        "account",
         "ssi_hr",
         "ssi_master_data_mixin",
         "ssi_transaction_confirm_mixin",
