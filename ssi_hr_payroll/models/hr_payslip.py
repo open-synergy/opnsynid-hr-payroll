@@ -5,6 +5,8 @@
 from odoo import _, api, fields, models
 from odoo.exceptions import UserError
 
+from odoo.addons.ssi_decorator import ssi_decorator
+
 
 class BrowsableObject(object):
     def __init__(self, employee_id, vals_dict, env):
@@ -144,6 +146,12 @@ class HrPayslip(models.Model):
         readonly=True,
         states={"draft": [("readonly", False)]},
     )
+    rule_ids = fields.Many2many(
+        string="All Salary Rules",
+        comodel_name="hr.salary_rule",
+        compute="_compute_rule_ids",
+        store=False,
+    )
     line_ids = fields.One2many(
         string="Payslip Lines",
         comodel_name="hr.payslip_line",
@@ -159,6 +167,37 @@ class HrPayslip(models.Model):
         states={"draft": [("readonly", False)]},
         copy=True,
     )
+    allowed_allowance_move_line_ids = fields.Many2many(
+        string="Allowed Allowance Move Lines",
+        comodel_name="account.move.line",
+        compute="_compute_allowed_allowance_move_line_ids",
+        store=False,
+    )
+
+    allowance_ref_move_line_ids = fields.Many2many(
+        string="Allowance Ref Move Lines",
+        comodel_name="account.move.line",
+        relation="rel_payslip_2_allowance_ml",
+        column1="payslip_id",
+        column2="move_line_id",
+        readonly=True,
+        states={"draft": [("readonly", False)]},
+    )
+    allowed_deduction_move_line_ids = fields.Many2many(
+        string="Allowed Deduction Ref Move Lines",
+        comodel_name="account.move.line",
+        compute="_compute_allowed_deduction_move_line_ids",
+        store=False,
+    )
+    deduction_ref_move_line_ids = fields.Many2many(
+        string="Deduction Ref Move Lines",
+        comodel_name="account.move.line",
+        relation="rel_payslip_2_deduction_ml",
+        column1="payslip_id",
+        column2="move_line_id",
+        readonly=True,
+        states={"draft": [("readonly", False)]},
+    )
     date = fields.Date(
         string="Date",
         required=True,
@@ -171,6 +210,18 @@ class HrPayslip(models.Model):
         required=True,
         readonly=True,
         states={"draft": [("readonly", False)]},
+    )
+    debit_account_2b_reconciled_ids = fields.Many2many(
+        string="Debit Accounts To Be Reconciled",
+        comodel_name="account.account",
+        compute="_compute_debit_account_2b_reconciled_ids",
+        store=False,
+    )
+    credit_account_2b_reconciled_ids = fields.Many2many(
+        string="Credit Accounts To Be Reconciled",
+        comodel_name="account.account",
+        compute="_compute_credit_account_2b_reconciled_ids",
+        store=False,
     )
     move_id = fields.Many2one(
         string="# Accounting Entry",
@@ -205,6 +256,249 @@ class HrPayslip(models.Model):
         default="draft",
         copy=False,
     )
+
+    @api.depends(
+        "structure_id",
+    )
+    def _compute_rule_ids(self):
+        for record in self:
+            result = []
+            if record.structure_id:
+                structures = record.structure_id._get_parent_structure()
+                rule_list = structures.get_all_rules()
+                result = [id for id, sequence in sorted(rule_list, key=lambda x: x[1])]
+            record.rule_ids = result
+
+    @api.depends(
+        "rule_ids",
+    )
+    def _compute_debit_account_2b_reconciled_ids(self):
+        SalaryRule = self.env["hr.salary_rule"]
+        for record in self:
+            result = []
+            criteria = [
+                ("id", "in", record.rule_ids.ids),
+                ("reconcile_debit_account_id", "!=", False),
+                ("reconcile_debit", "=", True),
+            ]
+            for rule in SalaryRule.search(criteria):
+                result.append(rule.reconcile_debit_account_id.id)
+            record.debit_account_2b_reconciled_ids = result
+
+    @api.depends(
+        "rule_ids",
+    )
+    def _compute_credit_account_2b_reconciled_ids(self):
+        SalaryRule = self.env["hr.salary_rule"]
+        for record in self:
+            result = []
+            criteria = [
+                ("id", "in", record.rule_ids.ids),
+                ("reconcile_credit_account_id", "!=", False),
+                ("reconcile_credit", "=", True),
+            ]
+            for rule in SalaryRule.search(criteria):
+                result.append(rule.reconcile_credit_account_id.id)
+            record.credit_account_2b_reconciled_ids = result
+
+    @api.depends(
+        "employee_id",
+        "structure_id",
+    )
+    def _compute_allowed_deduction_move_line_ids(self):
+        ML = self.env["account.move.line"]
+        for record in self:
+            result = []
+            if record.employee_id and record.structure_id:
+                criteria = [
+                    ("partner_id", "=", record.employee_id.address_home_id.id),
+                    ("account_id", "in", record.credit_account_2b_reconciled_ids.ids),
+                    ("debit", ">", 0.0),
+                    ("reconciled", "=", False),
+                ]
+                result = ML.search(criteria).ids
+            record.allowed_deduction_move_line_ids = result
+
+    @api.depends(
+        "employee_id",
+        "structure_id",
+    )
+    def _compute_allowed_allowance_move_line_ids(self):
+        ML = self.env["account.move.line"]
+        for record in self:
+            result = []
+            if record.employee_id and record.structure_id:
+                criteria = [
+                    ("partner_id", "=", record.employee_id.address_home_id.id),
+                    ("account_id", "in", record.debit_account_2b_reconciled_ids.ids),
+                    ("credit", ">", 0.0),
+                    ("reconciled", "=", False),
+                ]
+                result = ML.search(criteria).ids
+            record.allowed_allowance_move_line_ids = result
+
+    @api.onchange(
+        "type_id",
+    )
+    def onchange_journal_id(self):
+        self.journal_id = False
+        if self.type_id:
+            self.journal_id = self.type_id.journal_id
+
+    @api.onchange(
+        "structure_id",
+    )
+    def onchange_input_line_ids(self):
+        res = []
+        self.input_line_ids = False
+        if self.structure_id:
+            input_line_ids = self._get_input_line_ids()
+            if input_line_ids:
+                for input_line in input_line_ids:
+                    res.append((0, 0, input_line))
+        self.input_line_ids = res
+
+    @api.onchange(
+        "employee_id",
+    )
+    def onchange_structure_id(self):
+        self.structure_id = False
+        if self.employee_id:
+            self.structure_id = self.employee_id.salary_structure_id
+
+    def action_recompute_allowance_ref(self):
+        for record in self.sudo():
+            record._recompute_allowance_ref()
+
+    def action_recompute_deduction_ref(self):
+        for record in self.sudo():
+            record._recompute_deduction_ref()
+
+    def action_reload_input_lines(self):
+        for record in self.sudo():
+            record._reload_input_lines()
+
+    def action_compute_payslip(self):
+        for document in self.sudo():
+            document._recompute_allowance_ref()
+            document._recompute_deduction_ref()
+            document._compute_payslip()
+
+    @ssi_decorator.post_cancel_action()
+    def _10_cancel_accounting_entry(self):
+        self.ensure_one()
+        PayslipLine = self.env["hr.payslip_line"]
+
+        if not self.move_id:
+            return True
+
+        move = self.move_id
+
+        if self.move_id.state == "posted":
+            self.move_id.button_cancel()
+
+        self.write(
+            {
+                "move_line_debit_id": False,
+                "move_line_credit_id": False,
+                "move_id": False,
+            }
+        )
+
+        debit_criteria = [
+            ("payslip_id", "=", self.id),
+            ("move_line_debit_id", "!=", False),
+            ("rule_id.reconcile_debit", "=", True),
+        ]
+        for line in PayslipLine.search(debit_criteria):
+            line._unreconcile_debit()
+
+        credit_criteria = [
+            ("payslip_id", "=", self.id),
+            ("move_line_credit_id", "!=", False),
+            ("rule_id.reconcile_credit", "=", True),
+        ]
+        for line in PayslipLine.search(credit_criteria):
+            line._unreconcile_credit()
+
+        for line in self.line_ids:
+            line.write(
+                {
+                    "move_line_debit_id": False,
+                    "move_line_credit_id": False,
+                }
+            )
+        move.with_context(force_delete=True).unlink()
+
+    @ssi_decorator.post_done_action()
+    def _10_create_accounting_entry(self):
+        Move = self.env["account.move"]
+        ML = self.env["account.move.line"]
+
+        currency = self.company_id.currency_id or self.journal_id.company_id.currency_id
+        move = Move.create(self._prepare_account_move_data())
+        self.move_id = move.id
+        debit_sum, credit_sum = self.line_ids.create_move_line(move)
+
+        if currency.compare_amounts(credit_sum, debit_sum) == -1:
+            move_line = ML.create(
+                self._prepare_adjustment_aml_data(
+                    currency, credit_sum, debit_sum, move, "credit"
+                )
+            )
+            self.move_line_credit_id = move_line.id
+        elif currency.compare_amounts(debit_sum, credit_sum) == -1:
+            move_line = ML.create(
+                self._prepare_adjustment_aml_data(
+                    currency, credit_sum, debit_sum, move, "debit"
+                )
+            )
+            self.move_line_debit_id = move_line.id
+
+        move.action_post()
+        self._reconcile_debit_payslip_line()
+        self._reconcile_credit_payslip_line()
+
+    def _compute_payslip(self):
+        self.ensure_one()
+        self.line_ids.unlink()
+        self.write(self._prepare_payslip_line_data())
+
+    def _recompute_allowance_ref(self):
+        self.ensure_one()
+        ML = self.env["account.move.line"]
+        criteria = [
+            "&",
+            "|",
+            "&",
+            ("date", ">=", self.date_start),
+            ("date", "<=", self.date_end),
+            "&",
+            ("date_maturity", ">=", self.date_start),
+            ("date_maturity", "<=", self.date_end),
+            ("id", "in", self.allowed_allowance_move_line_ids.ids),
+        ]
+        move_lines = ML.search(criteria)
+        self.write({"allowance_ref_move_line_ids": [(6, 0, move_lines.ids)]})
+
+    def _recompute_deduction_ref(self):
+        self.ensure_one()
+        ML = self.env["account.move.line"]
+        criteria = [
+            "&",
+            "|",
+            "&",
+            "&",
+            ("date_maturity", "=", False),
+            ("date", ">=", self.date_start),
+            ("date", "<=", self.date_end),
+            "&",
+            ("date_maturity", ">=", self.date_start),
+            ("date_maturity", "<=", self.date_end),
+            ("id", "in", self.allowed_deduction_move_line_ids.ids),
+        ]
+        move_lines = ML.search(criteria)
+        self.write({"deduction_ref_move_line_ids": [(6, 0, move_lines.ids)]})
 
     @api.model
     def _get_policy_field(self):
@@ -376,100 +670,26 @@ class HrPayslip(models.Model):
             )
         return res
 
-    @api.onchange(
-        "type_id",
-    )
-    def onchange_journal_id(self):
-        self.journal_id = False
-        if self.type_id:
-            self.journal_id = self.type_id.journal_id
-
-    @api.onchange(
-        "structure_id",
-    )
-    def onchange_input_line_ids(self):
-        res = []
-        self.input_line_ids = False
-        if self.structure_id:
-            input_line_ids = self._get_input_line_ids()
-            if input_line_ids:
-                for input_line in input_line_ids:
-                    res.append((0, 0, input_line))
-        self.input_line_ids = res
-
-    @api.onchange(
-        "employee_id",
-    )
-    def onchange_structure_id(self):
-        self.structure_id = False
-        if self.employee_id:
-            self.structure_id = self.employee_id.salary_structure_id
-
-    def action_compute_payslip(self):
-        for document in self.sudo():
-            document.line_ids.unlink()
-            document.write(document._prepare_payslip_line_data())
-
-    def action_done(self):
-        _super = super(HrPayslip, self)
-        res = _super.action_done()
-
-        obj_account_move = self.env["account.move"]
-        obj_account_move_line = self.env["account.move.line"]
-
-        for document in self.sudo():
-            currency = (
-                document.company_id.currency_id
-                or document.journal_id.company_id.currency_id
-            )
-            move = obj_account_move.create(document._prepare_account_move_data())
-            document.move_id = move.id
-            debit_sum, credit_sum = document.line_ids.create_move_line(move)
-
-            if currency.compare_amounts(credit_sum, debit_sum) == -1:
-                move_line = obj_account_move_line.create(
-                    document._prepare_adjustment_aml_data(
-                        currency, credit_sum, debit_sum, move, "credit"
-                    )
-                )
-                document.move_line_credit_id = move_line.id
-            elif currency.compare_amounts(debit_sum, credit_sum) == -1:
-                move_line = obj_account_move_line.create(
-                    document._prepare_adjustment_aml_data(
-                        currency, credit_sum, debit_sum, move, "debit"
-                    )
-                )
-                document.move_line_debit_id = move_line.id
-        return res
-
-    def action_cancel(self, cancel_reason=False):
-        _super = super(HrPayslip, self)
-        res = _super.action_cancel(cancel_reason)
-        for document in self.sudo():
-            moves = document.move_id
-            if moves.state == "posted":
-                moves.button_cancel()
-            document.write(
-                {
-                    "move_line_debit_id": False,
-                    "move_line_credit_id": False,
-                    "move_id": False,
-                }
-            )
-            for lines in document.line_ids:
-                lines.write(
-                    {
-                        "move_line_debit_id": False,
-                        "move_line_credit_id": False,
-                    }
-                )
-            moves.with_context(force_delete=True).unlink()
-        return res
-
-    def action_reload_input_lines(self):
-        for record in self.sudo():
-            record._reload_input_lines()
-
     def _reload_input_lines(self):
         self.ensure_one()
         self.onchange_input_line_ids()
+
+    def _reconcile_debit_payslip_line(self):
+        self.ensure_one()
+        PayslipLine = self.env["hr.payslip_line"]
+        criteria = [
+            ("payslip_id", "=", self.id),
+            ("rule_id.reconcile_debit", "=", True),
+        ]
+        for detail in PayslipLine.search(criteria):
+            detail._reconcile_debit()
+
+    def _reconcile_credit_payslip_line(self):
+        self.ensure_one()
+        PayslipLine = self.env["hr.payslip_line"]
+        criteria = [
+            ("payslip_id", "=", self.id),
+            ("rule_id.reconcile_credit", "=", True),
+        ]
+        for detail in PayslipLine.search(criteria):
+            detail._reconcile_credit()

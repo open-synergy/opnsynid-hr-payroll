@@ -36,10 +36,28 @@ class HrSalaryRule(models.Model):
         comodel_name="account.account",
         ondelete="restrict",
     )
+    reconcile_debit_account_id = fields.Many2one(
+        string="Reconcile Debit Account",
+        comodel_name="account.account",
+        ondelete="restrict",
+    )
+    reconcile_debit = fields.Boolean(
+        string="Reconcile Debit Move",
+        default=False,
+    )
     credit_account_id = fields.Many2one(
         string="Credit Account",
         comodel_name="account.account",
         ondelete="restrict",
+    )
+    reconcile_credit_account_id = fields.Many2one(
+        string="Reconcile Credit Account",
+        comodel_name="account.account",
+        ondelete="restrict",
+    )
+    reconcile_credit = fields.Boolean(
+        string="Reconcile Credit Move",
+        default=False,
     )
     contribution_id = fields.Many2one(
         string="Salary Contribution",

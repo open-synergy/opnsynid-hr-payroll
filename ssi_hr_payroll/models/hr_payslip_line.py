@@ -125,11 +125,50 @@ class HrPayslipLine(models.Model):
                 debit_data = document._prepare_aml_debit_data(move)
                 debit_sum += debit_data["debit"] - debit_data["credit"]
                 move_line = obj_account_move_line.create(debit_data)
-                document.move_line_debit_id = move_line.id
+                if move_line.debit > 0:
+                    document.move_line_debit_id = move_line.id
+                elif move_line.credit > 0:
+                    document.move_line_credit_id = move_line.id
             if document.rule_id.credit_account_id:
                 credit_data = document._prepare_aml_credit_data(move)
                 credit_sum += credit_data["credit"] - credit_data["debit"]
                 move_line = obj_account_move_line.create(credit_data)
-                document.move_line_credit_id = move_line.id
+                if move_line.debit > 0:
+                    document.move_line_debit_id = move_line.id
+                elif move_line.credit > 0:
+                    document.move_line_credit_id = move_line.id
 
         return debit_sum, credit_sum
+
+    def _reconcile_debit(self):
+        self.ensure_one()
+
+        ML = self.env["account.move.line"]
+
+        criteria = [
+            ("account_id", "=", self.move_line_debit_id.account_id.id),
+            ("credit", ">", 0.0),
+            ("id", "in", self.payslip_id.allowance_ref_move_line_ids.ids),
+        ]
+
+        move_lines = ML.search(criteria)
+        (move_lines + self.move_line_debit_id).reconcile()
+
+    def _reconcile_credit(self):
+        self.ensure_one()
+        ML = self.env["account.move.line"]
+
+        criteria = [
+            ("account_id.id", "=", self.move_line_credit_id.account_id.id),
+            ("debit", ">", 0.0),
+            ("id", "in", self.payslip_id.deduction_ref_move_line_ids.ids),
+        ]
+
+        move_lines = ML.search(criteria)
+        (move_lines + self.move_line_credit_id).reconcile()
+
+    def _unreconcile_debit(self):
+        self.move_line_debit_id.remove_move_reconcile()
+
+    def _unreconcile_credit(self):
+        self.move_line_credit_id.remove_move_reconcile()
