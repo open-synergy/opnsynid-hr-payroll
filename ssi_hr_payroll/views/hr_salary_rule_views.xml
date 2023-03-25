@@ -146,7 +146,11 @@
                     <page name="page_salary_rule_accounting" string="Accounting">
                         <group name="grp_salary_rule_accounting" colspan="4" cols="2">
                             <field name="debit_account_id" />
+                            <field name="reconcile_debit_account_id" />
+                            <field name="reconcile_debit" widget="boolean_toggle" />
                             <field name="credit_account_id" />
+                            <field name="reconcile_credit_account_id" />
+                            <field name="reconcile_credit" widget="boolean_toggle" />
                         </group>
                     </page>
                     <page name="page_salary_rule_input_type" string="Input Types">
