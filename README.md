@@ -14,7 +14,14 @@ opnsynid-hr-payroll
 
 [//]: # (addons)
 
-This part will be replaced when running the oca-gen-addons-table script from OCA/maintainer-tools.
+Available addons
+----------------
+addon | version | maintainers | summary
+--- | --- | --- | ---
+[ssi_hr_payroll](ssi_hr_payroll/) | 14.0.1.5.1 |  | Employee Payslip
+[ssi_hr_payroll_batch](ssi_hr_payroll_batch/) | 14.0.1.1.2 |  | Employee Payslip Batch
+[ssi_hr_payroll_batch_work_log](ssi_hr_payroll_batch_work_log/) | 14.0.1.0.1 |  | Employee Payslip Batch - Work Log Integration
+[ssi_hr_payroll_timesheet](ssi_hr_payroll_timesheet/) | 14.0.1.1.1 |  | Employee Payslip - Timesheet Integration
 
 [//]: # (end addons)
 
