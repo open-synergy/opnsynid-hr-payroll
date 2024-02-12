@@ -22,6 +22,7 @@ addon | version | maintainers | summary
 [ssi_hr_payroll_batch](ssi_hr_payroll_batch/) | 14.0.1.1.2 |  | Employee Payslip Batch
 [ssi_hr_payroll_batch_work_log](ssi_hr_payroll_batch_work_log/) | 14.0.1.0.1 |  | Employee Payslip Batch - Work Log Integration
 [ssi_hr_payroll_timesheet](ssi_hr_payroll_timesheet/) | 14.0.1.1.1 |  | Employee Payslip - Timesheet Integration
+[ssi_hr_payroll_work_log](ssi_hr_payroll_work_log/) | 14.0.1.0.0 |  | Employee Payslip - Work Log Integration
 
 [//]: # (end addons)
 
