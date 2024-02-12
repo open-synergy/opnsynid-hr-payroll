@@ -12,6 +12,7 @@ setuptools.setup(
         'odoo14-addon-ssi_hr_payroll_batch',
         'odoo14-addon-ssi_hr_payroll_batch_work_log',
         'odoo14-addon-ssi_hr_payroll_timesheet',
+        'odoo14-addon-ssi_hr_payroll_work_log',
     ],
     classifiers=[
         'Programming Language :: Python',
