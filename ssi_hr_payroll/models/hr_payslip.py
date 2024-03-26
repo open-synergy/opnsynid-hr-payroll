@@ -2,8 +2,11 @@
 # Copyright 2022 PT. Simetri Sinergi Indonesia
 # License AGPL-3.0 or later (http://www.gnu.org/licenses/agpl-3.0-standalone.html).
 
-from odoo import _, api, fields, models
+from pytz import timezone
+
+from odoo import _, api, fields, models, tools
 from odoo.exceptions import UserError
+from odoo.tools.float_utils import float_compare
 
 from odoo.addons.ssi_decorator import ssi_decorator
 
@@ -613,6 +616,12 @@ class HrPayslip(models.Model):
             "payslip": payslips,
             "inputs": inputs,
             "emp_inputs": emp_inputs,
+            "env": self.env,
+            "time": tools.safe_eval.time,
+            "datetime": tools.safe_eval.datetime,
+            "dateutil": tools.safe_eval.dateutil,
+            "timezone": timezone,
+            "float_compare": float_compare,
         }
 
         structure_ids = obj_hr_salary_struc.browse(structure_id)._get_parent_structure()
