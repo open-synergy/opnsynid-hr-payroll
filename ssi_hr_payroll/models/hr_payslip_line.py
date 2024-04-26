@@ -120,7 +120,7 @@ class HrPayslipLine(models.Model):
         debit_sum = 0.0
         credit_sum = 0.0
 
-        for document in self.sudo():
+        for document in self.filtered(lambda l: l.amount).sudo():
             if document.rule_id.debit_account_id:
                 debit_data = document._prepare_aml_debit_data(move)
                 debit_sum += debit_data["debit"] - debit_data["credit"]
