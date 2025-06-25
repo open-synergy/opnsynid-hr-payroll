@@ -6,7 +6,7 @@
         <field name="model">hr.employee</field>
         <field name="inherit_id" ref="hr.view_employee_form" />
         <field name="arch" type="xml">
-            <xpath expr="//page[last()]" position="after">
+            <xpath expr="//notebook" position="inside">
                 <page name="payroll" string="Payroll Settings">
                     <group name="payroll" colspan="4" col="2">
                         <field name="salary_structure_id" />
