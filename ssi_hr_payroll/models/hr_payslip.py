@@ -578,6 +578,17 @@ class HrPayslip(models.Model):
 
         return localdict
 
+    def _get_salary_rules(self):
+        self.ensure_one()
+        obj_hr_salary_struc = self.env["hr.salary_structure"]
+        rule_ids = []
+        if self.structure_id.id:
+            structure_ids = obj_hr_salary_struc.browse(
+                self.structure_id.id
+            )._get_parent_structure()
+            rule_ids = structure_ids.get_all_rules()
+        return rule_ids
+
     @api.model
     def _get_payslip_lines(self, payslip_id):
         self.ensure_one()
@@ -588,11 +599,9 @@ class HrPayslip(models.Model):
         blacklist = []
 
         obj_hr_payslip = self.env["hr.payslip"]
-        obj_hr_salary_struc = self.env["hr.salary_structure"]
         obj_hr_salary_rule = self.env["hr.salary_rule"]
 
         employee = self.employee_id
-        structure_id = self.structure_id.id
 
         for input_line in self.input_line_ids:
             inputs_dict[input_line.input_type_id.code] = input_line
@@ -624,8 +633,7 @@ class HrPayslip(models.Model):
             "float_compare": float_compare,
         }
 
-        structure_ids = obj_hr_salary_struc.browse(structure_id)._get_parent_structure()
-        rule_ids = structure_ids.get_all_rules()
+        rule_ids = self._get_salary_rules()
 
         sorted_rule_ids = [id for id, sequence in sorted(rule_ids, key=lambda x: x[1])]
         sorted_rules = obj_hr_salary_rule.browse(sorted_rule_ids)
