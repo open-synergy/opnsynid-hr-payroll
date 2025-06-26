@@ -64,10 +64,10 @@ class HrSalaryRule(models.Model):
         comodel_name="hr.salary_contribution",
         ondelete="restrict",
     )
-    condition_python = fields.Text(
-        string="Python Condition",
-        default="""
-# Available variables:
+
+    @api.model
+    def _default_condition_python(self):
+        default = """# Available variables:
 #----------------------
 # payslip: object containing the payslips
 # employee: hr.employee object
@@ -81,14 +81,19 @@ class HrSalaryRule(models.Model):
 
 # Note: returned value have to be set in the variable 'result'
 
-result = True""",
+result = True"""
+        return default
+
+    condition_python = fields.Text(
+        string="Python Condition",
+        default=lambda self: self._default_condition_python(),
         help="Applied this rule for calculation if condition is true. You can "
         "specify condition like basic > 1000.",
     )
-    amount_python = fields.Text(
-        string="Amount Python",
-        default="""
-# Available variables:
+
+    @api.model
+    def _default_amount_python(self):
+        default = """# Available variables:
 #----------------------
 # payslip: object containing the payslips
 # employee: hr.employee object
@@ -102,7 +107,12 @@ result = True""",
 
 # Note: returned value have to be set in the variable 'result'
 
-result = True""",
+result = True"""
+        return default
+
+    amount_python = fields.Text(
+        string="Amount Python",
+        default=lambda self: self._default_amount_python(),
     )
     appear_on_payslip = fields.Boolean(
         string="Appear on Payslip",
