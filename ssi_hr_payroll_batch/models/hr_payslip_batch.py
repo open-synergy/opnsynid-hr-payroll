@@ -198,8 +198,8 @@ class HrPayslipBatch(models.Model):
                 lambda x: x.state == "draft"
             )
             for payslip in draft_payslip_ids:
-                payslip.action_compute_payslip()
                 payslip.onchange_structure_id()
+                payslip.action_compute_payslip()
 
     def action_reload_employee(self):
         for record in self.sudo():
