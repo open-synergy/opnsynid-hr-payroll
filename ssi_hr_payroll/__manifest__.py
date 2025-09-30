@@ -16,6 +16,7 @@
         "ssi_transaction_cancel_mixin",
         "ssi_duration_mixin",
         "ssi_employee_document_mixin",
+        "ssi_financial_accounting",
     ],
     "data": [
         "menu.xml",
