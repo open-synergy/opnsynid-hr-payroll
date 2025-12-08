@@ -13,6 +13,7 @@ class HrSalaryRule(models.Model):
         "mixin.master_data",
     ]
     _description = "Salary Rule"
+    _order = "sequence, id"
 
     parent_id = fields.Many2one(
         string="Parent",
