@@ -1,9 +1,9 @@
 # Copyright 2022 OpenSynergy Indonesia
 # Copyright 2022 PT. Simetri Sinergi Indonesia
 # License AGPL-3.0 or later (http://www.gnu.org/licenses/agpl-3.0-standalone.html).
-
 from pytz import timezone
 
+import odoo
 from odoo import _, api, fields, models, tools
 from odoo.exceptions import UserError
 from odoo.tools.float_utils import float_compare
@@ -578,57 +578,80 @@ class HrPayslip(models.Model):
 
         return localdict
 
-    @api.model
-    def _get_payslip_lines(self, payslip_id):
+    def _get_salary_rules(self):
         self.ensure_one()
-        result_dict = {}
-        rules_dict = {}
+        obj_hr_salary_rule = self.env["hr.salary_rule"]
+        obj_hr_salary_struc = self.env["hr.salary_structure"]
+        rule_ids = []
+        if self.structure_id.id:
+            structure_ids = obj_hr_salary_struc.browse(
+                self.structure_id.id
+            )._get_parent_structure()
+            rule_ids = structure_ids.get_all_rules()
+            sorted_rule_ids = [
+                id for id, sequence in sorted(rule_ids, key=lambda x: x[1])
+            ]
+            rule_ids = obj_hr_salary_rule.browse(sorted_rule_ids)
+        return rule_ids
+
+    def _get_base_localdict(self, payslip):
+        self.ensure_one()
         inputs_dict = {}
         emp_inputs_dict = {}
-        blacklist = []
-
-        obj_hr_payslip = self.env["hr.payslip"]
-        obj_hr_salary_struc = self.env["hr.salary_structure"]
-        obj_hr_salary_rule = self.env["hr.salary_rule"]
-
-        employee = self.employee_id
-        structure_id = self.structure_id.id
-
-        for input_line in self.input_line_ids:
-            inputs_dict[input_line.input_type_id.code] = input_line
-
-        for emp_input_line in employee.input_line_ids:
-            emp_inputs_dict[emp_input_line.input_type_id.code] = emp_input_line
-
-        payslip = obj_hr_payslip.browse(payslip_id)
-
-        categories = BrowsableObject(payslip.employee_id.id, {}, self.env)
-        inputs = InputLine(payslip.employee_id.id, inputs_dict, self.env)
-        emp_inputs = EmployeeInputLine(
-            payslip.employee_id.id, emp_inputs_dict, self.env
-        )
-        payslips = Payslips(payslip.employee_id.id, self, self.env)
-        rules = BrowsableObject(payslip.employee_id.id, rules_dict, self.env)
-
         baselocaldict = {
-            "categories": categories,
-            "rules": rules,
-            "payslip": payslips,
-            "inputs": inputs,
-            "emp_inputs": emp_inputs,
             "env": self.env,
             "time": tools.safe_eval.time,
             "datetime": tools.safe_eval.datetime,
             "dateutil": tools.safe_eval.dateutil,
             "timezone": timezone,
             "float_compare": float_compare,
+            "UserError": odoo.exceptions.UserError,
         }
 
-        structure_ids = obj_hr_salary_struc.browse(structure_id)._get_parent_structure()
-        rule_ids = structure_ids.get_all_rules()
+        categories = BrowsableObject(payslip.employee_id.id, {}, self.env)
+        if categories:
+            baselocaldict["categories"] = categories
 
-        sorted_rule_ids = [id for id, sequence in sorted(rule_ids, key=lambda x: x[1])]
-        sorted_rules = obj_hr_salary_rule.browse(sorted_rule_ids)
+        for input_line in self.input_line_ids:
+            inputs_dict[input_line.input_type_id.code] = input_line
+        inputs = InputLine(payslip.employee_id.id, inputs_dict, self.env)
+        if inputs:
+            baselocaldict["inputs"] = inputs
+
+        for emp_input_line in self.employee_id.input_line_ids:
+            emp_inputs_dict[emp_input_line.input_type_id.code] = emp_input_line
+        emp_inputs = EmployeeInputLine(
+            payslip.employee_id.id, emp_inputs_dict, self.env
+        )
+        if emp_inputs:
+            baselocaldict["emp_inputs"] = emp_inputs
+
+        payslips = Payslips(payslip.employee_id.id, self, self.env)
+        if payslips:
+            baselocaldict["payslip"] = payslips
+
+        rules = BrowsableObject(payslip.employee_id.id, {}, self.env)
+        if rules:
+            baselocaldict["rules"] = rules
+
+        return baselocaldict
+
+    @api.model
+    def _get_payslip_lines(self, payslip_id):
+        self.ensure_one()
+        result_dict = {}
+        rules_dict = {}
+        blacklist = []
+
+        obj_hr_payslip = self.env["hr.payslip"]
+
+        employee = self.employee_id
+
+        payslip = obj_hr_payslip.browse(payslip_id)
+
+        baselocaldict = self._get_base_localdict(payslip)
+
+        sorted_rules = self._get_salary_rules()
 
         localdict = dict(baselocaldict, employee=employee)
         for rule in sorted_rules:
