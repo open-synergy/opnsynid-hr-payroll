@@ -39,7 +39,7 @@ repos:
         language: fail
         files: '[a-zA-Z0-9_]*/i18n/en\.po$'
   - repo: https://github.com/oca/maintainer-tools
-    rev: f9b919b9868143135a9c9cb03021089cabba8223
+    rev: d5fab7ee87fceee858a3d01048c78a548974d935
     hooks:
       # update the NOT INSTALLABLE ADDONS section above
       - id: oca-update-pre-commit-excluded-addons
@@ -50,7 +50,7 @@ repos:
           - --addons-dir=.
           - --branch=14.0
           - --org-name=open-synergy
-          - --repo-name=
+          - --repo-name=ssi-mro
           - --if-source-changed
           - --keep-source-digest
   - repo: https://github.com/OCA/odoo-pre-commit-hooks
@@ -157,7 +157,7 @@ repos:
         name: flake8
         additional_dependencies: ["flake8-bugbear==20.1.4"]
   - repo: https://github.com/OCA/pylint-odoo
-    rev: v9.3.14
+    rev: 7.0.2
     hooks:
       - id: pylint_odoo
         name: pylint with optional checks
