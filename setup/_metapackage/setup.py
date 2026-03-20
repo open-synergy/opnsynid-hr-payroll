@@ -10,7 +10,9 @@ setuptools.setup(
     install_requires=[
         'odoo14-addon-ssi_hr_payroll',
         'odoo14-addon-ssi_hr_payroll_batch',
+        'odoo14-addon-ssi_hr_payroll_batch_documenso_signing',
         'odoo14-addon-ssi_hr_payroll_batch_work_log',
+        'odoo14-addon-ssi_hr_payroll_documenso_signing',
         'odoo14-addon-ssi_hr_payroll_timesheet',
         'odoo14-addon-ssi_hr_payroll_work_log',
     ],
