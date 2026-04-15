@@ -7,6 +7,19 @@ Employee Payslip
 ================
 
 
+Work Instruction
+================
+
+* `Create Employee Payslip <docs/hr_payslip/01-create.html>`_
+* `Edit Employee Payslip <docs/hr_payslip/02-edit.html>`_
+* `Delete Employee Payslip <docs/hr_payslip/03-delete.html>`_
+* `Confirm Employee Payslip <docs/hr_payslip/04-confirm.html>`_
+* `Approve Employee Payslip <docs/hr_payslip/05-approve.html>`_
+* `Reject Employee Payslip <docs/hr_payslip/06-reject.html>`_
+* `Cancel Employee Payslip <docs/hr_payslip/10-cancel.html>`_
+* `Restart Employee Payslip <docs/hr_payslip/12-restart.html>`_
+* `Reset Document Number — Employee Payslip <docs/hr_payslip/13-reset-number.html>`_
+
 Installation
 ============
 
