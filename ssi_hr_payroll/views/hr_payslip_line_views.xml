@@ -7,7 +7,7 @@
           <field name="name">hr.payslip.line.tree</field>
           <field name="model">hr.payslip_line</field>
           <field name="arch" type="xml">
-              <tree string="Details" editable="bottom" decoration-info="total == 0">
+              <tree editable="bottom" decoration-info="total == 0">
                     <field name="rule_id" />
                     <field name="category_id" />
                     <field name="rate" />

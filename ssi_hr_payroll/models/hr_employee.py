@@ -5,9 +5,8 @@
 from odoo import fields, models
 
 
-class HrEmployee(models.Model):
+class HrEmployee(models.Model):  # pylint: disable=too-few-public-methods
     _inherit = "hr.employee"
-    _description = "Employee Input"
 
     salary_structure_id = fields.Many2one(
         string="Salary Structure",

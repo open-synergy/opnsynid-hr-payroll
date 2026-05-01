@@ -1,11 +1,12 @@
 # Copyright 2022 OpenSynergy Indonesia
 # Copyright 2022 PT. Simetri Sinergi Indonesia
 # License AGPL-3.0 or later (http://www.gnu.org/licenses/agpl-3.0-standalone.html).
+# pylint: disable=duplicate-code
 
-from odoo import fields, models
+from odoo import api, fields, models
 
 
-class HrPayslipInput(models.Model):
+class HrPayslipInput(models.Model):  # pylint: disable=too-few-public-methods
     _name = "hr.payslip_input"
 
     _description = "Payslip Input"
@@ -27,3 +28,8 @@ class HrPayslipInput(models.Model):
         required=True,
         default=0.0,
     )
+
+    @api.onchange("input_type_id")
+    def _onchange_input_type_id(self):
+        if self.input_type_id:
+            self.amount = self.input_type_id.default_amount

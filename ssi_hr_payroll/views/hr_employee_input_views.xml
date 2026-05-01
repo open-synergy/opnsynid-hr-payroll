@@ -7,7 +7,7 @@
           <field name="name">hr.employee.input.tree</field>
           <field name="model">hr.employee_input</field>
           <field name="arch" type="xml">
-              <tree string="Details" editable="bottom">
+              <tree editable="bottom">
                     <field name="input_type_id" />
                     <field name="amount" />
               </tree>
