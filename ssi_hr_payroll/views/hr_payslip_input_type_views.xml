@@ -26,7 +26,11 @@
         />
         <field name="mode">primary</field>
         <field name="arch" type="xml">
-            <data />
+            <data>
+                <xpath expr="//field[@name='name']" position="after">
+                    <field name="default_amount" />
+                </xpath>
+            </data>
         </field>
     </record>
 
@@ -39,7 +43,11 @@
         />
         <field name="mode">primary</field>
         <field name="arch" type="xml">
-            <data />
+            <data>
+                <xpath expr="//field[@name='active']" position="after">
+                    <field name="default_amount" />
+                </xpath>
+            </data>
         </field>
     </record>
 
