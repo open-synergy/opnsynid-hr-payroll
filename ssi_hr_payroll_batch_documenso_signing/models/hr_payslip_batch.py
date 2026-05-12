@@ -9,7 +9,7 @@ class HrPayslipBatch(models.Model):  # pylint: disable=R0903
     _name = "hr.payslip_batch"
     _inherit = [
         "hr.payslip_batch",
-        "mixin.documenso_signing",
+        "mixin.documenso_signing_approval",
     ]
 
     _documenso_signing_create_page = True
