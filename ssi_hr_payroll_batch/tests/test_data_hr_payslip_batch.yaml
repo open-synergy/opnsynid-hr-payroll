@@ -74,13 +74,12 @@ scenarios:
           code: "TSTBTCHTYPE"
           journal_id: "EVAL: registry['journal'].id"
 
-      - step: "Create employee with salary structure"
+      - step: "Create employee"
         action: "create"
         model: "hr.employee"
         save_as: "employee"
         values:
           name: "Batch Test Employee"
-          manual_salary_structure_id: "EVAL: registry['structure'].id"
 
       - step: "Create payslip batch"
         action: "create"
@@ -95,6 +94,21 @@ scenarios:
           employee_ids:
             - "EVAL: registry['employee'].id"
 
+      - step: "Pre-create payslip linked to batch"
+        action: "create"
+        model: "hr.payslip"
+        save_as: "payslip"
+        as_user: "base.user_admin"
+        values:
+          employee_id: "EVAL: registry['employee'].id"
+          type_id: "EVAL: registry['payslip_type'].id"
+          structure_id: "EVAL: registry['structure'].id"
+          journal_id: "EVAL: registry['journal'].id"
+          date_start: "2024-05-01"
+          date_end: "2024-05-31"
+          date: "2024-05-31"
+          batch_id: "EVAL: registry['batch'].id"
+
       - step: "Assert batch created in draft"
         action: "assert"
         target: "batch"
@@ -103,7 +117,7 @@ scenarios:
             type: "value"
             expected: "draft"
 
-      - step: "Open batch (generates payslips)"
+      - step: "Open batch"
         action: "call"
         target: "batch"
         method: "action_open"
@@ -235,7 +249,6 @@ scenarios:
         save_as: "employee"
         values:
           name: "Batch Reject Test Employee"
-          manual_salary_structure_id: "EVAL: registry['structure'].id"
 
       - step: "Create payslip batch"
         action: "create"
@@ -249,6 +262,21 @@ scenarios:
           date: "2024-06-30"
           employee_ids:
             - "EVAL: registry['employee'].id"
+
+      - step: "Pre-create payslip linked to batch"
+        action: "create"
+        model: "hr.payslip"
+        save_as: "payslip"
+        as_user: "base.user_admin"
+        values:
+          employee_id: "EVAL: registry['employee'].id"
+          type_id: "EVAL: registry['payslip_type'].id"
+          structure_id: "EVAL: registry['structure'].id"
+          journal_id: "EVAL: registry['journal'].id"
+          date_start: "2024-06-01"
+          date_end: "2024-06-30"
+          date: "2024-06-30"
+          batch_id: "EVAL: registry['batch'].id"
 
       - step: "Open batch"
         action: "call"
@@ -386,7 +414,6 @@ scenarios:
         save_as: "employee"
         values:
           name: "Batch Cancel Test Employee"
-          manual_salary_structure_id: "EVAL: registry['structure'].id"
 
       - step: "Create payslip batch"
         action: "create"
@@ -400,6 +427,21 @@ scenarios:
           date: "2024-07-31"
           employee_ids:
             - "EVAL: registry['employee'].id"
+
+      - step: "Pre-create payslip linked to batch"
+        action: "create"
+        model: "hr.payslip"
+        save_as: "payslip"
+        as_user: "base.user_admin"
+        values:
+          employee_id: "EVAL: registry['employee'].id"
+          type_id: "EVAL: registry['payslip_type'].id"
+          structure_id: "EVAL: registry['structure'].id"
+          journal_id: "EVAL: registry['journal'].id"
+          date_start: "2024-07-01"
+          date_end: "2024-07-31"
+          date: "2024-07-31"
+          batch_id: "EVAL: registry['batch'].id"
 
       - step: "Open batch"
         action: "call"
@@ -522,7 +564,7 @@ scenarios:
         save_as: "employee"
         values:
           name: "Batch Reload Test Employee"
-          manual_salary_structure_id: "EVAL: registry['structure'].id"
+          salary_structure_id: "EVAL: registry['structure'].id"
 
       - step: "Create payslip batch"
         action: "create"

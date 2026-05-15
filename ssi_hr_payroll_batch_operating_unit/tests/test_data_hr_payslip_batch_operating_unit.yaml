@@ -88,7 +88,6 @@ scenarios:
         save_as: "employee"
         values:
           name: "Batch OU Test Employee"
-          manual_salary_structure_id: "EVAL: registry['structure'].id"
 
       - step: "Create payslip batch with operating unit"
         action: "create"
@@ -103,6 +102,22 @@ scenarios:
           operating_unit_id: "EVAL: registry['operating_unit'].id"
           employee_ids:
             - "EVAL: registry['employee'].id"
+
+      - step: "Pre-create payslip linked to batch with same operating unit"
+        action: "create"
+        model: "hr.payslip"
+        save_as: "payslip"
+        as_user: "base.user_admin"
+        values:
+          employee_id: "EVAL: registry['employee'].id"
+          type_id: "EVAL: registry['payslip_type'].id"
+          structure_id: "EVAL: registry['structure'].id"
+          journal_id: "EVAL: registry['journal'].id"
+          date_start: "2024-09-01"
+          date_end: "2024-09-30"
+          date: "2024-09-30"
+          operating_unit_id: "EVAL: registry['operating_unit'].id"
+          batch_id: "EVAL: registry['batch'].id"
 
       - step: "Assert batch created with operating unit"
         action: "assert"

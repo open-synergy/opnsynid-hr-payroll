@@ -80,7 +80,6 @@ scenarios:
         save_as: "employee"
         values:
           name: "Batch DS Test Employee"
-          manual_salary_structure_id: "EVAL: registry['structure'].id"
 
       - step: "Create payslip batch"
         action: "create"
