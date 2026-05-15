@@ -1,0 +1,74 @@
+scenarios:
+  - name: "HR Salary Contribution - Create and verify"
+    steps:
+      - step: "Create salary contribution"
+        action: "create"
+        model: "hr.salary_contribution"
+        save_as: "contribution"
+        values:
+          name: "Test Salary Contribution"
+          code: "TSTCONTRIB01"
+
+      - step: "Assert contribution created"
+        action: "assert"
+        target: "contribution"
+        asserts:
+          name:
+            type: "value"
+            expected: "Test Salary Contribution"
+          code:
+            type: "value"
+            expected: "TSTCONTRIB01"
+          active:
+            type: "value"
+            expected: true
+
+  - name: "HR Salary Contribution - With partner"
+    steps:
+      - step: "Create partner"
+        action: "create"
+        model: "res.partner"
+        save_as: "partner"
+        values:
+          name: "Test Contribution Partner"
+
+      - step: "Create contribution with partner"
+        action: "create"
+        model: "hr.salary_contribution"
+        save_as: "contribution"
+        values:
+          name: "Contribution With Partner"
+          code: "TSTCONTRIB02"
+          partner_id: "EVAL: registry['partner'].id"
+
+      - step: "Assert partner set"
+        action: "assert"
+        target: "contribution"
+        asserts:
+          partner_id:
+            type: "value"
+            operator: "is_truthy"
+
+  - name: "HR Salary Contribution - Archive"
+    steps:
+      - step: "Create contribution"
+        action: "create"
+        model: "hr.salary_contribution"
+        save_as: "contribution"
+        values:
+          name: "Contribution To Archive"
+          code: "TSTCONTRIB03"
+
+      - step: "Archive contribution"
+        action: "write"
+        target: "contribution"
+        values:
+          active: false
+
+      - step: "Assert archived"
+        action: "assert"
+        target: "contribution"
+        asserts:
+          active:
+            type: "value"
+            expected: false

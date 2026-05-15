@@ -1,0 +1,597 @@
+scenarios:
+  - name: "HR Payslip Batch - Full Workflow: draft to done"
+    steps:
+      - step: "Get expense account type"
+        action: "ref"
+        xml_id: "account.data_account_type_expenses"
+        save_as: "expense_account_type"
+
+      - step: "Create debit account"
+        action: "create"
+        model: "account.account"
+        save_as: "debit_account"
+        values:
+          name: "Batch Test Debit Account"
+          code: "TSTBTCH_DB"
+          user_type_id: "EVAL: registry['expense_account_type'].id"
+
+      - step: "Create credit account"
+        action: "create"
+        model: "account.account"
+        save_as: "credit_account"
+        values:
+          name: "Batch Test Credit Account"
+          code: "TSTBTCH_CR"
+          user_type_id: "EVAL: registry['expense_account_type'].id"
+
+      - step: "Create payroll journal"
+        action: "create"
+        model: "account.journal"
+        save_as: "journal"
+        values:
+          name: "Batch Test Payroll Journal"
+          code: "TBTCH"
+          type: "general"
+
+      - step: "Create salary rule category"
+        action: "create"
+        model: "hr.salary_rule_category"
+        save_as: "category"
+        values:
+          name: "Batch Test Category"
+          code: "TSTBTCHCAT"
+
+      - step: "Create salary rule"
+        action: "create"
+        model: "hr.salary_rule"
+        save_as: "rule"
+        values:
+          name: "Batch Test Salary Rule"
+          code: "TSTBTCHRULE"
+          category_id: "EVAL: registry['category'].id"
+          debit_account_id: "EVAL: registry['debit_account'].id"
+          credit_account_id: "EVAL: registry['credit_account'].id"
+          condition_python: "result = True"
+          amount_python: "result = 100.0"
+          sequence: 10
+
+      - step: "Create salary structure"
+        action: "create"
+        model: "hr.salary_structure"
+        save_as: "structure"
+        values:
+          name: "Batch Test Salary Structure"
+          code: "TSTBTCHSTR"
+          rule_ids:
+            - "EVAL: registry['rule'].id"
+
+      - step: "Create payslip type"
+        action: "create"
+        model: "hr.payslip_type"
+        save_as: "payslip_type"
+        values:
+          name: "Batch Test Payslip Type"
+          code: "TSTBTCHTYPE"
+          journal_id: "EVAL: registry['journal'].id"
+
+      - step: "Create employee"
+        action: "create"
+        model: "hr.employee"
+        save_as: "employee"
+        values:
+          name: "Batch Test Employee"
+
+      - step: "Create payslip batch"
+        action: "create"
+        model: "hr.payslip_batch"
+        save_as: "batch"
+        as_user: "base.user_admin"
+        values:
+          type_id: "EVAL: registry['payslip_type'].id"
+          date_start: "2024-05-01"
+          date_end: "2024-05-31"
+          date: "2024-05-31"
+          employee_ids:
+            - "EVAL: registry['employee'].id"
+
+      - step: "Pre-create payslip linked to batch"
+        action: "create"
+        model: "hr.payslip"
+        save_as: "payslip"
+        as_user: "base.user_admin"
+        values:
+          employee_id: "EVAL: registry['employee'].id"
+          type_id: "EVAL: registry['payslip_type'].id"
+          structure_id: "EVAL: registry['structure'].id"
+          journal_id: "EVAL: registry['journal'].id"
+          date_start: "2024-05-01"
+          date_end: "2024-05-31"
+          date: "2024-05-31"
+          batch_id: "EVAL: registry['batch'].id"
+
+      - step: "Assert batch created in draft"
+        action: "assert"
+        target: "batch"
+        asserts:
+          state:
+            type: "value"
+            expected: "draft"
+
+      - step: "Open batch"
+        action: "call"
+        target: "batch"
+        method: "action_open"
+        as_user: "base.user_admin"
+        asserts:
+          state:
+            type: "value"
+            expected: "open"
+
+      - step: "Invalidate cache after open"
+        action: "call"
+        target: "batch"
+        method: "invalidate_cache"
+
+      - step: "Compute payslips in batch"
+        action: "call"
+        target: "batch"
+        method: "action_compute_payslip"
+        as_user: "base.user_admin"
+
+      - step: "Invalidate cache after compute"
+        action: "call"
+        target: "batch"
+        method: "invalidate_cache"
+
+      - step: "Confirm batch"
+        action: "call"
+        target: "batch"
+        method: "action_confirm"
+        as_user: "base.user_admin"
+        asserts:
+          state:
+            type: "value"
+            expected: "confirm"
+
+      - step: "Invalidate cache after confirm"
+        action: "call"
+        target: "batch"
+        method: "invalidate_cache"
+
+      - step: "Approve batch to done"
+        action: "call"
+        target: "batch"
+        method: "action_approve_approval"
+        as_user: "base.user_admin"
+        asserts:
+          state:
+            type: "value"
+            expected: "done"
+
+  - name: "HR Payslip Batch - Reject and Restart"
+    steps:
+      - step: "Get expense account type"
+        action: "ref"
+        xml_id: "account.data_account_type_expenses"
+        save_as: "expense_account_type"
+
+      - step: "Create debit account"
+        action: "create"
+        model: "account.account"
+        save_as: "debit_account"
+        values:
+          name: "Batch Reject Test Debit Account"
+          code: "TSTBTCHRJ_DB"
+          user_type_id: "EVAL: registry['expense_account_type'].id"
+
+      - step: "Create credit account"
+        action: "create"
+        model: "account.account"
+        save_as: "credit_account"
+        values:
+          name: "Batch Reject Test Credit Account"
+          code: "TSTBTCHRJ_CR"
+          user_type_id: "EVAL: registry['expense_account_type'].id"
+
+      - step: "Create payroll journal"
+        action: "create"
+        model: "account.journal"
+        save_as: "journal"
+        values:
+          name: "Batch Reject Test Journal"
+          code: "TBTCHRJ"
+          type: "general"
+
+      - step: "Create salary rule category"
+        action: "create"
+        model: "hr.salary_rule_category"
+        save_as: "category"
+        values:
+          name: "Batch Reject Category"
+          code: "TSTBTCHRJCAT"
+
+      - step: "Create salary rule"
+        action: "create"
+        model: "hr.salary_rule"
+        save_as: "rule"
+        values:
+          name: "Batch Reject Salary Rule"
+          code: "TSTBTCHRJRULE"
+          category_id: "EVAL: registry['category'].id"
+          debit_account_id: "EVAL: registry['debit_account'].id"
+          credit_account_id: "EVAL: registry['credit_account'].id"
+          condition_python: "result = True"
+          amount_python: "result = 150.0"
+          sequence: 10
+
+      - step: "Create salary structure"
+        action: "create"
+        model: "hr.salary_structure"
+        save_as: "structure"
+        values:
+          name: "Batch Reject Test Structure"
+          code: "TSTBTCHRJSTR"
+          rule_ids:
+            - "EVAL: registry['rule'].id"
+
+      - step: "Create payslip type"
+        action: "create"
+        model: "hr.payslip_type"
+        save_as: "payslip_type"
+        values:
+          name: "Batch Reject Payslip Type"
+          code: "TSTBTCHRJTYPE"
+          journal_id: "EVAL: registry['journal'].id"
+
+      - step: "Create employee"
+        action: "create"
+        model: "hr.employee"
+        save_as: "employee"
+        values:
+          name: "Batch Reject Test Employee"
+
+      - step: "Create payslip batch"
+        action: "create"
+        model: "hr.payslip_batch"
+        save_as: "batch"
+        as_user: "base.user_admin"
+        values:
+          type_id: "EVAL: registry['payslip_type'].id"
+          date_start: "2024-06-01"
+          date_end: "2024-06-30"
+          date: "2024-06-30"
+          employee_ids:
+            - "EVAL: registry['employee'].id"
+
+      - step: "Pre-create payslip linked to batch"
+        action: "create"
+        model: "hr.payslip"
+        save_as: "payslip"
+        as_user: "base.user_admin"
+        values:
+          employee_id: "EVAL: registry['employee'].id"
+          type_id: "EVAL: registry['payslip_type'].id"
+          structure_id: "EVAL: registry['structure'].id"
+          journal_id: "EVAL: registry['journal'].id"
+          date_start: "2024-06-01"
+          date_end: "2024-06-30"
+          date: "2024-06-30"
+          batch_id: "EVAL: registry['batch'].id"
+
+      - step: "Open batch"
+        action: "call"
+        target: "batch"
+        method: "action_open"
+        as_user: "base.user_admin"
+        asserts:
+          state:
+            type: "value"
+            expected: "open"
+
+      - step: "Invalidate cache"
+        action: "call"
+        target: "batch"
+        method: "invalidate_cache"
+
+      - step: "Confirm batch"
+        action: "call"
+        target: "batch"
+        method: "action_confirm"
+        as_user: "base.user_admin"
+        asserts:
+          state:
+            type: "value"
+            expected: "confirm"
+
+      - step: "Invalidate cache"
+        action: "call"
+        target: "batch"
+        method: "invalidate_cache"
+
+      - step: "Reject batch"
+        action: "call"
+        target: "batch"
+        method: "action_reject_approval"
+        as_user: "base.user_admin"
+        asserts:
+          state:
+            type: "value"
+            expected: "reject"
+
+      - step: "Invalidate cache"
+        action: "call"
+        target: "batch"
+        method: "invalidate_cache"
+
+      - step: "Restart batch"
+        action: "call"
+        target: "batch"
+        method: "action_restart"
+        as_user: "base.user_admin"
+        asserts:
+          state:
+            type: "value"
+            expected: "draft"
+
+  - name: "HR Payslip Batch - Cancel workflow"
+    steps:
+      - step: "Get expense account type"
+        action: "ref"
+        xml_id: "account.data_account_type_expenses"
+        save_as: "expense_account_type"
+
+      - step: "Create debit account"
+        action: "create"
+        model: "account.account"
+        save_as: "debit_account"
+        values:
+          name: "Batch Cancel Test Debit Account"
+          code: "TSTBTCHCN_DB"
+          user_type_id: "EVAL: registry['expense_account_type'].id"
+
+      - step: "Create credit account"
+        action: "create"
+        model: "account.account"
+        save_as: "credit_account"
+        values:
+          name: "Batch Cancel Test Credit Account"
+          code: "TSTBTCHCN_CR"
+          user_type_id: "EVAL: registry['expense_account_type'].id"
+
+      - step: "Create payroll journal"
+        action: "create"
+        model: "account.journal"
+        save_as: "journal"
+        values:
+          name: "Batch Cancel Test Journal"
+          code: "TBTCHCN"
+          type: "general"
+
+      - step: "Create salary rule category"
+        action: "create"
+        model: "hr.salary_rule_category"
+        save_as: "category"
+        values:
+          name: "Batch Cancel Category"
+          code: "TSTBTCHCNCAT"
+
+      - step: "Create salary rule"
+        action: "create"
+        model: "hr.salary_rule"
+        save_as: "rule"
+        values:
+          name: "Batch Cancel Salary Rule"
+          code: "TSTBTCHCNRULE"
+          category_id: "EVAL: registry['category'].id"
+          debit_account_id: "EVAL: registry['debit_account'].id"
+          credit_account_id: "EVAL: registry['credit_account'].id"
+          condition_python: "result = True"
+          amount_python: "result = 100.0"
+          sequence: 10
+
+      - step: "Create salary structure"
+        action: "create"
+        model: "hr.salary_structure"
+        save_as: "structure"
+        values:
+          name: "Batch Cancel Test Structure"
+          code: "TSTBTCHCNSTR"
+          rule_ids:
+            - "EVAL: registry['rule'].id"
+
+      - step: "Create payslip type"
+        action: "create"
+        model: "hr.payslip_type"
+        save_as: "payslip_type"
+        values:
+          name: "Batch Cancel Payslip Type"
+          code: "TSTBTCHCNTYPE"
+          journal_id: "EVAL: registry['journal'].id"
+
+      - step: "Create employee"
+        action: "create"
+        model: "hr.employee"
+        save_as: "employee"
+        values:
+          name: "Batch Cancel Test Employee"
+
+      - step: "Create payslip batch"
+        action: "create"
+        model: "hr.payslip_batch"
+        save_as: "batch"
+        as_user: "base.user_admin"
+        values:
+          type_id: "EVAL: registry['payslip_type'].id"
+          date_start: "2024-07-01"
+          date_end: "2024-07-31"
+          date: "2024-07-31"
+          employee_ids:
+            - "EVAL: registry['employee'].id"
+
+      - step: "Pre-create payslip linked to batch"
+        action: "create"
+        model: "hr.payslip"
+        save_as: "payslip"
+        as_user: "base.user_admin"
+        values:
+          employee_id: "EVAL: registry['employee'].id"
+          type_id: "EVAL: registry['payslip_type'].id"
+          structure_id: "EVAL: registry['structure'].id"
+          journal_id: "EVAL: registry['journal'].id"
+          date_start: "2024-07-01"
+          date_end: "2024-07-31"
+          date: "2024-07-31"
+          batch_id: "EVAL: registry['batch'].id"
+
+      - step: "Open batch"
+        action: "call"
+        target: "batch"
+        method: "action_open"
+        as_user: "base.user_admin"
+        asserts:
+          state:
+            type: "value"
+            expected: "open"
+
+      - step: "Invalidate cache"
+        action: "call"
+        target: "batch"
+        method: "invalidate_cache"
+
+      - step: "Cancel batch"
+        action: "call"
+        target: "batch"
+        method: "action_cancel"
+        as_user: "base.user_admin"
+        asserts:
+          state:
+            type: "value"
+            expected: "cancel"
+
+      - step: "Invalidate cache"
+        action: "call"
+        target: "batch"
+        method: "invalidate_cache"
+
+      - step: "Restart cancelled batch"
+        action: "call"
+        target: "batch"
+        method: "action_restart"
+        as_user: "base.user_admin"
+        asserts:
+          state:
+            type: "value"
+            expected: "draft"
+
+  - name: "HR Payslip Batch - Reload employee"
+    steps:
+      - step: "Get expense account type"
+        action: "ref"
+        xml_id: "account.data_account_type_expenses"
+        save_as: "expense_account_type"
+
+      - step: "Create debit account"
+        action: "create"
+        model: "account.account"
+        save_as: "debit_account"
+        values:
+          name: "Batch Reload Test Debit Account"
+          code: "TSTBTCHRL_DB"
+          user_type_id: "EVAL: registry['expense_account_type'].id"
+
+      - step: "Create credit account"
+        action: "create"
+        model: "account.account"
+        save_as: "credit_account"
+        values:
+          name: "Batch Reload Test Credit Account"
+          code: "TSTBTCHRL_CR"
+          user_type_id: "EVAL: registry['expense_account_type'].id"
+
+      - step: "Create payroll journal"
+        action: "create"
+        model: "account.journal"
+        save_as: "journal"
+        values:
+          name: "Batch Reload Test Journal"
+          code: "TBTCHRL"
+          type: "general"
+
+      - step: "Create salary rule category"
+        action: "create"
+        model: "hr.salary_rule_category"
+        save_as: "category"
+        values:
+          name: "Batch Reload Category"
+          code: "TSTBTCHRLCAT"
+
+      - step: "Create salary rule"
+        action: "create"
+        model: "hr.salary_rule"
+        save_as: "rule"
+        values:
+          name: "Batch Reload Salary Rule"
+          code: "TSTBTCHRLRULE"
+          category_id: "EVAL: registry['category'].id"
+          debit_account_id: "EVAL: registry['debit_account'].id"
+          credit_account_id: "EVAL: registry['credit_account'].id"
+          condition_python: "result = True"
+          amount_python: "result = 100.0"
+          sequence: 10
+
+      - step: "Create salary structure"
+        action: "create"
+        model: "hr.salary_structure"
+        save_as: "structure"
+        values:
+          name: "Batch Reload Test Structure"
+          code: "TSTBTCHRLSTR"
+          rule_ids:
+            - "EVAL: registry['rule'].id"
+
+      - step: "Create payslip type"
+        action: "create"
+        model: "hr.payslip_type"
+        save_as: "payslip_type"
+        values:
+          name: "Batch Reload Payslip Type"
+          code: "TSTBTCHRLTYPE"
+          journal_id: "EVAL: registry['journal'].id"
+
+      - step: "Create employee with salary structure"
+        action: "create"
+        model: "hr.employee"
+        save_as: "employee"
+        values:
+          name: "Batch Reload Test Employee"
+          salary_structure_id: "EVAL: registry['structure'].id"
+
+      - step: "Create payslip batch"
+        action: "create"
+        model: "hr.payslip_batch"
+        save_as: "batch"
+        as_user: "base.user_admin"
+        values:
+          type_id: "EVAL: registry['payslip_type'].id"
+          date_start: "2024-08-01"
+          date_end: "2024-08-31"
+          date: "2024-08-31"
+
+      - step: "Reload employees"
+        action: "call"
+        target: "batch"
+        method: "action_reload_employee"
+        as_user: "base.user_admin"
+
+      - step: "Invalidate cache"
+        action: "call"
+        target: "batch"
+        method: "invalidate_cache"
+
+      - step: "Assert batch still in draft"
+        action: "assert"
+        target: "batch"
+        asserts:
+          state:
+            type: "value"
+            expected: "draft"

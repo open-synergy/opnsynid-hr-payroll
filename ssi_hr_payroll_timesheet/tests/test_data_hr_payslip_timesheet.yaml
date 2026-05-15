@@ -1,0 +1,105 @@
+scenarios:
+  - name: "HR Payslip Timesheet - Create payslip and verify timesheet field"
+    steps:
+      - step: "Get expense account type"
+        action: "ref"
+        xml_id: "account.data_account_type_expenses"
+        save_as: "expense_account_type"
+
+      - step: "Create debit account"
+        action: "create"
+        model: "account.account"
+        save_as: "debit_account"
+        values:
+          name: "TS Test Debit Account"
+          code: "TSTTS_DB"
+          user_type_id: "EVAL: registry['expense_account_type'].id"
+
+      - step: "Create credit account"
+        action: "create"
+        model: "account.account"
+        save_as: "credit_account"
+        values:
+          name: "TS Test Credit Account"
+          code: "TSTTS_CR"
+          user_type_id: "EVAL: registry['expense_account_type'].id"
+
+      - step: "Create payroll journal"
+        action: "create"
+        model: "account.journal"
+        save_as: "journal"
+        values:
+          name: "TS Test Payroll Journal"
+          code: "TTS"
+          type: "general"
+
+      - step: "Create salary rule category"
+        action: "create"
+        model: "hr.salary_rule_category"
+        save_as: "category"
+        values:
+          name: "TS Test Category"
+          code: "TSTTSCAT"
+
+      - step: "Create salary rule"
+        action: "create"
+        model: "hr.salary_rule"
+        save_as: "rule"
+        values:
+          name: "TS Test Salary Rule"
+          code: "TSTTSRULE"
+          category_id: "EVAL: registry['category'].id"
+          debit_account_id: "EVAL: registry['debit_account'].id"
+          credit_account_id: "EVAL: registry['credit_account'].id"
+          condition_python: "result = True"
+          amount_python: "result = 100.0"
+          sequence: 10
+
+      - step: "Create salary structure"
+        action: "create"
+        model: "hr.salary_structure"
+        save_as: "structure"
+        values:
+          name: "TS Test Salary Structure"
+          code: "TSTTSSTR"
+          rule_ids:
+            - "EVAL: registry['rule'].id"
+
+      - step: "Create payslip type"
+        action: "create"
+        model: "hr.payslip_type"
+        save_as: "payslip_type"
+        values:
+          name: "TS Test Payslip Type"
+          code: "TSTTSTYPE"
+          journal_id: "EVAL: registry['journal'].id"
+
+      - step: "Create employee"
+        action: "create"
+        model: "hr.employee"
+        save_as: "employee"
+        values:
+          name: "TS Test Employee"
+          salary_structure_id: "EVAL: registry['structure'].id"
+
+      - step: "Create payslip"
+        action: "create"
+        model: "hr.payslip"
+        save_as: "payslip"
+        as_user: "base.user_admin"
+        values:
+          employee_id: "EVAL: registry['employee'].id"
+          type_id: "EVAL: registry['payslip_type'].id"
+          structure_id: "EVAL: registry['structure'].id"
+          journal_id: "EVAL: registry['journal'].id"
+          date_start: "2024-11-01"
+          date_end: "2024-11-30"
+          date: "2024-11-30"
+
+      - step: "Assert payslip created in draft"
+        action: "assert"
+        target: "payslip"
+        asserts:
+          state:
+            type: "value"
+            expected: "draft"

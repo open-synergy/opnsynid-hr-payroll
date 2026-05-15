@@ -1,0 +1,80 @@
+scenarios:
+  - name: "HR Payslip Input Type - Create and verify"
+    steps:
+      - step: "Create payslip input type"
+        action: "create"
+        model: "hr.payslip_input_type"
+        save_as: "input_type"
+        values:
+          name: "Test Payslip Input Type"
+          code: "TSTINPUT01"
+          default_amount: 500.0
+
+      - step: "Assert input type created"
+        action: "assert"
+        target: "input_type"
+        asserts:
+          name:
+            type: "value"
+            expected: "Test Payslip Input Type"
+          code:
+            type: "value"
+            expected: "TSTINPUT01"
+          default_amount:
+            type: "value"
+            expected: 500.0
+          active:
+            type: "value"
+            expected: true
+
+  - name: "HR Payslip Input Type - Edit"
+    steps:
+      - step: "Create input type"
+        action: "create"
+        model: "hr.payslip_input_type"
+        save_as: "input_type"
+        values:
+          name: "Input Type To Edit"
+          code: "TSTINPUT02"
+
+      - step: "Update default amount"
+        action: "write"
+        target: "input_type"
+        values:
+          default_amount: 1000.0
+
+      - step: "Assert updated"
+        action: "assert"
+        target: "input_type"
+        asserts:
+          default_amount:
+            type: "value"
+            expected: 1000.0
+
+  - name: "HR Employee Input Type - Create and verify"
+    steps:
+      - step: "Create employee input type"
+        action: "create"
+        model: "hr.employee_input_type"
+        save_as: "emp_input_type"
+        values:
+          name: "Test Employee Input Type"
+          code: "TSTEMPIN01"
+          default_amount: 200.0
+
+      - step: "Assert employee input type created"
+        action: "assert"
+        target: "emp_input_type"
+        asserts:
+          name:
+            type: "value"
+            expected: "Test Employee Input Type"
+          code:
+            type: "value"
+            expected: "TSTEMPIN01"
+          default_amount:
+            type: "value"
+            expected: 200.0
+          active:
+            type: "value"
+            expected: true
