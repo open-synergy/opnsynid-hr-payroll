@@ -11,3 +11,10 @@ from odoo.tests import tagged
 class TestHrPayslipOperatingUnit(YamlTransactionCase):
     def test_hr_payslip_operating_unit(self):
         self.run_yaml_scenario("test_data_hr_payslip_operating_unit.yaml")
+        payslip = self.registry.get("payslip")
+        if payslip and payslip.move_id:
+            self.assertEqual(
+                payslip.move_id.operating_unit_id,
+                payslip.operating_unit_id,
+                "account.move should have the same operating_unit_id as the payslip",
+            )
