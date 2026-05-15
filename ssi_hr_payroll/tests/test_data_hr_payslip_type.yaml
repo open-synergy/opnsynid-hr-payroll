@@ -1,0 +1,72 @@
+scenarios:
+  - name: "HR Payslip Type - Create and verify"
+    steps:
+      - step: "Create payslip type without journal"
+        action: "create"
+        model: "hr.payslip_type"
+        save_as: "payslip_type"
+        values:
+          name: "Test Payslip Type"
+          code: "TSTTYPE01"
+
+      - step: "Assert payslip type created"
+        action: "assert"
+        target: "payslip_type"
+        asserts:
+          name:
+            type: "value"
+            expected: "Test Payslip Type"
+          code:
+            type: "value"
+            expected: "TSTTYPE01"
+          active:
+            type: "value"
+            expected: true
+
+  - name: "HR Payslip Type - Edit name"
+    steps:
+      - step: "Create payslip type"
+        action: "create"
+        model: "hr.payslip_type"
+        save_as: "payslip_type"
+        values:
+          name: "Original Payslip Type"
+          code: "TSTTYPE02"
+
+      - step: "Edit payslip type name"
+        action: "write"
+        target: "payslip_type"
+        values:
+          name: "Updated Payslip Type"
+
+      - step: "Assert name updated"
+        action: "assert"
+        target: "payslip_type"
+        asserts:
+          name:
+            type: "value"
+            expected: "Updated Payslip Type"
+
+  - name: "HR Payslip Type - Archive"
+    steps:
+      - step: "Create payslip type"
+        action: "create"
+        model: "hr.payslip_type"
+        save_as: "payslip_type"
+        values:
+          name: "Type To Archive"
+          code: "TSTTYPE03"
+
+      - step: "Archive payslip type"
+        action: "write"
+        target: "payslip_type"
+        values:
+          active: false
+
+      - step: "Assert archived"
+        action: "assert"
+        target: "payslip_type"
+        asserts:
+          active:
+            type: "value"
+            expected: false

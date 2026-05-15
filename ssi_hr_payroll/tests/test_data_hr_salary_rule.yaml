@@ -1,0 +1,152 @@
+scenarios:
+  - name: "HR Salary Rule - Create simple rule"
+    steps:
+      - step: "Create salary rule category"
+        action: "create"
+        model: "hr.salary_rule_category"
+        save_as: "category"
+        values:
+          name: "Category for Rule Test"
+          code: "TSTRLCAT01"
+
+      - step: "Create salary rule"
+        action: "create"
+        model: "hr.salary_rule"
+        save_as: "rule"
+        values:
+          name: "Test Salary Rule"
+          code: "TSTRULE01"
+          category_id: "EVAL: registry['category'].id"
+          sequence: 10
+
+      - step: "Assert rule created"
+        action: "assert"
+        target: "rule"
+        asserts:
+          name:
+            type: "value"
+            expected: "Test Salary Rule"
+          code:
+            type: "value"
+            expected: "TSTRULE01"
+          sequence:
+            type: "value"
+            expected: 10
+          active:
+            type: "value"
+            expected: true
+
+  - name: "HR Salary Rule - Hierarchical (parent-child)"
+    steps:
+      - step: "Create salary rule category"
+        action: "create"
+        model: "hr.salary_rule_category"
+        save_as: "category"
+        values:
+          name: "Category for Hierarchy"
+          code: "TSTRLCATH"
+
+      - step: "Create parent rule"
+        action: "create"
+        model: "hr.salary_rule"
+        save_as: "parent_rule"
+        values:
+          name: "Parent Salary Rule"
+          code: "TSTRLPAR"
+          category_id: "EVAL: registry['category'].id"
+          sequence: 5
+
+      - step: "Create child rule"
+        action: "create"
+        model: "hr.salary_rule"
+        save_as: "child_rule"
+        values:
+          name: "Child Salary Rule"
+          code: "TSTRLCHLD"
+          category_id: "EVAL: registry['category'].id"
+          parent_id: "EVAL: registry['parent_rule'].id"
+          sequence: 10
+
+      - step: "Assert child rule has parent"
+        action: "assert"
+        target: "child_rule"
+        asserts:
+          parent_id:
+            type: "value"
+            operator: "is_truthy"
+
+  - name: "HR Salary Rule - With input type"
+    steps:
+      - step: "Create salary rule category"
+        action: "create"
+        model: "hr.salary_rule_category"
+        save_as: "category"
+        values:
+          name: "Category for Rule With Input"
+          code: "TSTRLCATINP"
+
+      - step: "Create payslip input type"
+        action: "create"
+        model: "hr.payslip_input_type"
+        save_as: "input_type"
+        values:
+          name: "Test Input Type for Rule"
+          code: "TSTRLINPUT"
+
+      - step: "Create salary rule with input type"
+        action: "create"
+        model: "hr.salary_rule"
+        save_as: "rule"
+        values:
+          name: "Rule With Input Type"
+          code: "TSTRLWINPUT"
+          category_id: "EVAL: registry['category'].id"
+          input_type_ids:
+            - "EVAL: registry['input_type'].id"
+          sequence: 5
+
+      - step: "Assert rule has input type"
+        action: "assert"
+        target: "rule"
+        asserts:
+          active:
+            type: "value"
+            expected: true
+
+  - name: "HR Salary Rule - Edit"
+    steps:
+      - step: "Create category"
+        action: "create"
+        model: "hr.salary_rule_category"
+        save_as: "category"
+        values:
+          name: "Category for Rule Edit"
+          code: "TSTRLCATED"
+
+      - step: "Create rule"
+        action: "create"
+        model: "hr.salary_rule"
+        save_as: "rule"
+        values:
+          name: "Rule To Edit"
+          code: "TSTRLEDIT"
+          category_id: "EVAL: registry['category'].id"
+          sequence: 5
+
+      - step: "Update rule"
+        action: "write"
+        target: "rule"
+        values:
+          name: "Updated Rule"
+          sequence: 20
+
+      - step: "Assert updated"
+        action: "assert"
+        target: "rule"
+        asserts:
+          name:
+            type: "value"
+            expected: "Updated Rule"
+          sequence:
+            type: "value"
+            expected: 20

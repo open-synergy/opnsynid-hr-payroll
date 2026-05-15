@@ -1,0 +1,95 @@
+scenarios:
+  - name: "HR Salary Structure - Create simple structure"
+    steps:
+      - step: "Create salary rule category"
+        action: "create"
+        model: "hr.salary_rule_category"
+        save_as: "category"
+        values:
+          name: "Test Category for Structure"
+          code: "TSTSTRCATX"
+
+      - step: "Create salary rule"
+        action: "create"
+        model: "hr.salary_rule"
+        save_as: "rule"
+        values:
+          name: "Test Rule for Structure"
+          code: "TSTSTRRULEX"
+          category_id: "EVAL: registry['category'].id"
+          sequence: 10
+
+      - step: "Create salary structure"
+        action: "create"
+        model: "hr.salary_structure"
+        save_as: "structure"
+        values:
+          name: "Test Salary Structure"
+          code: "TSTSTR01"
+          rule_ids:
+            - "EVAL: registry['rule'].id"
+
+      - step: "Assert structure created"
+        action: "assert"
+        target: "structure"
+        asserts:
+          name:
+            type: "value"
+            expected: "Test Salary Structure"
+          code:
+            type: "value"
+            expected: "TSTSTR01"
+          active:
+            type: "value"
+            expected: true
+
+  - name: "HR Salary Structure - Hierarchical"
+    steps:
+      - step: "Create parent structure"
+        action: "create"
+        model: "hr.salary_structure"
+        save_as: "parent_structure"
+        values:
+          name: "Parent Salary Structure"
+          code: "TSTSTRHP"
+
+      - step: "Create child structure"
+        action: "create"
+        model: "hr.salary_structure"
+        save_as: "child_structure"
+        values:
+          name: "Child Salary Structure"
+          code: "TSTSTRCH"
+          parent_id: "EVAL: registry['parent_structure'].id"
+
+      - step: "Assert child has parent"
+        action: "assert"
+        target: "child_structure"
+        asserts:
+          parent_id:
+            type: "value"
+            operator: "is_truthy"
+
+  - name: "HR Salary Structure - Edit"
+    steps:
+      - step: "Create structure"
+        action: "create"
+        model: "hr.salary_structure"
+        save_as: "structure"
+        values:
+          name: "Structure To Edit"
+          code: "TSTSTREDIT"
+
+      - step: "Update structure"
+        action: "write"
+        target: "structure"
+        values:
+          name: "Updated Salary Structure"
+
+      - step: "Assert updated"
+        action: "assert"
+        target: "structure"
+        asserts:
+          name:
+            type: "value"
+            expected: "Updated Salary Structure"

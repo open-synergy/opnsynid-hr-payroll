@@ -1,0 +1,75 @@
+scenarios:
+  - name: "HR Salary Rule Category - Create and verify"
+    steps:
+      - step: "Create salary rule category"
+        action: "create"
+        model: "hr.salary_rule_category"
+        save_as: "category"
+        values:
+          name: "Test Salary Category"
+          code: "TSTCAT01"
+
+      - step: "Assert category created"
+        action: "assert"
+        target: "category"
+        asserts:
+          name:
+            type: "value"
+            expected: "Test Salary Category"
+          code:
+            type: "value"
+            expected: "TSTCAT01"
+          active:
+            type: "value"
+            expected: true
+
+  - name: "HR Salary Rule Category - Hierarchical"
+    steps:
+      - step: "Create parent category"
+        action: "create"
+        model: "hr.salary_rule_category"
+        save_as: "parent_category"
+        values:
+          name: "Parent Category"
+          code: "TSTCATP"
+
+      - step: "Create child category"
+        action: "create"
+        model: "hr.salary_rule_category"
+        save_as: "child_category"
+        values:
+          name: "Child Category"
+          code: "TSTCATC"
+          parent_id: "EVAL: registry['parent_category'].id"
+
+      - step: "Assert child category has parent"
+        action: "assert"
+        target: "child_category"
+        asserts:
+          parent_id:
+            type: "value"
+            operator: "is_truthy"
+
+  - name: "HR Salary Rule Category - Edit"
+    steps:
+      - step: "Create category"
+        action: "create"
+        model: "hr.salary_rule_category"
+        save_as: "category"
+        values:
+          name: "Category To Edit"
+          code: "TSTCATED"
+
+      - step: "Update category"
+        action: "write"
+        target: "category"
+        values:
+          name: "Updated Category"
+
+      - step: "Assert updated"
+        action: "assert"
+        target: "category"
+        asserts:
+          name:
+            type: "value"
+            expected: "Updated Category"
