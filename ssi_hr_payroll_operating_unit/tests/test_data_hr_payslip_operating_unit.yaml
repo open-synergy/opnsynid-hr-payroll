@@ -115,3 +115,79 @@ scenarios:
           operating_unit_id:
             type: "value"
             operator: "is_truthy"
+
+      - step: "Compute payslip"
+        action: "call"
+        target: "payslip"
+        method: "action_compute_payslip"
+        as_user: "base.user_admin"
+
+      - step: "Invalidate cache after compute"
+        action: "call"
+        target: "payslip"
+        method: "invalidate_cache"
+
+      - step: "Reload input lines"
+        action: "call"
+        target: "payslip"
+        method: "action_reload_input_lines"
+        as_user: "base.user_admin"
+
+      - step: "Invalidate cache after reload"
+        action: "call"
+        target: "payslip"
+        method: "invalidate_cache"
+
+      - step: "Confirm payslip"
+        action: "call"
+        target: "payslip"
+        method: "action_confirm"
+        as_user: "base.user_admin"
+        asserts:
+          state:
+            type: "value"
+            expected: "confirm"
+
+      - step: "Invalidate cache after confirm"
+        action: "call"
+        target: "payslip"
+        method: "invalidate_cache"
+
+      - step: "Approve payslip"
+        action: "call"
+        target: "payslip"
+        method: "action_approve_approval"
+        as_user: "base.user_admin"
+        asserts:
+          state:
+            type: "value"
+            expected: "done"
+
+      - step: "Invalidate cache after done"
+        action: "call"
+        target: "payslip"
+        method: "invalidate_cache"
+
+      - step: "Assert accounting entry created"
+        action: "assert"
+        target: "payslip"
+        asserts:
+          move_id:
+            type: "value"
+            operator: "is_truthy"
+
+      - step: "Get account move"
+        action: "search"
+        model: "account.move"
+        domain:
+          - ["id", "=", "EVAL: registry['payslip'].move_id.id"]
+        save_as: "account_move"
+        limit: 1
+
+      - step: "Assert move has operating unit set"
+        action: "assert"
+        target: "account_move"
+        asserts:
+          operating_unit_id:
+            type: "value"
+            operator: "is_truthy"
