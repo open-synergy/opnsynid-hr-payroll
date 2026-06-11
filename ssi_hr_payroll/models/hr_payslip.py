@@ -213,6 +213,15 @@ class HrPayslip(models.Model):
         required=True,
         readonly=True,
         states={"draft": [("readonly", False)]},
+        help="Accounting journal used for this payslip entry.",
+    )
+    usage_id = fields.Many2one(
+        string="Usage",
+        comodel_name="product.usage_type",
+        ondelete="restrict",
+        readonly=True,
+        states={"draft": [("readonly", False)]},
+        help="Product usage type for this payslip.",
     )
     debit_account_2b_reconciled_ids = fields.Many2many(
         string="Debit Accounts To Be Reconciled",
@@ -347,6 +356,14 @@ class HrPayslip(models.Model):
         self.journal_id = False
         if self.type_id:
             self.journal_id = self.type_id.journal_id
+
+    @api.onchange(
+        "type_id",
+    )
+    def onchange_usage_id(self):
+        self.usage_id = False
+        if self.type_id:
+            self.usage_id = self.type_id.usage_id
 
     @api.onchange(
         "structure_id",

@@ -114,6 +114,7 @@
                 <field name="structure_id" />
                 <field name="rule_ids" widget="many2many_tags" invisible="1" />
                 <field name="journal_id" />
+                <field name="usage_id" />
             </xpath>
             <xpath expr="//notebook/page[@name='note']" position="before">
                 <page name="page_detail" string="Details">

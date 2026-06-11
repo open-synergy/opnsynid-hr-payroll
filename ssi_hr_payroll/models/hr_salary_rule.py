@@ -60,10 +60,18 @@ class HrSalaryRule(models.Model):
         string="Reconcile Credit Move",
         default=False,
     )
+    product_id = fields.Many2one(
+        string="Product",
+        comodel_name="product.product",
+        ondelete="restrict",
+        help="Product associated with this salary rule.",
+    )
     contribution_id = fields.Many2one(
         string="Salary Contribution",
         comodel_name="hr.salary_contribution",
         ondelete="restrict",
+        help="Salary contribution record linked to this rule "
+        "for employer/employee contribution calculations.",
     )
     condition_python = fields.Text(
         string="Python Condition",

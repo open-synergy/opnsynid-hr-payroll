@@ -77,10 +77,18 @@ class HrPayslipLine(models.Model):
             partner_id = self.payslip_id.employee_id.address_home_id.id
         return partner_id
 
+    def _get_account_by_product_usage(self):
+        self.ensure_one()
+        payslip = self.payslip_id
+        if not payslip.usage_id or not self.rule_id.product_id:
+            return False
+        return self.rule_id.product_id._get_product_account(payslip.usage_id.code)
+
     def _prepare_aml_debit_data(self, move):
         self.ensure_one()
         payslip = self.payslip_id
-        debit_account_id = self.rule_id.debit_account_id.id
+        account = self._get_account_by_product_usage()
+        debit_account_id = account.id if account else self.rule_id.debit_account_id.id
         amount = self.amount
         name = _("%s for %s") % (self.rule_id.name, payslip.name)
 
@@ -98,7 +106,8 @@ class HrPayslipLine(models.Model):
     def _prepare_aml_credit_data(self, move):
         self.ensure_one()
         payslip = self.payslip_id
-        credit_account_id = self.rule_id.credit_account_id.id
+        account = self._get_account_by_product_usage()
+        credit_account_id = account.id if account else self.rule_id.credit_account_id.id
         amount = self.amount
         name = _("%s for %s") % (self.rule_id.name, payslip.name)
 
