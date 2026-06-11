@@ -17,6 +17,7 @@
         "ssi_duration_mixin",
         "ssi_employee_document_mixin",
         "ssi_financial_accounting",
+        "ssi_product_usage_account_type",
     ],
     "data": [
         "menu.xml",

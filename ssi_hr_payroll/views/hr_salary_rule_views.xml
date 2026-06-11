@@ -102,6 +102,7 @@
                         <group name="grp_salary_rule_header" colspan="1" col="2">
                             <field name="parent_id" />
                             <field name="category_id" />
+                            <field name="product_id" />
                             <field name="appear_on_payslip" widget="boolean_toggle" />
                         </group>
                     </group>

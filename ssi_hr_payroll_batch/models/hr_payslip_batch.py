@@ -79,12 +79,29 @@ class HrPayslipBatch(models.Model):
         readonly=True,
         states={"draft": [("readonly", False)]},
     )
+    usage_id = fields.Many2one(
+        string="Usage",
+        comodel_name="product.usage_type",
+        ondelete="restrict",
+        readonly=True,
+        states={"draft": [("readonly", False)]},
+        help="Product usage type for this payslip batch.",
+    )
     date = fields.Date(
         string="Batch Date",
         required=True,
         readonly=True,
         states={"draft": [("readonly", False)]},
+        help="Date of the payslip batch.",
     )
+
+    @api.onchange(
+        "type_id",
+    )
+    def onchange_usage_id(self):
+        self.usage_id = False
+        if self.type_id:
+            self.usage_id = self.type_id.usage_id
 
     @api.depends(
         "company_id",
@@ -158,6 +175,7 @@ class HrPayslipBatch(models.Model):
             "type_id": type.id,
             "structure_id": structure_id,
             "journal_id": type.journal_id.id,
+            "usage_id": self.usage_id.id,
             "date": self.date,
             "date_start": self.date_start,
             "date_end": self.date_end,

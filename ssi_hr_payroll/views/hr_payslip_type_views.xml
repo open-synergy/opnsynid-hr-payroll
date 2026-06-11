@@ -53,6 +53,7 @@
             <data>
                 <xpath expr="//field[@name='active']" position="before">
                     <field name="journal_id" />
+                    <field name="usage_id" />
                 </xpath>
             </data>
         </field>
