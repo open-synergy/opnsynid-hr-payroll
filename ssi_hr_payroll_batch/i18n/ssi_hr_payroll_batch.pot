@@ -254,6 +254,11 @@ msgid "Date Start"
 msgstr ""
 
 #. module: ssi_hr_payroll_batch
+#: model:ir.model.fields,help:ssi_hr_payroll_batch.field_hr_payslip_batch__date
+msgid "Date of the payslip batch."
+msgstr ""
+
+#. module: ssi_hr_payroll_batch
 #: model:ir.model.fields,field_description:ssi_hr_payroll_batch.field_hr_payslip__display_name
 #: model:ir.model.fields,field_description:ssi_hr_payroll_batch.field_hr_payslip_batch__display_name
 msgid "Display Name"
@@ -485,6 +490,11 @@ msgid "Policy Template"
 msgstr ""
 
 #. module: ssi_hr_payroll_batch
+#: model:ir.model.fields,help:ssi_hr_payroll_batch.field_hr_payslip_batch__usage_id
+msgid "Product usage type for this payslip batch."
+msgstr ""
+
+#. module: ssi_hr_payroll_batch
 #: model_terms:ir.ui.view,arch_db:ssi_hr_payroll_batch.hr_payslip_batch_view_form
 msgid "Re-Compute"
 msgstr ""
@@ -593,6 +603,11 @@ msgstr ""
 #. module: ssi_hr_payroll_batch
 #: model:ir.model.fields,field_description:ssi_hr_payroll_batch.field_hr_payslip_batch__message_unread_counter
 msgid "Unread Messages Counter"
+msgstr ""
+
+#. module: ssi_hr_payroll_batch
+#: model:ir.model.fields,field_description:ssi_hr_payroll_batch.field_hr_payslip_batch__usage_id
+msgid "Usage"
 msgstr ""
 
 #. module: ssi_hr_payroll_batch
