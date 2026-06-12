@@ -77,18 +77,30 @@ class HrPayslipLine(models.Model):
             partner_id = self.payslip_id.employee_id.address_home_id.id
         return partner_id
 
-    def _get_account_by_product_usage(self):
+    def _get_account_by_product_usage(self, usage):
         self.ensure_one()
-        payslip = self.payslip_id
-        if not payslip.usage_id or not self.rule_id.product_id:
+        if not usage or not self.rule_id.product_id:
             return False
-        return self.rule_id.product_id._get_product_account(payslip.usage_id.code)
+        return self.rule_id.product_id._get_product_account(usage.code)
+
+    def _get_debit_account(self):
+        self.ensure_one()
+        account = self._get_account_by_product_usage(self.payslip_id.debit_usage_id)
+        if account:
+            return account
+        return self.rule_id.debit_account_id
+
+    def _get_credit_account(self):
+        self.ensure_one()
+        account = self._get_account_by_product_usage(self.payslip_id.credit_usage_id)
+        if account:
+            return account
+        return self.rule_id.credit_account_id
 
     def _prepare_aml_debit_data(self, move):
         self.ensure_one()
         payslip = self.payslip_id
-        account = self._get_account_by_product_usage()
-        debit_account_id = account.id if account else self.rule_id.debit_account_id.id
+        debit_account_id = self._get_debit_account().id
         amount = self.amount
         name = _("%s for %s") % (self.rule_id.name, payslip.name)
 
@@ -106,8 +118,7 @@ class HrPayslipLine(models.Model):
     def _prepare_aml_credit_data(self, move):
         self.ensure_one()
         payslip = self.payslip_id
-        account = self._get_account_by_product_usage()
-        credit_account_id = account.id if account else self.rule_id.credit_account_id.id
+        credit_account_id = self._get_credit_account().id
         amount = self.amount
         name = _("%s for %s") % (self.rule_id.name, payslip.name)
 
@@ -130,7 +141,7 @@ class HrPayslipLine(models.Model):
         credit_sum = 0.0
 
         for document in self.filtered(lambda l: l.amount).sudo():
-            if document.rule_id.debit_account_id:
+            if document._get_debit_account():
                 debit_data = document._prepare_aml_debit_data(move)
                 debit_sum += debit_data["debit"] - debit_data["credit"]
                 move_line = obj_account_move_line.create(debit_data)
@@ -138,7 +149,7 @@ class HrPayslipLine(models.Model):
                     document.move_line_debit_id = move_line.id
                 elif move_line.credit > 0:
                     document.move_line_credit_id = move_line.id
-            if document.rule_id.credit_account_id:
+            if document._get_credit_account():
                 credit_data = document._prepare_aml_credit_data(move)
                 credit_sum += credit_data["credit"] - credit_data["debit"]
                 move_line = obj_account_move_line.create(credit_data)
