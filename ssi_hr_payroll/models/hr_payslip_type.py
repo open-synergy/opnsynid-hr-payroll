@@ -18,9 +18,17 @@ class HrPayslipType(models.Model):
         ondelete="restrict",
         help="Accounting journal used for payslip entries of this type.",
     )
-    usage_id = fields.Many2one(
-        string="Usage",
+    debit_usage_id = fields.Many2one(
+        string="Debit Usage",
         comodel_name="product.usage_type",
         ondelete="restrict",
-        help="Product usage type associated with this payslip type.",
+        help="Product usage type used to resolve the debit account "
+        "of payslip entries of this type.",
+    )
+    credit_usage_id = fields.Many2one(
+        string="Credit Usage",
+        comodel_name="product.usage_type",
+        ondelete="restrict",
+        help="Product usage type used to resolve the credit account "
+        "of payslip entries of this type.",
     )
