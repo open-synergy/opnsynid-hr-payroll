@@ -65,7 +65,8 @@
         <data>
             <xpath expr="//group[@name='header_left']" position="inside">
                 <field name="type_id" />
-                <field name="usage_id" />
+                <field name="debit_usage_id" />
+                <field name="credit_usage_id" />
             </xpath>
             <xpath expr="//group[@name='header_right']" position="inside">
                 <field name="date" />

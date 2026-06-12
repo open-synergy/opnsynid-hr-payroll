@@ -79,13 +79,23 @@ class HrPayslipBatch(models.Model):
         readonly=True,
         states={"draft": [("readonly", False)]},
     )
-    usage_id = fields.Many2one(
-        string="Usage",
+    debit_usage_id = fields.Many2one(
+        string="Debit Usage",
         comodel_name="product.usage_type",
         ondelete="restrict",
         readonly=True,
         states={"draft": [("readonly", False)]},
-        help="Product usage type for this payslip batch.",
+        help="Product usage type used to resolve the debit account "
+        "of this payslip batch.",
+    )
+    credit_usage_id = fields.Many2one(
+        string="Credit Usage",
+        comodel_name="product.usage_type",
+        ondelete="restrict",
+        readonly=True,
+        states={"draft": [("readonly", False)]},
+        help="Product usage type used to resolve the credit account "
+        "of this payslip batch.",
     )
     date = fields.Date(
         string="Batch Date",
@@ -98,10 +108,18 @@ class HrPayslipBatch(models.Model):
     @api.onchange(
         "type_id",
     )
-    def onchange_usage_id(self):
-        self.usage_id = False
+    def onchange_debit_usage_id(self):
+        self.debit_usage_id = False
         if self.type_id:
-            self.usage_id = self.type_id.usage_id
+            self.debit_usage_id = self.type_id.debit_usage_id
+
+    @api.onchange(
+        "type_id",
+    )
+    def onchange_credit_usage_id(self):
+        self.credit_usage_id = False
+        if self.type_id:
+            self.credit_usage_id = self.type_id.credit_usage_id
 
     @api.depends(
         "company_id",
@@ -175,7 +193,8 @@ class HrPayslipBatch(models.Model):
             "type_id": type.id,
             "structure_id": structure_id,
             "journal_id": type.journal_id.id,
-            "usage_id": self.usage_id.id,
+            "debit_usage_id": self.debit_usage_id.id,
+            "credit_usage_id": self.credit_usage_id.id,
             "date": self.date,
             "date_start": self.date_start,
             "date_end": self.date_end,
