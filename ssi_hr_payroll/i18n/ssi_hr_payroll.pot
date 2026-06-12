@@ -438,6 +438,12 @@ msgid "Credit Accounts To Be Reconciled"
 msgstr ""
 
 #. module: ssi_hr_payroll
+#: model:ir.model.fields,field_description:ssi_hr_payroll.field_hr_payslip__credit_usage_id
+#: model:ir.model.fields,field_description:ssi_hr_payroll.field_hr_payslip_type__credit_usage_id
+msgid "Credit Usage"
+msgstr ""
+
+#. module: ssi_hr_payroll
 #: model:ir.model.fields,field_description:ssi_hr_payroll.field_hr_payslip__date
 #: model_terms:ir.ui.view,arch_db:ssi_hr_payroll.hr_payslip_view_search
 msgid "Date"
@@ -464,6 +470,12 @@ msgstr ""
 #. module: ssi_hr_payroll
 #: model:ir.model.fields,field_description:ssi_hr_payroll.field_hr_payslip__debit_account_2b_reconciled_ids
 msgid "Debit Accounts To Be Reconciled"
+msgstr ""
+
+#. module: ssi_hr_payroll
+#: model:ir.model.fields,field_description:ssi_hr_payroll.field_hr_payslip__debit_usage_id
+#: model:ir.model.fields,field_description:ssi_hr_payroll.field_hr_payslip_type__debit_usage_id
+msgid "Debit Usage"
 msgstr ""
 
 #. module: ssi_hr_payroll
@@ -1153,13 +1165,27 @@ msgid "Product associated with this salary rule."
 msgstr ""
 
 #. module: ssi_hr_payroll
-#: model:ir.model.fields,help:ssi_hr_payroll.field_hr_payslip_type__usage_id
-msgid "Product usage type associated with this payslip type."
+#: model:ir.model.fields,help:ssi_hr_payroll.field_hr_payslip_type__credit_usage_id
+msgid ""
+"Product usage type used to resolve the credit account of payslip entries of "
+"this type."
 msgstr ""
 
 #. module: ssi_hr_payroll
-#: model:ir.model.fields,help:ssi_hr_payroll.field_hr_payslip__usage_id
-msgid "Product usage type for this payslip."
+#: model:ir.model.fields,help:ssi_hr_payroll.field_hr_payslip__credit_usage_id
+msgid "Product usage type used to resolve the credit account of this payslip."
+msgstr ""
+
+#. module: ssi_hr_payroll
+#: model:ir.model.fields,help:ssi_hr_payroll.field_hr_payslip_type__debit_usage_id
+msgid ""
+"Product usage type used to resolve the debit account of payslip entries of "
+"this type."
+msgstr ""
+
+#. module: ssi_hr_payroll
+#: model:ir.model.fields,help:ssi_hr_payroll.field_hr_payslip__debit_usage_id
+msgid "Product usage type used to resolve the debit account of this payslip."
 msgstr ""
 
 #. module: ssi_hr_payroll
@@ -1424,12 +1450,6 @@ msgstr ""
 #: model:ir.model.fields,field_description:ssi_hr_payroll.field_hr_salary_rule_category__message_unread_counter
 #: model:ir.model.fields,field_description:ssi_hr_payroll.field_hr_salary_structure__message_unread_counter
 msgid "Unread Messages Counter"
-msgstr ""
-
-#. module: ssi_hr_payroll
-#: model:ir.model.fields,field_description:ssi_hr_payroll.field_hr_payslip__usage_id
-#: model:ir.model.fields,field_description:ssi_hr_payroll.field_hr_payslip_type__usage_id
-msgid "Usage"
 msgstr ""
 
 #. module: ssi_hr_payroll
