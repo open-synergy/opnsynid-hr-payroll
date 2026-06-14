@@ -18,6 +18,12 @@ class HrPayslipType(models.Model):
         ondelete="restrict",
         help="Accounting journal used for payslip entries of this type.",
     )
+    analytic_account_id = fields.Many2one(
+        string="Analytic Account",
+        comodel_name="account.analytic.account",
+        ondelete="restrict",
+        help="Analytic account used for journal items of payslip entries of this type.",
+    )
     debit_usage_id = fields.Many2one(
         string="Debit Usage",
         comodel_name="product.usage_type",
