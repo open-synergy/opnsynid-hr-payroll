@@ -196,6 +196,23 @@ msgid "Amount Python"
 msgstr ""
 
 #. module: ssi_hr_payroll
+#: model:ir.model.fields,field_description:ssi_hr_payroll.field_hr_payslip__analytic_account_id
+#: model:ir.model.fields,field_description:ssi_hr_payroll.field_hr_payslip_type__analytic_account_id
+msgid "Analytic Account"
+msgstr ""
+
+#. module: ssi_hr_payroll
+#: model:ir.model.fields,help:ssi_hr_payroll.field_hr_payslip__analytic_account_id
+msgid "Analytic account used for all journal items of this payslip."
+msgstr ""
+
+#. module: ssi_hr_payroll
+#: model:ir.model.fields,help:ssi_hr_payroll.field_hr_payslip_type__analytic_account_id
+msgid ""
+"Analytic account used for journal items of payslip entries of this type."
+msgstr ""
+
+#. module: ssi_hr_payroll
 #: model_terms:ir.ui.view,arch_db:ssi_hr_payroll.hr_salary_rule_view_search
 msgid "Appear On Payslip"
 msgstr ""
