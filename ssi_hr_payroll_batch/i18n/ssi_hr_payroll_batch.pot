@@ -96,6 +96,16 @@ msgid "Allowed Policy Templates"
 msgstr ""
 
 #. module: ssi_hr_payroll_batch
+#: model:ir.model.fields,field_description:ssi_hr_payroll_batch.field_hr_payslip_batch__analytic_account_id
+msgid "Analytic Account"
+msgstr ""
+
+#. module: ssi_hr_payroll_batch
+#: model:ir.model.fields,help:ssi_hr_payroll_batch.field_hr_payslip_batch__analytic_account_id
+msgid "Analytic account used for journal items of payslips in this batch."
+msgstr ""
+
+#. module: ssi_hr_payroll_batch
 #: model:ir.model.fields,help:ssi_hr_payroll_batch.field_hr_payslip_batch__approval_template_id
 msgid "Approval Configuration"
 msgstr ""
