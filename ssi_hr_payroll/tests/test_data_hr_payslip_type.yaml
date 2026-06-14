@@ -70,3 +70,43 @@ scenarios:
           active:
             type: "value"
             expected: false
+
+  - name: "HR Payslip Type - Create with analytic account"
+    steps:
+      - step: "Create analytic account"
+        action: "create"
+        model: "account.analytic.account"
+        save_as: "analytic"
+        values:
+          name: "Test Payslip Type Analytic Account"
+
+      - step: "Create payslip type with analytic account"
+        action: "create"
+        model: "hr.payslip_type"
+        save_as: "payslip_type"
+        values:
+          name: "Test Payslip Type With Analytic"
+          code: "TSTTYPE04"
+          analytic_account_id: "EVAL: registry['analytic'].id"
+
+      - step: "Assert analytic account is set"
+        action: "assert"
+        target: "payslip_type"
+        asserts:
+          analytic_account_id:
+            type: "value"
+            operator: "is_truthy"
+
+      - step: "Edit analytic account"
+        action: "write"
+        target: "payslip_type"
+        values:
+          analytic_account_id: false
+
+      - step: "Assert analytic account cleared"
+        action: "assert"
+        target: "payslip_type"
+        asserts:
+          analytic_account_id:
+            type: "value"
+            operator: "is_falsy"

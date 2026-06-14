@@ -113,6 +113,8 @@ class HrPayslipLine(models.Model):
             "debit": amount > 0.0 and amount or 0.0,
             "credit": amount < 0.0 and -amount or 0.0,
         }
+        if payslip.analytic_account_id:
+            data["analytic_account_id"] = payslip.analytic_account_id.id
         return data
 
     def _prepare_aml_credit_data(self, move):
@@ -131,6 +133,8 @@ class HrPayslipLine(models.Model):
             "debit": amount < 0.0 and -amount or 0.0,
             "credit": amount > 0.0 and amount or 0.0,
         }
+        if payslip.analytic_account_id:
+            data["analytic_account_id"] = payslip.analytic_account_id.id
         return data
 
     def create_move_line(self, move):

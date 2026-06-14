@@ -65,6 +65,7 @@
         <data>
             <xpath expr="//group[@name='header_left']" position="inside">
                 <field name="type_id" />
+                <field name="analytic_account_id" />
                 <field name="debit_usage_id" />
                 <field name="credit_usage_id" />
             </xpath>

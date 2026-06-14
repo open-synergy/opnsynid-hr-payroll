@@ -215,6 +215,14 @@ class HrPayslip(models.Model):
         states={"draft": [("readonly", False)]},
         help="Accounting journal used for this payslip entry.",
     )
+    analytic_account_id = fields.Many2one(
+        string="Analytic Account",
+        comodel_name="account.analytic.account",
+        ondelete="restrict",
+        readonly=True,
+        states={"draft": [("readonly", False)]},
+        help="Analytic account used for all journal items of this payslip.",
+    )
     debit_usage_id = fields.Many2one(
         string="Debit Usage",
         comodel_name="product.usage_type",
@@ -381,6 +389,14 @@ class HrPayslip(models.Model):
         self.credit_usage_id = False
         if self.type_id:
             self.credit_usage_id = self.type_id.credit_usage_id
+
+    @api.onchange(
+        "type_id",
+    )
+    def onchange_analytic_account_id(self):
+        self.analytic_account_id = False
+        if self.type_id:
+            self.analytic_account_id = self.type_id.analytic_account_id
 
     @api.onchange(
         "structure_id",
