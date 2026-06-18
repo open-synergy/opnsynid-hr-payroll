@@ -1,0 +1,77 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<!-- Copyright 2024 OpenSynergy Indonesia
+     Copyright 2024 PT. Simetri Sinergi Indonesia
+     License AGPL-3.0 or later (http://www.gnu.org/licenses/agpl). -->
+<odoo>
+
+    <!-- Paper format: landscape for wide salary table -->
+    <record id="report_payslip_batch_summary_paperformat" model="report.paperformat">
+        <field name="name">Payslip Batch Summary - Landscape</field>
+        <field name="default" eval="False" />
+        <field name="format">A4</field>
+        <field name="orientation">Landscape</field>
+        <field name="margin_top">10</field>
+        <field name="margin_bottom">8</field>
+        <field name="margin_left">5</field>
+        <field name="margin_right">5</field>
+        <field name="header_line" eval="False" />
+        <field name="header_spacing">10</field>
+        <field name="dpi">96</field>
+    </record>
+
+    <!-- HTML on-screen report (view dulu di layar) -->
+    <record id="action_report_hr_payslip_batch_summary_html" model="ir.actions.report">
+        <field name="name">Salary Summary</field>
+        <field name="model">hr.payslip_batch</field>
+        <field name="report_type">qweb-html</field>
+        <field
+            name="report_name"
+        >ssi_hr_payroll_batch_summary_report.batch_summary</field>
+        <field
+            name="report_file"
+        >ssi_hr_payroll_batch_summary_report.batch_summary</field>
+        <field
+            name="binding_model_id"
+            ref="ssi_hr_payroll_batch.model_hr_payslip_batch"
+        />
+        <field name="binding_type">report</field>
+    </record>
+
+    <!-- PDF report -->
+    <record id="action_report_hr_payslip_batch_summary_pdf" model="ir.actions.report">
+        <field name="name">Salary Summary PDF</field>
+        <field name="model">hr.payslip_batch</field>
+        <field name="report_type">qweb-pdf</field>
+        <field
+            name="report_name"
+        >ssi_hr_payroll_batch_summary_report.batch_summary</field>
+        <field
+            name="report_file"
+        >ssi_hr_payroll_batch_summary_report.batch_summary</field>
+        <field name="paperformat_id" ref="report_payslip_batch_summary_paperformat" />
+        <field
+            name="binding_model_id"
+            ref="ssi_hr_payroll_batch.model_hr_payslip_batch"
+        />
+        <field name="binding_type">report</field>
+    </record>
+
+    <!-- XLSX report -->
+    <record id="action_report_hr_payslip_batch_summary_xlsx" model="ir.actions.report">
+        <field name="name">Salary Summary XLSX</field>
+        <field name="model">hr.payslip_batch</field>
+        <field name="report_type">xlsx</field>
+        <field
+            name="report_name"
+        >ssi_hr_payroll_batch_summary_report.batch_summary_xlsx</field>
+        <field
+            name="report_file"
+        >ssi_hr_payroll_batch_summary_report.batch_summary_xlsx</field>
+        <field
+            name="binding_model_id"
+            ref="ssi_hr_payroll_batch.model_hr_payslip_batch"
+        />
+        <field name="binding_type">report</field>
+    </record>
+
+</odoo>

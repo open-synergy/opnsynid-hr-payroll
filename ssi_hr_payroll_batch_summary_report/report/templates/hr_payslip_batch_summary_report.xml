@@ -1,0 +1,151 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<!-- Copyright 2024 OpenSynergy Indonesia
+     Copyright 2024 PT. Simetri Sinergi Indonesia
+     License AGPL-3.0 or later (http://www.gnu.org/licenses/agpl). -->
+<odoo>
+
+    <template id="batch_summary">
+        <t t-call="web.html_container">
+            <t t-foreach="docs" t-as="doc">
+                <t t-call="web.internal_layout">
+                    <t
+                        t-call="ssi_hr_payroll_batch_summary_report.batch_summary_content"
+                    />
+                </t>
+            </t>
+        </t>
+    </template>
+
+    <template id="batch_summary_content">
+        <t t-set="batch" t-value="doc['batch']" />
+        <t t-set="rules" t-value="doc['rules']" />
+        <t t-set="payslips" t-value="doc['payslips']" />
+        <t t-set="rule_totals_fmt" t-value="doc['rule_totals_fmt']" />
+
+        <div class="page">
+            <!-- Action buttons: hidden when printing to PDF -->
+            <div class="row mb-3 no-print">
+                <div class="col-12">
+                    <a
+                        t-att-href="'/report/xlsx/ssi_hr_payroll_batch_summary_report.batch_summary_xlsx/%d' % batch.id"
+                        class="btn btn-sm btn-primary"
+                    >
+                        <i class="fa fa-file-excel-o" /> Export XLSX
+                    </a>
+                    <a
+                        t-att-href="'/report/pdf/ssi_hr_payroll_batch_summary_report.batch_summary/%d' % batch.id"
+                        class="btn btn-sm btn-secondary ml-2"
+                        target="_blank"
+                    >
+                        <i class="fa fa-file-pdf-o" /> Download PDF
+                    </a>
+                </div>
+            </div>
+
+            <!-- Report header -->
+            <div class="row">
+                <div class="col-8">
+                    <h4 style="margin:0; font-weight:bold;">
+                        DAFTAR GAJI
+                        <t t-esc="batch.company_id.name or ''" />
+                    </h4>
+                    <t t-if="batch.analytic_account_id">
+                        <h5 style="margin:0;">
+                            <t t-esc="batch.analytic_account_id.name" />
+                        </h5>
+                    </t>
+                </div>
+                <div class="col-4 text-right">
+                    <h4 style="margin:0; font-weight:bold;">
+                        BULAN:
+                        <t
+                            t-if="batch.date"
+                            t-esc="batch.date.strftime('%B %Y').upper()"
+                        />
+                    </h4>
+                    <div style="font-size:10px;">
+                        Periode:
+                        <t
+                            t-esc="batch.date_start.strftime('%d/%m/%Y') if batch.date_start else ''"
+                        />
+                        s/d
+                        <t
+                            t-esc="batch.date_end.strftime('%d/%m/%Y') if batch.date_end else ''"
+                        />
+                    </div>
+                </div>
+            </div>
+
+            <div class="row mt-3">
+                <div class="col-12">
+                    <!-- Salary summary table -->
+                    <table
+                        class="table table-bordered table-condensed"
+                        style="font-size:8px; width:100%;"
+                    >
+                        <thead>
+                            <tr
+                                style="background-color:#C6EFCE; font-weight:bold; text-align:center; vertical-align:middle;"
+                            >
+                                <th style="width:30px;">No</th>
+                                <th style="min-width:160px; text-align:left;">Nama</th>
+                                <t t-foreach="rules" t-as="rule">
+                                    <th style="min-width:90px;">
+                                        <t t-esc="rule.name" />
+                                    </th>
+                                </t>
+                                <th
+                                    style="min-width:90px; background-color:#FFE699;"
+                                >Total</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <t t-foreach="payslips" t-as="row">
+                                <tr style="vertical-align:middle;">
+                                    <td style="text-align:center;" t-esc="row['no']" />
+                                    <td>
+                                        <!-- Link opens payslip form in Odoo -->
+                                        <a
+                                            t-att-href="'/web#id=%d&amp;model=hr.payslip&amp;view_type=form' % row['payslip'].id"
+                                        >
+                                            <t
+                                                t-esc="row['payslip'].employee_id.name or ''"
+                                            />
+                                        </a>
+                                    </td>
+                                    <t t-foreach="rules" t-as="rule">
+                                        <td style="text-align:right;">
+                                            <t
+                                                t-esc="row['amounts_fmt'].get(rule.id, '0')"
+                                            />
+                                        </td>
+                                    </t>
+                                    <td
+                                        style="text-align:right; font-weight:bold; background-color:#FFFFC0;"
+                                        t-esc="row['total_fmt']"
+                                    />
+                                </tr>
+                            </t>
+                        </tbody>
+                        <tfoot>
+                            <tr
+                                style="background-color:#FFFFCC; font-weight:bold; vertical-align:middle;"
+                            >
+                                <td colspan="2" style="text-align:right;">Total</td>
+                                <t t-foreach="rules" t-as="rule">
+                                    <td style="text-align:right;">
+                                        <t t-esc="rule_totals_fmt.get(rule.id, '0')" />
+                                    </td>
+                                </t>
+                                <td style="text-align:right; background-color:#FFE699;">
+                                    <t t-esc="doc['grand_total_fmt']" />
+                                </td>
+                            </tr>
+                        </tfoot>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </template>
+
+</odoo>
