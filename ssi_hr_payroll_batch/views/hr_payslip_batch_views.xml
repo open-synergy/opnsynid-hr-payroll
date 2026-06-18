@@ -119,6 +119,20 @@
                                 class="oe_highlight"
                                 attrs="{'invisible': [('state', '!=', 'open')]}"
                             />
+                    <button
+                                name="action_export_input"
+                                string="Export Input"
+                                type="object"
+                                icon="fa-download"
+                                attrs="{'invisible': [('state', '=', 'draft')]}"
+                            />
+                    <button
+                                name="%(hr_payslip_batch_input_import_action)d"
+                                string="Import Input"
+                                type="action"
+                                icon="fa-upload"
+                                attrs="{'invisible': [('state', '!=', 'open')]}"
+                            />
                     </group>
                     <field name="payslip_ids" colspan="4" nolabel="1" />
                 </page>
