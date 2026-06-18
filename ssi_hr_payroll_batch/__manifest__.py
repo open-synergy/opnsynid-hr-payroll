@@ -21,6 +21,7 @@
         "data/sequence_template_data.xml",
         "data/policy_template_data.xml",
         "data/approval_template_data.xml",
+        "views/hr_payslip_batch_input_import_views.xml",
         "views/hr_payslip_batch_views.xml",
         "views/hr_payslip_views.xml",
     ],

@@ -2,6 +2,11 @@
 # Copyright 2022 PT. Simetri Sinergi Indonesia
 # License AGPL-3.0 or later (http://www.gnu.org/licenses/agpl-3.0-standalone.html).
 
+import base64
+import io
+
+import xlsxwriter
+
 from odoo import _, api, fields, models
 from odoo.exceptions import UserError
 
@@ -261,6 +266,66 @@ class HrPayslipBatch(models.Model):
     def _reload_employee(self):
         self.ensure_one()
         self.write({"employee_ids": [(6, 0, self.allowed_employee_ids.ids)]})
+
+    def _get_batch_input_type_ids(self):
+        """Return all distinct payslip input types used across every payslip
+        of this batch, sorted by their code. These become the dynamic input
+        columns of the export/import spreadsheet."""
+        self.ensure_one()
+        input_type_ids = self.payslip_ids.mapped("input_line_ids.input_type_id")
+        return input_type_ids.sorted(key=lambda record: (record.code or "", record.id))
+
+    def _prepare_input_export_filename(self):
+        self.ensure_one()
+        name = self.name and self.name != "/" and self.name or str(self.id)
+        return "payslip_batch_input_%s.xlsx" % name
+
+    def action_export_input(self):
+        """Generate an xlsx file containing, for every payslip of the batch,
+        its database ID, the employee name, and one dynamic column per input
+        code present in the batch. The cell value is the input amount."""
+        self.ensure_one()
+        input_type_ids = self._get_batch_input_type_ids()
+
+        output = io.BytesIO()
+        workbook = xlsxwriter.Workbook(output, {"in_memory": True})
+        sheet = workbook.add_worksheet("Payslip Inputs")
+        header_format = workbook.add_format({"bold": True})
+
+        headers = ["Payslip ID", "Employee"]
+        headers += [input_type.code for input_type in input_type_ids]
+        for column, header in enumerate(headers):
+            sheet.write(0, column, header, header_format)
+
+        row = 1
+        for payslip in self.payslip_ids:
+            amount_by_code = {
+                line.input_type_id.code: line.amount for line in payslip.input_line_ids
+            }
+            sheet.write_number(row, 0, payslip.id)
+            sheet.write_string(row, 1, payslip.employee_id.name or "")
+            for column, input_type in enumerate(input_type_ids, start=2):
+                if input_type.code in amount_by_code:
+                    sheet.write_number(row, column, amount_by_code[input_type.code])
+            row += 1
+
+        workbook.close()
+        output.seek(0)
+        attachment = self.env["ir.attachment"].create(
+            {
+                "name": self._prepare_input_export_filename(),
+                "datas": base64.b64encode(output.read()),
+                "res_model": self._name,
+                "res_id": self.id,
+                "mimetype": "application/vnd.openxmlformats-officedocument."
+                "spreadsheetml.sheet",
+            }
+        )
+        return {
+            "type": "ir.actions.act_url",
+            "url": "/web/content/%s?download=true" % attachment.id,
+            "target": "new",
+        }
 
     def action_open(self):
         _super = super(HrPayslipBatch, self)
