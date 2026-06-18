@@ -7,6 +7,7 @@
     <template id="batch_summary">
         <t t-call="web.html_container">
             <t t-foreach="docs" t-as="doc">
+                <t t-set="o" t-value="doc['batch']" />
                 <t t-call="web.internal_layout">
                     <t
                         t-call="ssi_hr_payroll_batch_summary_report.batch_summary_content"
