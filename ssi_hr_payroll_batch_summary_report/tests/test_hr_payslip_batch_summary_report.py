@@ -209,12 +209,18 @@ class TestHrPayslipBatchSummaryReport(SavepointCase):
 
     def test_action_print_salary_summary_returns_action(self):
         """action_print_salary_summary returns a dict with type ir.actions.report."""
-        action = self.batch.action_print_salary_summary()
+        # discard_logo_check prevents Odoo from redirecting to the document
+        # layout configurator when external_report_layout_id is unset (CI env).
+        action = self.batch.with_context(
+            discard_logo_check=True
+        ).action_print_salary_summary()
         self.assertIsInstance(action, dict)
         self.assertEqual(action.get("type"), "ir.actions.report")
 
     def test_action_export_salary_summary_xlsx_returns_action(self):
         """action_export_salary_summary_xlsx returns a dict with type ir.actions.report."""
-        action = self.batch.action_export_salary_summary_xlsx()
+        action = self.batch.with_context(
+            discard_logo_check=True
+        ).action_export_salary_summary_xlsx()
         self.assertIsInstance(action, dict)
         self.assertEqual(action.get("type"), "ir.actions.report")
