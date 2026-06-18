@@ -207,6 +207,29 @@ class TestHrPayslipBatchSummaryReport(SavepointCase):
         self.assertIn("total_fmt", row)
         self.assertEqual(row["total_fmt"], "750.000")
 
+    def test_xlsx_report_generates_file(self):
+        """generate_xlsx_report produces a non-empty XLSX file for a batch."""
+        report_xlsx = self.env[
+            "report.ssi_hr_payroll_batch_summary_report.batch_summary_xlsx"
+        ].with_context(active_model="hr.payslip_batch")
+        content, content_type = report_xlsx.create_xlsx_report([self.batch.id], {})
+        self.assertEqual(content_type, "xlsx")
+        self.assertTrue(content)
+
+    def test_xlsx_report_with_analytic_account(self):
+        """generate_xlsx_report handles batches that have an analytic account set."""
+        analytic = self.env["account.analytic.account"].create(
+            {"name": "SR Report Analytic"}
+        )
+        self.batch.analytic_account_id = analytic.id
+        report_xlsx = self.env[
+            "report.ssi_hr_payroll_batch_summary_report.batch_summary_xlsx"
+        ].with_context(active_model="hr.payslip_batch")
+        content, content_type = report_xlsx.create_xlsx_report([self.batch.id], {})
+        self.assertEqual(content_type, "xlsx")
+        self.assertTrue(content)
+        self.batch.analytic_account_id = False
+
     def test_action_print_salary_summary_returns_action(self):
         """action_print_salary_summary returns a dict with type ir.actions.report."""
         # discard_logo_check prevents Odoo from redirecting to the document
