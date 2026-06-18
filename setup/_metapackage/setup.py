@@ -12,6 +12,7 @@ setuptools.setup(
         'odoo14-addon-ssi_hr_payroll_batch',
         'odoo14-addon-ssi_hr_payroll_batch_documenso_signing',
         'odoo14-addon-ssi_hr_payroll_batch_operating_unit',
+        'odoo14-addon-ssi_hr_payroll_batch_summary_report',
         'odoo14-addon-ssi_hr_payroll_batch_work_log',
         'odoo14-addon-ssi_hr_payroll_documenso_signing',
         'odoo14-addon-ssi_hr_payroll_operating_unit',
