@@ -80,8 +80,8 @@
             </xpath>
             <xpath expr="//notebook/page[@name='note']" position="before">
                 <page name="employee" string="Employees">
-                    <group>
-                    <button
+                    <div>
+                        <button
                                 name="action_reload_employee"
                                 string="Reload"
                                 type="object"
@@ -89,7 +89,7 @@
                                 class="oe_highlight"
                                 states="draft"
                             />
-                    </group>
+                    </div>
                     <div>
                         <h3>
                         Only employees who have salary structure can be selected!
@@ -110,8 +110,8 @@
                         />
                 </page>
                 <page name="payslip" string="Payslips">
-                    <group>
-                    <button
+                    <div>
+                        <button
                                 name="action_compute_payslip"
                                 string="Re-Compute"
                                 type="object"
@@ -119,21 +119,23 @@
                                 class="oe_highlight"
                                 attrs="{'invisible': [('state', '!=', 'open')]}"
                             />
-                    <button
+                        <button
                                 name="action_export_input"
                                 string="Export Input"
                                 type="object"
                                 icon="fa-download"
+                                class="ml-2"
                                 attrs="{'invisible': [('state', '=', 'draft')]}"
                             />
-                    <button
+                        <button
                                 name="%(hr_payslip_batch_input_import_action)d"
                                 string="Import Input"
                                 type="action"
                                 icon="fa-upload"
+                                class="ml-2"
                                 attrs="{'invisible': [('state', '!=', 'open')]}"
                             />
-                    </group>
+                    </div>
                     <field name="payslip_ids" colspan="4" nolabel="1" />
                 </page>
             </xpath>
