@@ -62,14 +62,14 @@ class TestHrPayslipBatchOperatingUnit(YamlTransactionCase):
         employee_ou1 = self.env["hr.employee"].create(
             {
                 "name": "OU Reload Test Employee OU1",
-                "manual_salary_structure_id": structure.id,
+                "salary_structure_id": structure.id,
                 "operating_unit_id": ou1.id,
             }
         )
         self.env["hr.employee"].create(
             {
                 "name": "OU Reload Test Employee OU2",
-                "manual_salary_structure_id": structure.id,
+                "salary_structure_id": structure.id,
                 "operating_unit_id": ou2.id,
             }
         )
