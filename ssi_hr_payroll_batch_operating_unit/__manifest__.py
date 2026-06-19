@@ -12,6 +12,7 @@
     "depends": [
         "ssi_hr_payroll_batch",
         "ssi_hr_payroll_operating_unit",
+        "ssi_hr_employee_operating_unit",
         "ssi_operating_unit_mixin",
     ],
     "data": [
