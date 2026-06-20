@@ -198,6 +198,7 @@ msgstr ""
 #. module: ssi_hr_payroll
 #: model:ir.model.fields,field_description:ssi_hr_payroll.field_hr_payslip__analytic_account_id
 #: model:ir.model.fields,field_description:ssi_hr_payroll.field_hr_payslip_type__analytic_account_id
+#: model_terms:ir.ui.view,arch_db:ssi_hr_payroll.hr_payslip_view_search
 msgid "Analytic Account"
 msgstr ""
 
@@ -674,6 +675,12 @@ msgstr ""
 #. module: ssi_hr_payroll
 #: model_terms:ir.ui.view,arch_db:ssi_hr_payroll.hr_salary_rule_view_form
 msgid "General"
+msgstr ""
+
+#. module: ssi_hr_payroll
+#: model_terms:ir.ui.view,arch_db:ssi_hr_payroll.hr_employee_input_type_view_search
+#: model_terms:ir.ui.view,arch_db:ssi_hr_payroll.hr_payslip_input_type_view_search
+msgid "Has Default Amount"
 msgstr ""
 
 #. module: ssi_hr_payroll
