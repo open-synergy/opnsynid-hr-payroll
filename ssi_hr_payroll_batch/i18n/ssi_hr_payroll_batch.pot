@@ -164,6 +164,7 @@ msgstr ""
 
 #. module: ssi_hr_payroll_batch
 #: model:ir.model.fields,field_description:ssi_hr_payroll_batch.field_hr_payslip_batch__analytic_account_id
+#: model_terms:ir.ui.view,arch_db:ssi_hr_payroll_batch.hr_payslip_batch_view_search
 msgid "Analytic Account"
 msgstr ""
 
