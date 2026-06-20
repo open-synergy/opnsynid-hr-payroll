@@ -15,13 +15,21 @@
         <data>
             <xpath expr="//field[@name='user_id']" position="after">
                 <field name="type_id" />
+                <field name="analytic_account_id" />
                 <field name="date" />
+                <field name="date_start" />
+                <field name="date_end" />
             </xpath>
             <xpath expr="//group[@name='group_by']" position="inside">
                 <filter
                         name="grp_type"
                         string="Type"
                         context="{'group_by':'type_id'}"
+                    />
+                <filter
+                        name="grp_analytic_account"
+                        string="Analytic Account"
+                        context="{'group_by':'analytic_account_id'}"
                     />
                 <filter name="grp_date" string="Date" context="{'group_by':'date'}" />
                 <filter
