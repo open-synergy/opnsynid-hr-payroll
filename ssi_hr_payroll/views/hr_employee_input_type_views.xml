@@ -13,7 +13,18 @@
         />
         <field name="mode">primary</field>
         <field name="arch" type="xml">
-            <data />
+            <data>
+                <xpath expr="//field[@name='code']" position="after">
+                    <field name="default_amount" />
+                </xpath>
+                <xpath expr="//search" position="inside">
+                    <filter
+                        name="dom_has_default_amount"
+                        string="Has Default Amount"
+                        domain="[('default_amount', '!=', 0.0)]"
+                    />
+                </xpath>
+            </data>
         </field>
     </record>
 
