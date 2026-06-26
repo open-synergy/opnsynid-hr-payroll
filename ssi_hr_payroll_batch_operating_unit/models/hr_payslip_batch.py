@@ -13,6 +13,8 @@ class HrPayslipBatch(models.Model):  # pylint: disable=too-few-public-methods
     Overrides _compute_employee_ids to filter allowed employees by the batch OU.
     Overrides _prepare_payslip_data to propagate operating_unit_id
     to each generated payslip.
+    Overrides _prepare_standard_move to propagate operating_unit_id
+    to the batch-level journal entry.
     """
 
     _name = "hr.payslip_batch"
@@ -40,5 +42,10 @@ class HrPayslipBatch(models.Model):  # pylint: disable=too-few-public-methods
 
     def _prepare_payslip_data(self, employee):
         res = super()._prepare_payslip_data(employee)
+        res["operating_unit_id"] = self.operating_unit_id.id
+        return res
+
+    def _prepare_standard_move(self):
+        res = super()._prepare_standard_move()
         res["operating_unit_id"] = self.operating_unit_id.id
         return res
