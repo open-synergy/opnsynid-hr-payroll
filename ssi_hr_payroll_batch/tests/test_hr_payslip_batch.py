@@ -181,13 +181,17 @@ class TestHrPayslipBatch(YamlTransactionCase):
                 "journal_id": journal.id,
             }
         )
-        employee = self.env["hr.employee"].create(
-            {
-                "name": "Test Input Employee",
-                "method": "manual",
-                "manual_salary_structure_id": structure.id,
-            }
+        emp_vals = {"name": "Test Input Employee"}
+        emp_model = self.env["hr.employee"]
+        if "method" in emp_model._fields:
+            emp_vals["method"] = "manual"
+        struct_field = (
+            "manual_salary_structure_id"
+            if "manual_salary_structure_id" in emp_model._fields
+            else "salary_structure_id"
         )
+        emp_vals[struct_field] = structure.id
+        employee = emp_model.create(emp_vals)
         batch = self.env["hr.payslip_batch"].create(
             {
                 "type_id": payslip_type.id,

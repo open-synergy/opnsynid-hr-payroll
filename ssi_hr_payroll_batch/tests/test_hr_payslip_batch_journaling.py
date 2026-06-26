@@ -2,16 +2,14 @@
 # Copyright 2026 PT. Simetri Sinergi Indonesia
 # License AGPL-3.0 or later (http://www.gnu.org/licenses/agpl).
 
+from odoo_yaml_test import YamlTransactionCase
+
 from odoo.exceptions import UserError, ValidationError
 from odoo.tests import Form, tagged
 
-from odoo.addons.ssi_hr_payroll_batch.tests.test_hr_payslip_batch import (
-    TestHrPayslipBatch,
-)
-
 
 @tagged("post_install", "-at_install")
-class TestHrPayslipBatchJournaling(TestHrPayslipBatch):
+class TestHrPayslipBatchJournaling(YamlTransactionCase):
     """Tests for batch-level journaling (plan §5, tests 3-15 + 17-18)."""
 
     # ------------------------------------------------------------------ #
