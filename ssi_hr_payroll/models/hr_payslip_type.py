@@ -4,6 +4,11 @@
 
 from odoo import fields, models
 
+ACCOUNTING_METHOD = [
+    ("payslip", "Journal at Payslip"),
+    ("batch", "Journal at Batch"),
+]
+
 
 class HrPayslipType(models.Model):
     _name = "hr.payslip_type"
@@ -12,6 +17,15 @@ class HrPayslipType(models.Model):
     ]
     _description = "Payslip Type"
 
+    accounting_method = fields.Selection(
+        string="Accounting Method",
+        selection=ACCOUNTING_METHOD,
+        default="payslip",
+        required=True,
+        help="Controls where the journal entry is created. "
+        "'Journal at Payslip' (default): each payslip creates its own journal entry. "
+        "'Journal at Batch': the batch aggregates all payslip lines into a single entry.",
+    )
     journal_id = fields.Many2one(
         string="Journal",
         comodel_name="account.journal",

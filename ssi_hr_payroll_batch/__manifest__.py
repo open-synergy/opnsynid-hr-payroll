@@ -11,6 +11,8 @@
     "depends": [
         "ssi_hr_payroll",
         "ssi_transaction_open_mixin",
+        "ssi_accounting_entry_mixin",
+        "ssi_company_currency_mixin",
     ],
     "data": [
         "security/ir_module_category_data.xml",
@@ -27,4 +29,7 @@
     ],
     "demo": [],
     "images": [],
+    "external_dependencies": {
+        "python": ["openpyxl", "xlsxwriter"],
+    },
 }

@@ -8,7 +8,10 @@ import io
 import xlsxwriter
 
 from odoo import _, api, fields, models
-from odoo.exceptions import UserError
+from odoo.exceptions import UserError, ValidationError
+
+from odoo.addons.ssi_decorator import ssi_decorator
+from odoo.addons.ssi_hr_payroll.models.hr_payslip_type import ACCOUNTING_METHOD
 
 
 class HrPayslipBatch(models.Model):
@@ -20,6 +23,8 @@ class HrPayslipBatch(models.Model):
         "mixin.transaction_done",
         "mixin.transaction_cancel",
         "mixin.date_duration",
+        "mixin.account_move",
+        "mixin.company_currency",
     ]
     # Multiple Approval Attribute
     _approval_from_state = "draft"
@@ -77,12 +82,70 @@ class HrPayslipBatch(models.Model):
     _date_end_states_list = ["draft"]
     _date_end_states_readonly = ["draft"]
 
+    # mixin.account_move config
+    _journal_id_field_name = "journal_id"
+    _move_id_field_name = "move_id"
+    _accounting_date_field_name = "date"
+    _number_field_name = "name"
+    _currency_id_field_name = "company_currency_id"
+    _company_currency_id_field_name = "company_currency_id"
+
     type_id = fields.Many2one(
         string="Type",
         comodel_name="hr.payslip_type",
         required=True,
         readonly=True,
         states={"draft": [("readonly", False)]},
+    )
+    accounting_method = fields.Selection(
+        string="Accounting Method",
+        selection=ACCOUNTING_METHOD,
+        default="payslip",
+        required=True,
+        readonly=True,
+        states={"draft": [("readonly", False)]},
+        help="Controls where the journal entry is created. "
+        "'Journal at Payslip' (default): each payslip creates its own entry. "
+        "'Journal at Batch': a single aggregated entry is created for the whole batch.",
+    )
+    journal_id = fields.Many2one(
+        string="Journal",
+        comodel_name="account.journal",
+        ondelete="restrict",
+        readonly=True,
+        states={"draft": [("readonly", False)]},
+        help="Accounting journal for the batch-level journal entry. "
+        "Required when Accounting Method is 'Journal at Batch'.",
+    )
+    move_id = fields.Many2one(
+        string="# Accounting Entry",
+        comodel_name="account.move",
+        readonly=True,
+        copy=False,
+        ondelete="restrict",
+    )
+    move_line_debit_id = fields.Many2one(
+        string="Move Line Debit (Adjustment)",
+        comodel_name="account.move.line",
+        readonly=True,
+        copy=False,
+        ondelete="restrict",
+    )
+    move_line_credit_id = fields.Many2one(
+        string="Move Line Credit (Adjustment)",
+        comodel_name="account.move.line",
+        readonly=True,
+        copy=False,
+        ondelete="restrict",
+    )
+    account_entry_ids = fields.One2many(
+        string="Account Entries",
+        comodel_name="hr.payslip_batch_account_entry",
+        inverse_name="batch_id",
+        readonly=True,
+        copy=False,
+        help="Aggregated (rule, partner) journal entries for this batch "
+        "(only populated when Accounting Method is 'Journal at Batch').",
     )
     analytic_account_id = fields.Many2one(
         string="Analytic Account",
@@ -121,6 +184,22 @@ class HrPayslipBatch(models.Model):
     @api.onchange(
         "type_id",
     )
+    def onchange_accounting_method(self):
+        self.accounting_method = "payslip"
+        if self.type_id:
+            self.accounting_method = self.type_id.accounting_method
+
+    @api.onchange(
+        "type_id",
+    )
+    def onchange_journal_id(self):
+        self.journal_id = False
+        if self.type_id:
+            self.journal_id = self.type_id.journal_id
+
+    @api.onchange(
+        "type_id",
+    )
     def onchange_analytic_account_id(self):
         self.analytic_account_id = False
         if self.type_id:
@@ -141,6 +220,22 @@ class HrPayslipBatch(models.Model):
         self.credit_usage_id = False
         if self.type_id:
             self.credit_usage_id = self.type_id.credit_usage_id
+
+    @api.constrains("accounting_method", "journal_id")
+    def _check_batch_journal_id_required(self):
+        for record in self:
+            if record.accounting_method == "batch" and not record.journal_id:
+                raise ValidationError(
+                    _(
+                        """
+Context: Validate payslip batch accounting configuration
+Database ID: %s
+Problem: Journal is required when Accounting Method is 'Journal at Batch'
+Solution: Set a journal on the batch, or change the Accounting Method to 'Journal at Payslip'
+                    """
+                    )
+                    % (record.id,)
+                )
 
     @api.depends(
         "company_id",
@@ -359,21 +454,14 @@ class HrPayslipBatch(models.Model):
             draft_payslip_ids = document.payslip_ids.filtered(
                 lambda x: x.state == "draft"
             )
-            draft_payslip_ids.action_confirm()
+            draft_payslip_ids.with_context(from_batch=True).action_confirm()
             _check_state = document._check_payslip_state(["draft"])
             if _check_state:
                 return _super.action_confirm()
 
     def action_approve_approval(self):
-        _super = super(HrPayslipBatch, self)
-        for document in self.sudo():
-            confirm_payslip_ids = document.payslip_ids.filtered(
-                lambda x: x.state == "confirm"
-            )
-            confirm_payslip_ids.action_approve_approval()
-            _check_state = document._check_payslip_state(["confirm"])
-            if _check_state:
-                return _super.action_approve_approval()
+        """Record batch approval. Payslips are driven to done in _05_done_payslip."""
+        return super(HrPayslipBatch, self).action_approve_approval()
 
     def action_reject_approval(self):
         _super = super(HrPayslipBatch, self)
@@ -392,7 +480,9 @@ class HrPayslipBatch(models.Model):
             cancel_payslip_ids = document.payslip_ids.filtered(
                 lambda x: x.state in ["draft", "open", "confirm", "done"]
             )
-            cancel_payslip_ids.action_cancel(cancel_reason)
+            cancel_payslip_ids.with_context(from_batch=True).action_cancel(
+                cancel_reason
+            )
             _check_state = document._check_payslip_state(
                 ["draft", "open", "confirm", "done"]
             )
@@ -405,7 +495,190 @@ class HrPayslipBatch(models.Model):
             cancel_payslip_ids = document.payslip_ids.filtered(
                 lambda x: x.state in ["cancel", "reject"]
             )
-            cancel_payslip_ids.action_restart()
+            cancel_payslip_ids.with_context(from_batch=True).action_restart()
             _check_state = document._check_payslip_state(["cancel", "reject"])
             if _check_state:
                 return _super.action_restart()
+
+    # -- post_done_action: drive payslips to done first --
+
+    @ssi_decorator.post_done_action()
+    def _05_done_payslip(self):
+        """Drive all batch payslips to done atomically before journaling."""
+        self.ensure_one()
+        payslips_to_done = self.payslip_ids.filtered(
+            lambda p: p.state not in ["done", "cancel"]
+        )
+        for payslip in payslips_to_done:
+            payslip.with_context(from_batch=True).action_approve_approval()
+        not_done = self.payslip_ids.filtered(lambda p: p.state != "done")
+        if not_done:
+            raise UserError(
+                _(
+                    """
+Context: Process payslip batch to done
+Database ID: %s
+Problem: %d payslip(s) could not be transitioned to done state
+Solution: Check the individual payslip state, approval configuration, \
+and required fields
+                """
+                )
+                % (self.id, len(not_done))
+            )
+
+    # -- post_done_action: batch journal entry --
+
+    @ssi_decorator.post_done_action()
+    def _10_create_accounting_entry(self):
+        self.ensure_one()
+        if self.accounting_method != "batch":
+            return True
+        self._prepare_batch_account_entries()
+        self._create_standard_move()
+        debit_sum = 0.0
+        credit_sum = 0.0
+        for entry in self.account_entry_ids:
+            debit_ml, credit_ml = entry._create_standard_ml()
+            entry.write(
+                {
+                    "debit_move_line_id": debit_ml.id,
+                    "credit_move_line_id": credit_ml.id,
+                }
+            )
+            debit_sum += debit_ml.debit - debit_ml.credit
+            credit_sum += credit_ml.credit - credit_ml.debit
+        self._create_balance_adjustment(debit_sum, credit_sum)
+        self._post_standard_move()
+        self._reconcile_batch_account_entry()
+
+    # -- post_cancel_action: reverse batch journal entry --
+
+    @ssi_decorator.post_cancel_action()
+    def _xx_cancel_accounting_entry(self):
+        self.ensure_one()
+        if not self.move_id:
+            return True
+        self._unreconcile_batch_account_entry()
+        self.account_entry_ids.write(
+            {
+                "debit_move_line_id": False,
+                "credit_move_line_id": False,
+            }
+        )
+        self.write(
+            {
+                "move_line_debit_id": False,
+                "move_line_credit_id": False,
+            }
+        )
+        self._delete_standard_move()
+        self.account_entry_ids.unlink()
+
+    # -- aggregation helpers --
+
+    def _prepare_batch_account_entries(self):
+        self.ensure_one()
+        self.account_entry_ids.unlink()
+        lines = self.payslip_ids.mapped("line_ids").filtered(lambda l: l.amount)
+        groups = {}
+        for line in lines:
+            partner_id = line._get_partner_id()
+            key = (line.rule_id.id, partner_id)
+            debit_acc = line._get_debit_account()
+            credit_acc = line._get_credit_account()
+            if key not in groups:
+                groups[key] = {
+                    "rule_id": line.rule_id.id,
+                    "partner_id": partner_id or False,
+                    "debit_account_id": debit_acc.id if debit_acc else False,
+                    "credit_account_id": credit_acc.id if credit_acc else False,
+                    "amount": 0.0,
+                }
+            groups[key]["amount"] += line.amount
+        Entry = self.env["hr.payslip_batch_account_entry"]
+        for vals in groups.values():
+            if vals["amount"]:
+                vals["batch_id"] = self.id
+                Entry.create(vals)
+
+    def _prepare_balance_adjustment_aml(
+        self, currency, credit_sum, debit_sum, move, type_data
+    ):
+        self.ensure_one()
+        journal_acc_id = self.journal_id.default_account_id.id
+        if not journal_acc_id:
+            raise UserError(
+                _(
+                    """
+Context: Create balance adjustment for payslip batch
+Database ID: %s
+Problem: Journal '%s' has no default account configured
+Solution: Set a default account on the journal, or configure it via \
+the accounting journal settings
+                """
+                )
+                % (self.id, self.journal_id.name)
+            )
+        data = {
+            "move_id": move.id,
+            "name": _("Adjustment Entry"),
+            "partner_id": False,
+            "account_id": journal_acc_id,
+            "journal_id": self.journal_id.id,
+            "date": self.date,
+        }
+        if type_data == "debit":
+            data["debit"] = currency.round(credit_sum - debit_sum)
+            data["credit"] = 0.0
+        else:
+            data["credit"] = currency.round(debit_sum - credit_sum)
+            data["debit"] = 0.0
+        return data
+
+    def _create_balance_adjustment(self, debit_sum, credit_sum):
+        self.ensure_one()
+        ML = self.env["account.move.line"].with_context(check_move_validity=False)
+        currency = self.company_currency_id
+        move = self.move_id
+        if currency.compare_amounts(credit_sum, debit_sum) == -1:
+            ml = ML.create(
+                self._prepare_balance_adjustment_aml(
+                    currency, credit_sum, debit_sum, move, "credit"
+                )
+            )
+            self.move_line_credit_id = ml.id
+        elif currency.compare_amounts(debit_sum, credit_sum) == -1:
+            ml = ML.create(
+                self._prepare_balance_adjustment_aml(
+                    currency, credit_sum, debit_sum, move, "debit"
+                )
+            )
+            self.move_line_debit_id = ml.id
+
+    # -- reconciliation helpers --
+
+    def _get_batch_allowance_ref_ml(self):
+        self.ensure_one()
+        return self.payslip_ids.mapped("allowance_ref_move_line_ids")
+
+    def _get_batch_deduction_ref_ml(self):
+        self.ensure_one()
+        return self.payslip_ids.mapped("deduction_ref_move_line_ids")
+
+    def _reconcile_batch_account_entry(self):
+        self.ensure_one()
+        allowance = self._get_batch_allowance_ref_ml()
+        deduction = self._get_batch_deduction_ref_ml()
+        for entry in self.account_entry_ids:
+            if entry.rule_id.reconcile_debit and entry.debit_move_line_id:
+                entry._reconcile_debit(allowance)
+            if entry.rule_id.reconcile_credit and entry.credit_move_line_id:
+                entry._reconcile_credit(deduction)
+
+    def _unreconcile_batch_account_entry(self):
+        self.ensure_one()
+        for entry in self.account_entry_ids:
+            if entry.debit_move_line_id:
+                entry.debit_move_line_id.remove_move_reconcile()
+            if entry.credit_move_line_id:
+                entry.credit_move_line_id.remove_move_reconcile()
