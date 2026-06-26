@@ -73,6 +73,11 @@
         <data>
             <xpath expr="//group[@name='header_left']" position="inside">
                 <field name="type_id" />
+                <field name="accounting_method" />
+                <field
+                        name="journal_id"
+                        attrs="{'required': [('accounting_method','=','batch')]}"
+                    />
                 <field name="analytic_account_id" />
                 <field name="debit_usage_id" />
                 <field name="credit_usage_id" />
@@ -145,6 +150,34 @@
                             />
                     </div>
                     <field name="payslip_ids" colspan="4" nolabel="1" />
+                </page>
+                <page
+                        name="journal_entry"
+                        string="Journal Entry"
+                        attrs="{'invisible': [('accounting_method','!=','batch')]}"
+                    >
+                    <group name="grp_journal_entry" colspan="4" cols="2">
+                        <field name="move_id" />
+                        <field name="move_line_debit_id" />
+                        <field name="move_line_credit_id" />
+                    </group>
+                    <field
+                            name="account_entry_ids"
+                            colspan="4"
+                            nolabel="1"
+                            mode="tree"
+                            readonly="1"
+                        >
+                        <tree>
+                            <field name="rule_id" />
+                            <field name="partner_id" />
+                            <field name="debit_account_id" />
+                            <field name="credit_account_id" />
+                            <field name="amount" />
+                            <field name="debit_move_line_id" />
+                            <field name="credit_move_line_id" />
+                        </tree>
+                    </field>
                 </page>
             </xpath>
         </data>
