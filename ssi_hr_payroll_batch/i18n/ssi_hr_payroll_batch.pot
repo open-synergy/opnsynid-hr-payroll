@@ -26,6 +26,18 @@ msgid ""
 msgstr ""
 
 #. module: ssi_hr_payroll_batch
+#: code:addons/ssi_hr_payroll_batch/models/hr_payslip_batch.py:0
+#, python-format
+msgid ""
+"\n"
+"Context: Create balance adjustment for payslip batch\n"
+"Database ID: %s\n"
+"Problem: Journal '%s' has no default account configured\n"
+"Solution: Set a default account on the journal, or configure it via the accounting journal settings\n"
+"                "
+msgstr ""
+
+#. module: ssi_hr_payroll_batch
 #: code:addons/ssi_hr_payroll_batch/wizards/hr_payslip_batch_input_import.py:0
 #, python-format
 msgid ""
@@ -93,13 +105,92 @@ msgid ""
 msgstr ""
 
 #. module: ssi_hr_payroll_batch
+#: code:addons/ssi_hr_payroll_batch/models/hr_payslip.py:0
+#, python-format
+msgid ""
+"\n"
+"Context: Payslip workflow action '%s'\n"
+"Database ID: %s\n"
+"Problem: This payslip belongs to a batch and cannot be processed individually\n"
+"Solution: Use the payslip batch workflow to drive payslip state changes\n"
+"                "
+msgstr ""
+
+#. module: ssi_hr_payroll_batch
+#: code:addons/ssi_hr_payroll_batch/models/hr_payslip_batch.py:0
+#, python-format
+msgid ""
+"\n"
+"Context: Process payslip batch to done\n"
+"Database ID: %s\n"
+"Problem: %d payslip(s) could not be transitioned to done state\n"
+"Solution: Check the individual payslip state, approval configuration, and required fields\n"
+"                "
+msgstr ""
+
+#. module: ssi_hr_payroll_batch
+#: code:addons/ssi_hr_payroll_batch/models/hr_payslip_batch.py:0
+#, python-format
+msgid ""
+"\n"
+"Context: Validate payslip batch accounting configuration\n"
+"Database ID: %s\n"
+"Problem: Journal is required when Accounting Method is 'Journal at Batch'\n"
+"Solution: Set a journal on the batch, or change the Accounting Method to 'Journal at Payslip'\n"
+"                    "
+msgstr ""
+
+#. module: ssi_hr_payroll_batch
+#: model:ir.model.fields,field_description:ssi_hr_payroll_batch.field_hr_payslip_batch__move_id
+msgid "# Accounting Entry"
+msgstr ""
+
+#. module: ssi_hr_payroll_batch
 #: model:ir.model.fields,field_description:ssi_hr_payroll_batch.field_hr_payslip_batch__name
 msgid "# Document"
 msgstr ""
 
 #. module: ssi_hr_payroll_batch
+#: code:addons/ssi_hr_payroll_batch/models/hr_payslip_batch_account_entry.py:0
+#, python-format
+msgid "%s / %s"
+msgstr ""
+
+#. module: ssi_hr_payroll_batch
 #: model_terms:ir.ui.view,arch_db:ssi_hr_payroll_batch.hr_payslip_batch_view_form
 msgid "<span class=\"o_form_label mx-3\"> to </span>"
+msgstr ""
+
+#. module: ssi_hr_payroll_batch
+#: model:ir.model.fields,field_description:ssi_hr_payroll_batch.field_hr_payslip_batch__account_entry_ids
+msgid "Account Entries"
+msgstr ""
+
+#. module: ssi_hr_payroll_batch
+#: model:ir.model.fields,help:ssi_hr_payroll_batch.field_hr_payslip_batch_account_entry__credit_account_id
+msgid "Account to credit for this aggregated salary rule."
+msgstr ""
+
+#. module: ssi_hr_payroll_batch
+#: model:ir.model.fields,help:ssi_hr_payroll_batch.field_hr_payslip_batch_account_entry__debit_account_id
+msgid "Account to debit for this aggregated salary rule."
+msgstr ""
+
+#. module: ssi_hr_payroll_batch
+#: model:ir.model.fields,field_description:ssi_hr_payroll_batch.field_hr_payslip_batch__accounting_method
+msgid "Accounting Method"
+msgstr ""
+
+#. module: ssi_hr_payroll_batch
+#: model:ir.model.fields,help:ssi_hr_payroll_batch.field_hr_payslip_batch_account_entry__date
+msgid "Accounting date inherited from the batch."
+msgstr ""
+
+#. module: ssi_hr_payroll_batch
+#: model:ir.model.fields,help:ssi_hr_payroll_batch.field_hr_payslip_batch__journal_id
+msgid ""
+"Accounting journal for the batch-level journal entry. Required when "
+"Accounting Method is 'Journal at Batch'."
 msgstr ""
 
 #. module: ssi_hr_payroll_batch
@@ -143,6 +234,19 @@ msgid "Activity Type Icon"
 msgstr ""
 
 #. module: ssi_hr_payroll_batch
+#: code:addons/ssi_hr_payroll_batch/models/hr_payslip_batch.py:0
+#, python-format
+msgid "Adjustment Entry"
+msgstr ""
+
+#. module: ssi_hr_payroll_batch
+#: model:ir.model.fields,help:ssi_hr_payroll_batch.field_hr_payslip_batch__account_entry_ids
+msgid ""
+"Aggregated (rule, partner) journal entries for this batch (only populated "
+"when Accounting Method is 'Journal at Batch')."
+msgstr ""
+
+#. module: ssi_hr_payroll_batch
 #: model:res.groups,name:ssi_hr_payroll_batch.hr_payslip_batch_all_group
 msgid "All"
 msgstr ""
@@ -163,9 +267,20 @@ msgid "Allowed Policy Templates"
 msgstr ""
 
 #. module: ssi_hr_payroll_batch
+#: model:ir.model.fields,field_description:ssi_hr_payroll_batch.field_hr_payslip_batch_account_entry__amount
+msgid "Amount"
+msgstr ""
+
+#. module: ssi_hr_payroll_batch
 #: model:ir.model.fields,field_description:ssi_hr_payroll_batch.field_hr_payslip_batch__analytic_account_id
+#: model:ir.model.fields,field_description:ssi_hr_payroll_batch.field_hr_payslip_batch_account_entry__analytic_account_id
 #: model_terms:ir.ui.view,arch_db:ssi_hr_payroll_batch.hr_payslip_batch_view_search
 msgid "Analytic Account"
+msgstr ""
+
+#. module: ssi_hr_payroll_batch
+#: model:ir.model.fields,help:ssi_hr_payroll_batch.field_hr_payslip_batch_account_entry__analytic_account_id
+msgid "Analytic account inherited from the batch."
 msgstr ""
 
 #. module: ssi_hr_payroll_batch
@@ -276,13 +391,30 @@ msgstr ""
 
 #. module: ssi_hr_payroll_batch
 #: model:ir.model.fields,field_description:ssi_hr_payroll_batch.field_hr_payslip_batch__company_id
+#: model:ir.model.fields,field_description:ssi_hr_payroll_batch.field_hr_payslip_batch_account_entry__company_id
 #: model:res.groups,name:ssi_hr_payroll_batch.hr_payslip_batch_company_group
 msgid "Company"
 msgstr ""
 
 #. module: ssi_hr_payroll_batch
+#: model:ir.model.fields,field_description:ssi_hr_payroll_batch.field_hr_payslip_batch__company_currency_id
+#: model:ir.model.fields,field_description:ssi_hr_payroll_batch.field_hr_payslip_batch_account_entry__company_currency_id
+msgid "Company Currency"
+msgstr ""
+
+#. module: ssi_hr_payroll_batch
 #: model:ir.model.fields,field_description:ssi_hr_payroll_batch.field_hr_payslip_batch__company_partner_id
 msgid "Company Partner"
+msgstr ""
+
+#. module: ssi_hr_payroll_batch
+#: model:ir.model.fields,help:ssi_hr_payroll_batch.field_hr_payslip_batch_account_entry__company_currency_id
+msgid "Company currency inherited from the batch."
+msgstr ""
+
+#. module: ssi_hr_payroll_batch
+#: model:ir.model.fields,help:ssi_hr_payroll_batch.field_hr_payslip_batch_account_entry__company_id
+msgid "Company inherited from the batch."
 msgstr ""
 
 #. module: ssi_hr_payroll_batch
@@ -303,15 +435,35 @@ msgid ""
 msgstr ""
 
 #. module: ssi_hr_payroll_batch
+#: model:ir.model.fields,help:ssi_hr_payroll_batch.field_hr_payslip_batch__accounting_method
+msgid ""
+"Controls where the journal entry is created. 'Journal at Payslip' (default):"
+" each payslip creates its own entry. 'Journal at Batch': a single aggregated"
+" entry is created for the whole batch."
+msgstr ""
+
+#. module: ssi_hr_payroll_batch
 #: model:ir.model.fields,field_description:ssi_hr_payroll_batch.field_hr_payslip_batch__create_uid
+#: model:ir.model.fields,field_description:ssi_hr_payroll_batch.field_hr_payslip_batch_account_entry__create_uid
 #: model:ir.model.fields,field_description:ssi_hr_payroll_batch.field_hr_payslip_batch_input_import__create_uid
 msgid "Created by"
 msgstr ""
 
 #. module: ssi_hr_payroll_batch
 #: model:ir.model.fields,field_description:ssi_hr_payroll_batch.field_hr_payslip_batch__create_date
+#: model:ir.model.fields,field_description:ssi_hr_payroll_batch.field_hr_payslip_batch_account_entry__create_date
 #: model:ir.model.fields,field_description:ssi_hr_payroll_batch.field_hr_payslip_batch_input_import__create_date
 msgid "Created on"
+msgstr ""
+
+#. module: ssi_hr_payroll_batch
+#: model:ir.model.fields,field_description:ssi_hr_payroll_batch.field_hr_payslip_batch_account_entry__credit_account_id
+msgid "Credit Account"
+msgstr ""
+
+#. module: ssi_hr_payroll_batch
+#: model:ir.model.fields,field_description:ssi_hr_payroll_batch.field_hr_payslip_batch_account_entry__credit_move_line_id
+msgid "Credit Journal Item"
 msgstr ""
 
 #. module: ssi_hr_payroll_batch
@@ -320,6 +472,12 @@ msgid "Credit Usage"
 msgstr ""
 
 #. module: ssi_hr_payroll_batch
+#: model:ir.model.fields,help:ssi_hr_payroll_batch.field_hr_payslip_batch_account_entry__credit_move_line_id
+msgid "Credit move line created for this entry."
+msgstr ""
+
+#. module: ssi_hr_payroll_batch
+#: model:ir.model.fields,field_description:ssi_hr_payroll_batch.field_hr_payslip_batch_account_entry__date
 #: model_terms:ir.ui.view,arch_db:ssi_hr_payroll_batch.hr_payslip_batch_view_search
 msgid "Date"
 msgstr ""
@@ -344,8 +502,23 @@ msgid "Date of the payslip batch."
 msgstr ""
 
 #. module: ssi_hr_payroll_batch
+#: model:ir.model.fields,field_description:ssi_hr_payroll_batch.field_hr_payslip_batch_account_entry__debit_account_id
+msgid "Debit Account"
+msgstr ""
+
+#. module: ssi_hr_payroll_batch
+#: model:ir.model.fields,field_description:ssi_hr_payroll_batch.field_hr_payslip_batch_account_entry__debit_move_line_id
+msgid "Debit Journal Item"
+msgstr ""
+
+#. module: ssi_hr_payroll_batch
 #: model:ir.model.fields,field_description:ssi_hr_payroll_batch.field_hr_payslip_batch__debit_usage_id
 msgid "Debit Usage"
+msgstr ""
+
+#. module: ssi_hr_payroll_batch
+#: model:ir.model.fields,help:ssi_hr_payroll_batch.field_hr_payslip_batch_account_entry__debit_move_line_id
+msgid "Debit move line created for this entry."
 msgstr ""
 
 #. module: ssi_hr_payroll_batch
@@ -356,6 +529,7 @@ msgstr ""
 #. module: ssi_hr_payroll_batch
 #: model:ir.model.fields,field_description:ssi_hr_payroll_batch.field_hr_payslip__display_name
 #: model:ir.model.fields,field_description:ssi_hr_payroll_batch.field_hr_payslip_batch__display_name
+#: model:ir.model.fields,field_description:ssi_hr_payroll_batch.field_hr_payslip_batch_account_entry__display_name
 #: model:ir.model.fields,field_description:ssi_hr_payroll_batch.field_hr_payslip_batch_input_import__display_name
 msgid "Display Name"
 msgstr ""
@@ -432,6 +606,7 @@ msgstr ""
 #. module: ssi_hr_payroll_batch
 #: model:ir.model.fields,field_description:ssi_hr_payroll_batch.field_hr_payslip__id
 #: model:ir.model.fields,field_description:ssi_hr_payroll_batch.field_hr_payslip_batch__id
+#: model:ir.model.fields,field_description:ssi_hr_payroll_batch.field_hr_payslip_batch_account_entry__id
 #: model:ir.model.fields,field_description:ssi_hr_payroll_batch.field_hr_payslip_batch_input_import__id
 msgid "ID"
 msgstr ""
@@ -485,20 +660,49 @@ msgid "Is Follower"
 msgstr ""
 
 #. module: ssi_hr_payroll_batch
+#: model:ir.model.fields,field_description:ssi_hr_payroll_batch.field_hr_payslip_batch__journal_id
+msgid "Journal"
+msgstr ""
+
+#. module: ssi_hr_payroll_batch
+#: model:ir.model.fields,field_description:ssi_hr_payroll_batch.field_hr_payslip_batch_account_entry__move_id
+#: model_terms:ir.ui.view,arch_db:ssi_hr_payroll_batch.hr_payslip_batch_view_form
+msgid "Journal Entry"
+msgstr ""
+
+#. module: ssi_hr_payroll_batch
+#: model:ir.model.fields.selection,name:ssi_hr_payroll_batch.selection__hr_payslip_batch__accounting_method__batch
+msgid "Journal at Batch"
+msgstr ""
+
+#. module: ssi_hr_payroll_batch
+#: model:ir.model.fields.selection,name:ssi_hr_payroll_batch.selection__hr_payslip_batch__accounting_method__payslip
+msgid "Journal at Payslip"
+msgstr ""
+
+#. module: ssi_hr_payroll_batch
+#: model:ir.model.fields,help:ssi_hr_payroll_batch.field_hr_payslip_batch_account_entry__move_id
+msgid "Journal entry of the parent batch."
+msgstr ""
+
+#. module: ssi_hr_payroll_batch
 #: model:ir.model.fields,field_description:ssi_hr_payroll_batch.field_hr_payslip____last_update
 #: model:ir.model.fields,field_description:ssi_hr_payroll_batch.field_hr_payslip_batch____last_update
+#: model:ir.model.fields,field_description:ssi_hr_payroll_batch.field_hr_payslip_batch_account_entry____last_update
 #: model:ir.model.fields,field_description:ssi_hr_payroll_batch.field_hr_payslip_batch_input_import____last_update
 msgid "Last Modified on"
 msgstr ""
 
 #. module: ssi_hr_payroll_batch
 #: model:ir.model.fields,field_description:ssi_hr_payroll_batch.field_hr_payslip_batch__write_uid
+#: model:ir.model.fields,field_description:ssi_hr_payroll_batch.field_hr_payslip_batch_account_entry__write_uid
 #: model:ir.model.fields,field_description:ssi_hr_payroll_batch.field_hr_payslip_batch_input_import__write_uid
 msgid "Last Updated by"
 msgstr ""
 
 #. module: ssi_hr_payroll_batch
 #: model:ir.model.fields,field_description:ssi_hr_payroll_batch.field_hr_payslip_batch__write_date
+#: model:ir.model.fields,field_description:ssi_hr_payroll_batch.field_hr_payslip_batch_account_entry__write_date
 #: model:ir.model.fields,field_description:ssi_hr_payroll_batch.field_hr_payslip_batch_input_import__write_date
 msgid "Last Updated on"
 msgstr ""
@@ -524,6 +728,16 @@ msgstr ""
 #. module: ssi_hr_payroll_batch
 #: model:ir.model.fields,field_description:ssi_hr_payroll_batch.field_hr_payslip_batch__message_ids
 msgid "Messages"
+msgstr ""
+
+#. module: ssi_hr_payroll_batch
+#: model:ir.model.fields,field_description:ssi_hr_payroll_batch.field_hr_payslip_batch__move_line_credit_id
+msgid "Move Line Credit (Adjustment)"
+msgstr ""
+
+#. module: ssi_hr_payroll_batch
+#: model:ir.model.fields,field_description:ssi_hr_payroll_batch.field_hr_payslip_batch__move_line_debit_id
+msgid "Move Line Debit (Adjustment)"
 msgstr ""
 
 #. module: ssi_hr_payroll_batch
@@ -592,7 +806,20 @@ msgid "Only employees who have salary structure can be selected!"
 msgstr ""
 
 #. module: ssi_hr_payroll_batch
+#: model:ir.model.fields,field_description:ssi_hr_payroll_batch.field_hr_payslip_batch_account_entry__partner_id
+msgid "Partner"
+msgstr ""
+
+#. module: ssi_hr_payroll_batch
+#: model:ir.model.fields,help:ssi_hr_payroll_batch.field_hr_payslip_batch_account_entry__partner_id
+msgid ""
+"Partner for this journal line (from contributor or employee home address). "
+"Empty when no contributor is set on the rule."
+msgstr ""
+
+#. module: ssi_hr_payroll_batch
 #: model:ir.model.fields,field_description:ssi_hr_payroll_batch.field_hr_payslip__batch_id
+#: model:ir.model.fields,field_description:ssi_hr_payroll_batch.field_hr_payslip_batch_account_entry__batch_id
 #: model:ir.model.fields,field_description:ssi_hr_payroll_batch.field_hr_payslip_batch_input_import__batch_id
 #: model:ir.module.category,name:ssi_hr_payroll_batch.hr_payslip_batch_data_ownership_module_category
 #: model:ir.module.category,name:ssi_hr_payroll_batch.hr_payslip_batch_module_category
@@ -601,9 +828,19 @@ msgid "Payslip Batch"
 msgstr ""
 
 #. module: ssi_hr_payroll_batch
+#: model:ir.model,name:ssi_hr_payroll_batch.model_hr_payslip_batch_account_entry
+msgid "Payslip Batch Account Entry"
+msgstr ""
+
+#. module: ssi_hr_payroll_batch
 #: model:ir.actions.act_window,name:ssi_hr_payroll_batch.hr_payslip_batch_action
 #: model:ir.ui.menu,name:ssi_hr_payroll_batch.hr_payslip_batch_menu
 msgid "Payslip Batches"
+msgstr ""
+
+#. module: ssi_hr_payroll_batch
+#: model:ir.model.fields,help:ssi_hr_payroll_batch.field_hr_payslip_batch_account_entry__batch_id
+msgid "Payslip batch this aggregation entry belongs to."
 msgstr ""
 
 #. module: ssi_hr_payroll_batch
@@ -690,6 +927,16 @@ msgid "Reviewer"
 msgstr ""
 
 #. module: ssi_hr_payroll_batch
+#: model:ir.model.fields,field_description:ssi_hr_payroll_batch.field_hr_payslip_batch_account_entry__rule_id
+msgid "Salary Rule"
+msgstr ""
+
+#. module: ssi_hr_payroll_batch
+#: model:ir.model.fields,help:ssi_hr_payroll_batch.field_hr_payslip_batch_account_entry__rule_id
+msgid "Salary rule that generated this aggregated amount."
+msgstr ""
+
+#. module: ssi_hr_payroll_batch
 #: model:ir.model.fields,help:ssi_hr_payroll_batch.field_hr_payslip_batch_input_import__data
 msgid ""
 "Spreadsheet (.xlsx) previously exported from this payslip batch, with the "
@@ -716,6 +963,11 @@ msgid ""
 "Overdue: Due date is already passed\n"
 "Today: Activity date is today\n"
 "Planned: Future activities."
+msgstr ""
+
+#. module: ssi_hr_payroll_batch
+#: model:ir.model.fields,help:ssi_hr_payroll_batch.field_hr_payslip_batch_account_entry__amount
+msgid "Total aggregated amount for this (rule, partner) group."
 msgstr ""
 
 #. module: ssi_hr_payroll_batch
