@@ -29,4 +29,7 @@
     ],
     "demo": [],
     "images": [],
+    "external_dependencies": {
+        "python": ["openpyxl", "xlsxwriter"],
+    },
 }
