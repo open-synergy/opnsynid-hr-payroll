@@ -7,6 +7,22 @@ Employee Payslip Batch
 ======================
 
 
+Work Instruction
+================
+
+* `Create Employee Payslip Batch <docs/hr_payslip_batch/01-create.html>`_
+* `Edit Employee Payslip Batch <docs/hr_payslip_batch/02-edit.html>`_
+* `Delete Employee Payslip Batch <docs/hr_payslip_batch/03-delete.html>`_
+* `Open Employee Payslip Batch <docs/hr_payslip_batch/07-start.html>`_
+* `Confirm Employee Payslip Batch <docs/hr_payslip_batch/04-confirm.html>`_
+* `Approve Employee Payslip Batch <docs/hr_payslip_batch/05-approve.html>`_
+* `Reject Employee Payslip Batch <docs/hr_payslip_batch/06-reject.html>`_
+* `Cancel Employee Payslip Batch <docs/hr_payslip_batch/10-cancel.html>`_
+* `Restart Employee Payslip Batch <docs/hr_payslip_batch/12-restart.html>`_
+* `Reset Document Number — Employee Payslip Batch <docs/hr_payslip_batch/13-reset-number.html>`_
+* `Troubleshoot — Employee Payslip Batch <docs/hr_payslip_batch/troubleshoot.html>`_
+
+
 Installation
 ============
 

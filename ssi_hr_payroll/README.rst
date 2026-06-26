@@ -10,6 +10,18 @@ Employee Payslip
 Work Instruction
 ================
 
+Payslip Type
+------------
+
+* `Create Payslip Type <docs/hr_payslip_type/01-create.html>`_
+* `Edit Payslip Type <docs/hr_payslip_type/02-edit.html>`_
+* `Delete Payslip Type <docs/hr_payslip_type/03-delete.html>`_
+* `Deactivate Payslip Type <docs/hr_payslip_type/04-deactivate.html>`_
+* `Activate Payslip Type <docs/hr_payslip_type/05-activate.html>`_
+
+Employee Payslip
+----------------
+
 * `Create Employee Payslip <docs/hr_payslip/01-create.html>`_
 * `Edit Employee Payslip <docs/hr_payslip/02-edit.html>`_
 * `Delete Employee Payslip <docs/hr_payslip/03-delete.html>`_
@@ -19,6 +31,7 @@ Work Instruction
 * `Cancel Employee Payslip <docs/hr_payslip/10-cancel.html>`_
 * `Restart Employee Payslip <docs/hr_payslip/12-restart.html>`_
 * `Reset Document Number — Employee Payslip <docs/hr_payslip/13-reset-number.html>`_
+* `Troubleshoot — Employee Payslip <docs/hr_payslip/troubleshoot.html>`_
 
 Installation
 ============
