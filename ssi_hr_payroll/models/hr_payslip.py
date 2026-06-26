@@ -483,8 +483,16 @@ class HrPayslip(models.Model):
             )
         move.with_context(force_delete=True).unlink()
 
+    def _need_accounting_entry(self):
+        """Hook: return False to skip payslip-level journaling."""
+        self.ensure_one()
+        return True
+
     @ssi_decorator.post_done_action()
     def _10_create_accounting_entry(self):
+        if not self._need_accounting_entry():
+            return True
+
         Move = self.env["account.move"]
         ML = self.env["account.move.line"]
 
