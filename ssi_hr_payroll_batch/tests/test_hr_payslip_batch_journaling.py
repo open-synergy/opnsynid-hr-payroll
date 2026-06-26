@@ -82,12 +82,17 @@ class TestHrPayslipBatchJournaling(TestHrPayslipBatch):
                 "journal_id": journal.id,
             }
         )
+        struct_field = (
+            "manual_salary_structure_id"
+            if "manual_salary_structure_id" in env["hr.employee"]._fields
+            else "salary_structure_id"
+        )
         employees = []
         for i in range(n_employees):
             emp = env["hr.employee"].create(
                 {
                     "name": "%s Employee %d" % (prefix, i + 1),
-                    "manual_salary_structure_id": structure.id,
+                    struct_field: structure.id,
                 }
             )
             employees.append(emp)
