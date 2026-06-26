@@ -37,6 +37,11 @@ msgid "Accounting"
 msgstr ""
 
 #. module: ssi_hr_payroll
+#: model:ir.model.fields,field_description:ssi_hr_payroll.field_hr_payslip_type__accounting_method
+msgid "Accounting Method"
+msgstr ""
+
+#. module: ssi_hr_payroll
 #: model:ir.model.fields,help:ssi_hr_payroll.field_hr_payslip_type__journal_id
 msgid "Accounting journal used for payslip entries of this type."
 msgstr ""
@@ -412,6 +417,14 @@ msgid ""
 "Confirm policy\n"
 "\n"
 "* If active user can see and execute 'Confirm' button"
+msgstr ""
+
+#. module: ssi_hr_payroll
+#: model:ir.model.fields,help:ssi_hr_payroll.field_hr_payslip_type__accounting_method
+msgid ""
+"Controls where the journal entry is created. 'Journal at Payslip' (default):"
+" each payslip creates its own journal entry. 'Journal at Batch': the batch "
+"aggregates all payslip lines into a single entry."
 msgstr ""
 
 #. module: ssi_hr_payroll
@@ -798,6 +811,16 @@ msgstr ""
 #: model_terms:ir.ui.view,arch_db:ssi_hr_payroll.hr_payslip_type_view_search
 #: model_terms:ir.ui.view,arch_db:ssi_hr_payroll.hr_payslip_view_search
 msgid "Journal"
+msgstr ""
+
+#. module: ssi_hr_payroll
+#: model:ir.model.fields.selection,name:ssi_hr_payroll.selection__hr_payslip_type__accounting_method__batch
+msgid "Journal at Batch"
+msgstr ""
+
+#. module: ssi_hr_payroll
+#: model:ir.model.fields.selection,name:ssi_hr_payroll.selection__hr_payslip_type__accounting_method__payslip
+msgid "Journal at Payslip"
 msgstr ""
 
 #. module: ssi_hr_payroll
