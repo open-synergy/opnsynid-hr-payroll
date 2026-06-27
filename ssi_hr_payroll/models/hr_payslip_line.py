@@ -85,6 +85,8 @@ class HrPayslipLine(models.Model):
 
     def _get_debit_account(self):
         self.ensure_one()
+        if not self.rule_id.debit_account_id:
+            return False
         account = self._get_account_by_product_usage(self.payslip_id.debit_usage_id)
         if account:
             return account
@@ -92,6 +94,8 @@ class HrPayslipLine(models.Model):
 
     def _get_credit_account(self):
         self.ensure_one()
+        if not self.rule_id.credit_account_id:
+            return False
         account = self._get_account_by_product_usage(self.payslip_id.credit_usage_id)
         if account:
             return account
