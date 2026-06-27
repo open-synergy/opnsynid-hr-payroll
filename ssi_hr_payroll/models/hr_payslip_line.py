@@ -85,7 +85,11 @@ class HrPayslipLine(models.Model):
 
     def _get_debit_account(self):
         self.ensure_one()
-        if not self.rule_id.debit_account_id:
+        # Block usage from injecting a debit when the rule explicitly covers only the
+        # credit side.  Without this guard a "credit-only" rule (debit_account_id=False,
+        # credit_account_id set) would still pick up a debit account via usage and
+        # produce a spurious double-entry together with the paired "debit-only" rule.
+        if self.rule_id.credit_account_id and not self.rule_id.debit_account_id:
             return False
         account = self._get_account_by_product_usage(self.payslip_id.debit_usage_id)
         if account:
@@ -94,7 +98,11 @@ class HrPayslipLine(models.Model):
 
     def _get_credit_account(self):
         self.ensure_one()
-        if not self.rule_id.credit_account_id:
+        # Block usage from injecting a credit when the rule explicitly covers only the
+        # debit side.  Without this guard a "debit-only" rule (debit_account_id set,
+        # credit_account_id=False) would still pick up a credit account via usage and
+        # produce a spurious double-entry together with the paired "credit-only" rule.
+        if self.rule_id.debit_account_id and not self.rule_id.credit_account_id:
             return False
         account = self._get_account_by_product_usage(self.payslip_id.credit_usage_id)
         if account:

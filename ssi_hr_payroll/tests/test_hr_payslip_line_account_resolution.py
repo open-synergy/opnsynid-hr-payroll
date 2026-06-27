@@ -9,15 +9,15 @@ from odoo.tests import TransactionCase, tagged
 class TestHrPayslipLineAccountResolution(TransactionCase):
     """Regression tests for double-journaling bug in payslip line account resolution.
 
-    When a salary rule has only debit_account_id (no credit_account_id), and the
-    payslip has credit_usage_id set, _get_credit_account() must still return False.
-    And vice versa.
+    The fix only blocks usage resolution when the rule is *asymmetric* — i.e. it has
+    one side's account set but not the other.  When the rule has neither fixed account,
+    usage is still the sole source for both sides (full-usage mode).
 
-    Before the fix, usage resolution in _get_debit_account() / _get_credit_account()
-    would create AMLs for the side that has no account on the rule, causing each paired
-    rule (e.g. "BPJS Perusahaan" + "Iuran BPJS") to independently generate a full
-    double-entry instead of together forming one — resulting in double-journaling of
-    the expense.
+    Scenario that triggered the bug (SGRS): two paired rules:
+      - Rule A (debit-only): debit_account_id=736, credit_account_id=False
+      - Rule B (credit-only): debit_account_id=False, credit_account_id=568
+    Before the fix, usage injected a credit AML for Rule A and a debit AML for Rule B,
+    so the expense account was debited twice instead of once.
     """
 
     def setUp(self):
@@ -73,6 +73,19 @@ class TestHrPayslipLineAccountResolution(TransactionCase):
             }
         )
 
+        # Rule with NO fixed accounts — relies entirely on usage for both sides.
+        self.rule_usage_only = self.env["hr.salary_rule"].create(
+            {
+                "name": "Test Line Resolution Usage Only",
+                "code": "TSLRUSEONLY",
+                "category_id": rule_cat.id,
+                "product_id": self.product.id,
+                "condition_python": "result = True",
+                "amount_python": "result = 100.0",
+                "sequence": 5,
+            }
+        )
+
         # Rule with ONLY debit_account_id — credit_account_id intentionally absent.
         self.rule_debit_only = self.env["hr.salary_rule"].create(
             {
@@ -106,6 +119,7 @@ class TestHrPayslipLineAccountResolution(TransactionCase):
                 "name": "Test Line Resolution Structure",
                 "code": "TSLRSTR",
                 "rule_ids": [
+                    (4, self.rule_usage_only.id),
                     (4, self.rule_debit_only.id),
                     (4, self.rule_credit_only.id),
                 ],
@@ -154,6 +168,16 @@ class TestHrPayslipLineAccountResolution(TransactionCase):
                     "credit_usage_id": self.usage.id,
                 }
             )
+        )
+
+        self.line_usage_only = self.env["hr.payslip_line"].create(
+            {
+                "payslip_id": self.payslip.id,
+                "rule_id": self.rule_usage_only.id,
+                "amount": 100.0,
+                "quantity": 1.0,
+                "rate": 100.0,
+            }
         )
 
         self.line_debit_only = self.env["hr.payslip_line"].create(
@@ -234,3 +258,19 @@ class TestHrPayslipLineAccountResolution(TransactionCase):
         """Positive: _get_credit_account() returns an account when credit_account_id is set."""
         result = self.line_credit_only._get_credit_account()
         self.assertTrue(result)
+
+    def test_no_fixed_account_rule_resolves_debit_via_usage(self):
+        """Full-usage mode: rule with no fixed accounts can still resolve debit via usage."""
+        result = self.line_usage_only._get_debit_account()
+        self.assertTrue(
+            result,
+            "_get_debit_account() must resolve via usage when rule has no fixed accounts",
+        )
+
+    def test_no_fixed_account_rule_resolves_credit_via_usage(self):
+        """Full-usage mode: rule with no fixed accounts can still resolve credit via usage."""
+        result = self.line_usage_only._get_credit_account()
+        self.assertTrue(
+            result,
+            "_get_credit_account() must resolve via usage when rule has no fixed accounts",
+        )
