@@ -541,12 +541,14 @@ and required fields
             debit_ml, credit_ml = entry._create_standard_ml()
             entry.write(
                 {
-                    "debit_move_line_id": debit_ml.id,
-                    "credit_move_line_id": credit_ml.id,
+                    "debit_move_line_id": debit_ml.id if debit_ml else False,
+                    "credit_move_line_id": credit_ml.id if credit_ml else False,
                 }
             )
-            debit_sum += debit_ml.debit - debit_ml.credit
-            credit_sum += credit_ml.credit - credit_ml.debit
+            if debit_ml:
+                debit_sum += debit_ml.debit - debit_ml.credit
+            if credit_ml:
+                credit_sum += credit_ml.credit - credit_ml.debit
         self._create_balance_adjustment(debit_sum, credit_sum)
         self._post_standard_move()
         self._reconcile_batch_account_entry()
@@ -597,7 +599,9 @@ and required fields
             groups[key]["amount"] += line.amount
         Entry = self.env["hr.payslip_batch_account_entry"]
         for vals in groups.values():
-            if vals["amount"]:
+            if vals["amount"] and (
+                vals["debit_account_id"] or vals["credit_account_id"]
+            ):
                 vals["batch_id"] = self.id
                 Entry.create(vals)
 

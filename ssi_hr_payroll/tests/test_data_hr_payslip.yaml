@@ -949,3 +949,348 @@ scenarios:
         domain:
           - ["move_id", "=", "EVAL: registry['payslip'].move_id.id"]
           - ["analytic_account_id", "=", "EVAL: registry['analytic_account'].id"]
+
+  - name: "HR Payslip - Paired one-sided rules without usage"
+    steps:
+      - step: "Get expense account type"
+        action: "ref"
+        xml_id: "account.data_account_type_expenses"
+        save_as: "expense_account_type"
+
+      - step: "Create expense account for debit side"
+        action: "create"
+        model: "account.account"
+        save_as: "debit_account"
+        values:
+          name: "Test One-Sided Debit Account"
+          code: "TSTPSL_OS_DB"
+          user_type_id: "EVAL: registry['expense_account_type'].id"
+
+      - step: "Create payable account for credit side"
+        action: "create"
+        model: "account.account"
+        save_as: "credit_account"
+        values:
+          name: "Test One-Sided Credit Account"
+          code: "TSTPSL_OS_CR"
+          user_type_id: "EVAL: registry['expense_account_type'].id"
+
+      - step: "Create payroll journal"
+        action: "create"
+        model: "account.journal"
+        save_as: "journal"
+        values:
+          name: "Test One-Sided Journal"
+          code: "TSTOSJ"
+          type: "general"
+
+      - step: "Create salary rule category"
+        action: "create"
+        model: "hr.salary_rule_category"
+        save_as: "category"
+        values:
+          name: "Test One-Sided Category"
+          code: "TSTOSCAT"
+
+      - step: "Create debit-only salary rule"
+        action: "create"
+        model: "hr.salary_rule"
+        save_as: "rule_debit"
+        values:
+          name: "Test Debit-Only Rule"
+          code: "TSTOSDBRULE"
+          category_id: "EVAL: registry['category'].id"
+          debit_account_id: "EVAL: registry['debit_account'].id"
+          condition_python: "result = True"
+          amount_python: "result = 100.0"
+          sequence: 10
+
+      - step: "Create credit-only salary rule"
+        action: "create"
+        model: "hr.salary_rule"
+        save_as: "rule_credit"
+        values:
+          name: "Test Credit-Only Rule"
+          code: "TSTOSCRRULE"
+          category_id: "EVAL: registry['category'].id"
+          credit_account_id: "EVAL: registry['credit_account'].id"
+          condition_python: "result = True"
+          amount_python: "result = 100.0"
+          sequence: 20
+
+      - step: "Create salary structure with both one-sided rules"
+        action: "create"
+        model: "hr.salary_structure"
+        save_as: "structure"
+        values:
+          name: "Test One-Sided Structure"
+          code: "TSTOSSTR"
+          rule_ids:
+            - "EVAL: registry['rule_debit'].id"
+            - "EVAL: registry['rule_credit'].id"
+
+      - step: "Create payslip type without usage"
+        action: "create"
+        model: "hr.payslip_type"
+        save_as: "payslip_type"
+        values:
+          name: "Test One-Sided Payslip Type"
+          code: "TSTOSTYPE"
+          journal_id: "EVAL: registry['journal'].id"
+
+      - step: "Create employee"
+        action: "create"
+        model: "hr.employee"
+        save_as: "employee"
+        values:
+          name: "Test One-Sided Employee"
+          salary_structure_id: "EVAL: registry['structure'].id"
+
+      - step: "Create payslip without usage"
+        action: "create"
+        model: "hr.payslip"
+        save_as: "payslip"
+        as_user: "base.user_admin"
+        values:
+          employee_id: "EVAL: registry['employee'].id"
+          type_id: "EVAL: registry['payslip_type'].id"
+          structure_id: "EVAL: registry['structure'].id"
+          journal_id: "EVAL: registry['journal'].id"
+          date_start: "2024-06-01"
+          date_end: "2024-06-30"
+          date: "2024-06-30"
+
+      - step: "Compute payslip"
+        action: "call"
+        target: "payslip"
+        method: "action_compute_payslip"
+        as_user: "base.user_admin"
+
+      - step: "Invalidate cache after compute"
+        action: "call"
+        target: "payslip"
+        method: "invalidate_cache"
+
+      - step: "Confirm payslip"
+        action: "call"
+        target: "payslip"
+        method: "action_confirm"
+        as_user: "base.user_admin"
+        asserts:
+          state:
+            type: "value"
+            expected: "confirm"
+
+      - step: "Invalidate cache after confirm"
+        action: "call"
+        target: "payslip"
+        method: "invalidate_cache"
+
+      - step: "Approve payslip to done"
+        action: "call"
+        target: "payslip"
+        method: "action_approve_approval"
+        as_user: "base.user_admin"
+        asserts:
+          state:
+            type: "value"
+            expected: "done"
+
+      - step: "Invalidate cache after done"
+        action: "call"
+        target: "payslip"
+        method: "invalidate_cache"
+
+      - step: "Assert accounting entry created"
+        action: "assert"
+        target: "payslip"
+        asserts:
+          move_id:
+            type: "value"
+            operator: "is_truthy"
+
+      - step: "Assert exactly one debit AML on debit account"
+        action: "search"
+        model: "account.move.line"
+        save_as: "debit_lines"
+        expect_count: 1
+        domain:
+          - ["move_id", "=", "EVAL: registry['payslip'].move_id.id"]
+          - ["account_id", "=", "EVAL: registry['debit_account'].id"]
+          - ["debit", ">", 0.0]
+
+      - step: "Assert exactly one credit AML on credit account"
+        action: "search"
+        model: "account.move.line"
+        save_as: "credit_lines"
+        expect_count: 1
+        domain:
+          - ["move_id", "=", "EVAL: registry['payslip'].move_id.id"]
+          - ["account_id", "=", "EVAL: registry['credit_account'].id"]
+          - ["credit", ">", 0.0]
+
+  - name: "HR Payslip - Unbalanced triggers adjustment"
+    steps:
+      - step: "Get expense account type"
+        action: "ref"
+        xml_id: "account.data_account_type_expenses"
+        save_as: "expense_account_type"
+
+      - step: "Create expense account for debit side"
+        action: "create"
+        model: "account.account"
+        save_as: "debit_account"
+        values:
+          name: "Test Unbalanced Debit Account"
+          code: "TSTPSL_UB_DB"
+          user_type_id: "EVAL: registry['expense_account_type'].id"
+
+      - step: "Create default account for journal balancing"
+        action: "create"
+        model: "account.account"
+        save_as: "default_account"
+        values:
+          name: "Test Unbalanced Default Account"
+          code: "TSTPSL_UB_DEF"
+          user_type_id: "EVAL: registry['expense_account_type'].id"
+
+      - step: "Create journal with default account"
+        action: "create"
+        model: "account.journal"
+        save_as: "journal"
+        values:
+          name: "Test Unbalanced Journal"
+          code: "TSTUBJRN"
+          type: "general"
+          default_account_id: "EVAL: registry['default_account'].id"
+
+      - step: "Create salary rule category"
+        action: "create"
+        model: "hr.salary_rule_category"
+        save_as: "category"
+        values:
+          name: "Test Unbalanced Category"
+          code: "TSTUBCAT"
+
+      - step: "Create debit-only salary rule (no credit side)"
+        action: "create"
+        model: "hr.salary_rule"
+        save_as: "rule"
+        values:
+          name: "Test Unbalanced Rule"
+          code: "TSTUBRULE"
+          category_id: "EVAL: registry['category'].id"
+          debit_account_id: "EVAL: registry['debit_account'].id"
+          condition_python: "result = True"
+          amount_python: "result = 100.0"
+          sequence: 10
+
+      - step: "Create salary structure"
+        action: "create"
+        model: "hr.salary_structure"
+        save_as: "structure"
+        values:
+          name: "Test Unbalanced Structure"
+          code: "TSTUBSTR"
+          rule_ids:
+            - "EVAL: registry['rule'].id"
+
+      - step: "Create payslip type"
+        action: "create"
+        model: "hr.payslip_type"
+        save_as: "payslip_type"
+        values:
+          name: "Test Unbalanced Payslip Type"
+          code: "TSTUBTYPE"
+          journal_id: "EVAL: registry['journal'].id"
+
+      - step: "Create employee"
+        action: "create"
+        model: "hr.employee"
+        save_as: "employee"
+        values:
+          name: "Test Unbalanced Employee"
+          salary_structure_id: "EVAL: registry['structure'].id"
+
+      - step: "Create payslip"
+        action: "create"
+        model: "hr.payslip"
+        save_as: "payslip"
+        as_user: "base.user_admin"
+        values:
+          employee_id: "EVAL: registry['employee'].id"
+          type_id: "EVAL: registry['payslip_type'].id"
+          structure_id: "EVAL: registry['structure'].id"
+          journal_id: "EVAL: registry['journal'].id"
+          date_start: "2024-07-01"
+          date_end: "2024-07-31"
+          date: "2024-07-31"
+
+      - step: "Compute payslip"
+        action: "call"
+        target: "payslip"
+        method: "action_compute_payslip"
+        as_user: "base.user_admin"
+
+      - step: "Invalidate cache after compute"
+        action: "call"
+        target: "payslip"
+        method: "invalidate_cache"
+
+      - step: "Confirm payslip"
+        action: "call"
+        target: "payslip"
+        method: "action_confirm"
+        as_user: "base.user_admin"
+        asserts:
+          state:
+            type: "value"
+            expected: "confirm"
+
+      - step: "Invalidate cache after confirm"
+        action: "call"
+        target: "payslip"
+        method: "invalidate_cache"
+
+      - step: "Approve payslip to done"
+        action: "call"
+        target: "payslip"
+        method: "action_approve_approval"
+        as_user: "base.user_admin"
+        asserts:
+          state:
+            type: "value"
+            expected: "done"
+
+      - step: "Invalidate cache after done"
+        action: "call"
+        target: "payslip"
+        method: "invalidate_cache"
+
+      - step: "Assert accounting entry created"
+        action: "assert"
+        target: "payslip"
+        asserts:
+          move_id:
+            type: "value"
+            operator: "is_truthy"
+
+      - step: "Assert debit AML on debit account"
+        action: "search"
+        model: "account.move.line"
+        save_as: "debit_lines"
+        expect_count: 1
+        domain:
+          - ["move_id", "=", "EVAL: registry['payslip'].move_id.id"]
+          - ["account_id", "=", "EVAL: registry['debit_account'].id"]
+          - ["debit", ">", 0.0]
+
+      - step: "Assert adjustment AML on journal default account"
+        action: "search"
+        model: "account.move.line"
+        save_as: "adj_lines"
+        expect_count: 1
+        domain:
+          - ["move_id", "=", "EVAL: registry['payslip'].move_id.id"]
+          - ["account_id", "=", "EVAL: registry['default_account'].id"]
+          - ["credit", ">", 0.0]
