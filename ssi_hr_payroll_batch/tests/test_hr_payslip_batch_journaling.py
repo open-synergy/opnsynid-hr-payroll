@@ -384,3 +384,161 @@ class TestHrPayslipBatchJournaling(YamlTransactionCase):
             }
         )
         self.assertEqual(batch.accounting_method, "payslip")
+
+    # ------------------------------------------------------------------ #
+    #  Task 4C: regression — paired one-sided rules without usage          #
+    # ------------------------------------------------------------------ #
+
+    def _create_one_sided_batch_fixtures(self):
+        """Fixtures for paired one-sided rules (debit-only + credit-only) with no usage."""
+        env = self.env
+        acc_type = env.ref("account.data_account_type_expenses")
+
+        debit_acc = env["account.account"].create(
+            {"name": "OS Debit", "code": "OSDB01", "user_type_id": acc_type.id}
+        )
+        credit_acc = env["account.account"].create(
+            {"name": "OS Credit", "code": "OSCR01", "user_type_id": acc_type.id}
+        )
+        default_acc = env["account.account"].create(
+            {"name": "OS Default", "code": "OSDFT01", "user_type_id": acc_type.id}
+        )
+        journal = env["account.journal"].create(
+            {
+                "name": "OS Journal",
+                "code": "OSJRN",
+                "type": "general",
+                "default_account_id": default_acc.id,
+            }
+        )
+        rule_cat = env["hr.salary_rule_category"].create(
+            {"name": "OS Cat", "code": "OSCAT"}
+        )
+        rule_debit = env["hr.salary_rule"].create(
+            {
+                "name": "OS Debit-Only Rule",
+                "code": "OSDBRULE",
+                "category_id": rule_cat.id,
+                "debit_account_id": debit_acc.id,
+                "condition_python": "result = True",
+                "amount_python": "result = 500.0",
+                "sequence": 10,
+            }
+        )
+        rule_credit = env["hr.salary_rule"].create(
+            {
+                "name": "OS Credit-Only Rule",
+                "code": "OSCRRULE",
+                "category_id": rule_cat.id,
+                "credit_account_id": credit_acc.id,
+                "condition_python": "result = True",
+                "amount_python": "result = 500.0",
+                "sequence": 20,
+            }
+        )
+        structure = env["hr.salary_structure"].create(
+            {
+                "name": "OS Structure",
+                "code": "OSSTR",
+                "rule_ids": [(4, rule_debit.id), (4, rule_credit.id)],
+            }
+        )
+        payslip_type = env["hr.payslip_type"].create(
+            {
+                "name": "OS Type",
+                "code": "OSTYPE",
+                "accounting_method": "batch",
+                "journal_id": journal.id,
+            }
+        )
+        struct_field = (
+            "manual_salary_structure_id"
+            if "manual_salary_structure_id" in env["hr.employee"]._fields
+            else "salary_structure_id"
+        )
+        employee = env["hr.employee"].create(
+            {"name": "OS Employee", struct_field: structure.id}
+        )
+        batch = env["hr.payslip_batch"].create(
+            {
+                "type_id": payslip_type.id,
+                "accounting_method": "batch",
+                "journal_id": journal.id,
+                "date_start": "2026-05-01",
+                "date_end": "2026-05-31",
+                "date": "2026-05-31",
+                "employee_ids": [(6, 0, [employee.id])],
+            }
+        )
+        return {
+            "batch": batch,
+            "journal": journal,
+            "debit_acc": debit_acc,
+            "credit_acc": credit_acc,
+            "default_acc": default_acc,
+            "rule_debit": rule_debit,
+            "rule_credit": rule_credit,
+        }
+
+    def test_20_paired_one_sided_rules_no_aml_with_false_account(self):
+        """Regression Task 4C: paired one-sided rules → no AML with account_id=False.
+
+        Proves that _create_standard_ml() override correctly skips the missing side
+        instead of creating an AML with account_id=False (which would fail action_post).
+        """
+        f = self._create_one_sided_batch_fixtures()
+        batch = f["batch"]
+        self._run_batch_to_done(batch)
+
+        self.assertEqual(batch.state, "done")
+        self.assertTrue(batch.move_id)
+        self.assertEqual(batch.move_id.state, "posted")
+
+        false_account_lines = batch.move_id.line_ids.filtered(
+            lambda l: not l.account_id
+        )
+        self.assertFalse(
+            false_account_lines,
+            "Batch move must not contain any AML with account_id=False",
+        )
+
+    def test_21_paired_one_sided_rules_correct_aml_sides(self):
+        """Regression Task 4C: debit-only → 1 debit AML; credit-only → 1 credit AML."""
+        f = self._create_one_sided_batch_fixtures()
+        batch = f["batch"]
+        self._run_batch_to_done(batch)
+
+        move_lines = batch.move_id.line_ids
+        debit_lines = move_lines.filtered(
+            lambda l: l.account_id == f["debit_acc"] and l.debit > 0
+        )
+        credit_lines = move_lines.filtered(
+            lambda l: l.account_id == f["credit_acc"] and l.credit > 0
+        )
+        self.assertEqual(
+            len(debit_lines),
+            1,
+            "Must have exactly one debit AML on the debit account",
+        )
+        self.assertEqual(
+            len(credit_lines),
+            1,
+            "Must have exactly one credit AML on the credit account",
+        )
+        self.assertAlmostEqual(debit_lines[0].debit, 500.0, places=2)
+        self.assertAlmostEqual(credit_lines[0].credit, 500.0, places=2)
+
+    def test_22_paired_one_sided_rules_move_balanced(self):
+        """Regression Task 4C: paired one-sided rules produce a balanced batch move."""
+        f = self._create_one_sided_batch_fixtures()
+        batch = f["batch"]
+        self._run_batch_to_done(batch)
+
+        total_debit = sum(batch.move_id.line_ids.mapped("debit"))
+        total_credit = sum(batch.move_id.line_ids.mapped("credit"))
+        self.assertAlmostEqual(
+            total_debit,
+            total_credit,
+            places=2,
+            msg="Batch move must be balanced for paired one-sided rules",
+        )

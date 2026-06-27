@@ -132,6 +132,17 @@ class HrPayslipBatchAccountEntry(models.Model):
         help="Company currency inherited from the batch.",
     )
 
+    def _create_standard_ml(self):
+        self.ensure_one()
+        ML = self.env["account.move.line"].with_context(check_move_validity=False)
+        debit_ml = self.env["account.move.line"]
+        credit_ml = self.env["account.move.line"]
+        if self.debit_account_id:
+            debit_ml = ML.create(self._prepare_standard_ml("debit"))
+        if self.credit_account_id:
+            credit_ml = ML.create(self._prepare_standard_ml("credit"))
+        return debit_ml, credit_ml
+
     def _reconcile_debit(self, candidate_ml):
         """Reconcile the debit move line against candidate reference lines."""
         self.ensure_one()
