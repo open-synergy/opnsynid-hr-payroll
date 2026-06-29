@@ -240,6 +240,10 @@ class TestHrPayslipBatchJournaling(YamlTransactionCase):
         self.assertFalse(batch.move_id, "Batch move_id should be cleared after cancel")
         move_exists = self.env["account.move"].search([("id", "=", move_id)])
         self.assertFalse(move_exists, "account.move should be deleted after cancel")
+        self.assertFalse(
+            batch.account_entry_ids,
+            "Batch account entries should be deleted after cancel",
+        )
 
     # ------------------------------------------------------------------ #
     #  Test 9: cancel → restart → done re-journals cleanly               #
@@ -542,3 +546,237 @@ class TestHrPayslipBatchJournaling(YamlTransactionCase):
             places=2,
             msg="Batch move must be balanced for paired one-sided rules",
         )
+
+    # ------------------------------------------------------------------ #
+    #  Gate semantics regression (fixed account = per-side gate)           #
+    # ------------------------------------------------------------------ #
+
+    def _create_gate_batch_fixtures(self):
+        """Fixtures with batch usage + two rules:
+
+        - rule_gate: has product + both fixed gate accounts; the batch usage
+          resolves to DISTINCT usage accounts, so usage OVERRIDES the gate accounts.
+        - rule_nogate: has product (usage resolves to its own accounts) but NO fixed
+          accounts → under gate semantics it must NOT journal any side.
+        """
+        env = self.env
+        acc_type = env.ref("account.data_account_type_expenses")
+
+        def _acc(name, code):
+            return env["account.account"].create(
+                {"name": name, "code": code, "user_type_id": acc_type.id}
+            )
+
+        gate_debit = _acc("GT Gate Debit", "GTGDB")
+        gate_credit = _acc("GT Gate Credit", "GTGCR")
+        usage_debit = _acc("GT Usage Debit", "GTUDB")
+        usage_credit = _acc("GT Usage Credit", "GTUCR")
+        nogate_usage_debit = _acc("GT NoGate Usage Debit", "GTNDB")
+        nogate_usage_credit = _acc("GT NoGate Usage Credit", "GTNCR")
+        default_acc = _acc("GT Default", "GTDFT")
+
+        journal = env["account.journal"].create(
+            {
+                "name": "GT Journal",
+                "code": "GTJRN",
+                "type": "general",
+                "default_account_id": default_acc.id,
+            }
+        )
+        debit_usage = env["product.usage_type"].create(
+            {"name": "GT Debit Usage", "code": "GTUSGDB", "account_id": usage_debit.id}
+        )
+        credit_usage = env["product.usage_type"].create(
+            {
+                "name": "GT Credit Usage",
+                "code": "GTUSGCR",
+                "account_id": usage_credit.id,
+            }
+        )
+        product_gate = env["product.product"].create({"name": "GT Product Gate"})
+        product_nogate = env["product.product"].create({"name": "GT Product NoGate"})
+        # product_gate resolves to the shared usage accounts.
+        env["product.account"].create(
+            {
+                "product_id": product_gate.id,
+                "usage_id": debit_usage.id,
+                "account_id": usage_debit.id,
+            }
+        )
+        env["product.account"].create(
+            {
+                "product_id": product_gate.id,
+                "usage_id": credit_usage.id,
+                "account_id": usage_credit.id,
+            }
+        )
+        # product_nogate resolves to its OWN accounts (used to prove they never appear).
+        env["product.account"].create(
+            {
+                "product_id": product_nogate.id,
+                "usage_id": debit_usage.id,
+                "account_id": nogate_usage_debit.id,
+            }
+        )
+        env["product.account"].create(
+            {
+                "product_id": product_nogate.id,
+                "usage_id": credit_usage.id,
+                "account_id": nogate_usage_credit.id,
+            }
+        )
+        rule_cat = env["hr.salary_rule_category"].create(
+            {"name": "GT Cat", "code": "GTCAT"}
+        )
+        rule_gate = env["hr.salary_rule"].create(
+            {
+                "name": "GT Gate Rule",
+                "code": "GTGATERULE",
+                "category_id": rule_cat.id,
+                "product_id": product_gate.id,
+                "debit_account_id": gate_debit.id,
+                "credit_account_id": gate_credit.id,
+                "condition_python": "result = True",
+                "amount_python": "result = 1000.0",
+                "sequence": 10,
+            }
+        )
+        rule_nogate = env["hr.salary_rule"].create(
+            {
+                "name": "GT NoGate Rule",
+                "code": "GTNOGATERULE",
+                "category_id": rule_cat.id,
+                "product_id": product_nogate.id,
+                "condition_python": "result = True",
+                "amount_python": "result = 700.0",
+                "sequence": 20,
+            }
+        )
+        structure = env["hr.salary_structure"].create(
+            {
+                "name": "GT Structure",
+                "code": "GTSTR",
+                "rule_ids": [(4, rule_gate.id), (4, rule_nogate.id)],
+            }
+        )
+        payslip_type = env["hr.payslip_type"].create(
+            {
+                "name": "GT Type",
+                "code": "GTTYPE",
+                "accounting_method": "batch",
+                "journal_id": journal.id,
+                "debit_usage_id": debit_usage.id,
+                "credit_usage_id": credit_usage.id,
+            }
+        )
+        struct_field = (
+            "manual_salary_structure_id"
+            if "manual_salary_structure_id" in env["hr.employee"]._fields
+            else "salary_structure_id"
+        )
+        employee = env["hr.employee"].create(
+            {"name": "GT Employee", struct_field: structure.id}
+        )
+        batch = env["hr.payslip_batch"].create(
+            {
+                "type_id": payslip_type.id,
+                "accounting_method": "batch",
+                "journal_id": journal.id,
+                "debit_usage_id": debit_usage.id,
+                "credit_usage_id": credit_usage.id,
+                "date_start": "2026-06-01",
+                "date_end": "2026-06-30",
+                "date": "2026-06-30",
+                "employee_ids": [(6, 0, [employee.id])],
+            }
+        )
+        return {
+            "batch": batch,
+            "gate_debit": gate_debit,
+            "gate_credit": gate_credit,
+            "usage_debit": usage_debit,
+            "usage_credit": usage_credit,
+            "nogate_usage_debit": nogate_usage_debit,
+            "nogate_usage_credit": nogate_usage_credit,
+        }
+
+    def test_23_usage_overrides_gate_account_in_batch(self):
+        """Gate present + batch usage resolves → entry uses the USAGE account, not gate."""
+        f = self._create_gate_batch_fixtures()
+        batch = f["batch"]
+        self._run_batch_to_done(batch)
+
+        self.assertEqual(batch.move_id.state, "posted")
+        move_lines = batch.move_id.line_ids
+
+        self.assertTrue(
+            move_lines.filtered(
+                lambda l: l.account_id == f["usage_debit"] and l.debit > 0
+            ),
+            "Debit AML must land on the usage account, overriding the gate account",
+        )
+        self.assertTrue(
+            move_lines.filtered(
+                lambda l: l.account_id == f["usage_credit"] and l.credit > 0
+            ),
+            "Credit AML must land on the usage account, overriding the gate account",
+        )
+        self.assertFalse(
+            move_lines.filtered(
+                lambda l: l.account_id in (f["gate_debit"] + f["gate_credit"])
+            ),
+            "Gate accounts must NOT appear when usage resolves",
+        )
+
+    def test_24_no_gate_rule_does_not_journal_in_batch(self):
+        """Gate empty: a rule without fixed accounts must NOT journal any side,
+        even though its product usage resolves an account."""
+        f = self._create_gate_batch_fixtures()
+        batch = f["batch"]
+        self._run_batch_to_done(batch)
+
+        move_lines = batch.move_id.line_ids
+        self.assertFalse(
+            move_lines.filtered(lambda l: not l.account_id),
+            "Batch move must not contain any AML with account_id=False",
+        )
+        self.assertFalse(
+            move_lines.filtered(
+                lambda l: l.account_id
+                in (f["nogate_usage_debit"] + f["nogate_usage_credit"])
+            ),
+            "A rule without a fixed-account gate must not journal, even when usage resolves",
+        )
+
+    def test_25_cancel_deletes_entries_even_without_move(self):
+        """Cancel must drop account entries even when the batch has no move_id.
+
+        Guards the early-return removal in _xx_cancel_accounting_entry: an entry
+        attached to a batch with no move (so it can never be cleaned via the move
+        path) must still be unlinked on cancel, so it is regenerated from scratch
+        on the next journaling run.
+        """
+        f = self._create_batch_journaling_fixtures("T25", n_employees=1)
+        batch = f["batch"]
+
+        entry = self.env["hr.payslip_batch_account_entry"].create(
+            {
+                "batch_id": batch.id,
+                "rule_id": f["rule"].id,
+                "debit_account_id": f["debit_acc"].id,
+                "credit_account_id": f["credit_acc"].id,
+                "amount": 100.0,
+            }
+        )
+        batch.invalidate_cache()
+        self.assertTrue(batch.account_entry_ids)
+        self.assertFalse(batch.move_id, "Precondition: batch has no move yet")
+
+        batch._xx_cancel_accounting_entry()
+        batch.invalidate_cache()
+
+        self.assertFalse(
+            entry.exists(),
+            "Entry must be deleted on cancel even when the batch has no move",
+        )
+        self.assertFalse(batch.account_entry_ids)

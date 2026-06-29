@@ -9,13 +9,14 @@ from odoo.tests import TransactionCase, tagged
 class TestHrPayslipLineAccountResolution(TransactionCase):
     """Tests for payslip line account resolution (_get_debit_account / _get_credit_account).
 
-    Design rule (confirmed by user):
-      - Debit: usage resolves via payslip.debit_usage_id + rule.product_id →
-        fallback to rule.debit_account_id → if neither → no debit line.
-      - Credit: usage resolves via payslip.credit_usage_id + rule.product_id →
-        fallback to rule.credit_account_id → if neither → no credit line.
-      - No guard based on whether the rule has the "opposite" fixed account.
-        A debit-only rule can still obtain a credit account via usage (and vice versa).
+    Design rule (confirmed by user) — fixed account is a per-side GATE:
+      - Debit: rule.debit_account_id is the gate. If empty → no debit line at all,
+        even when usage could resolve. If set: when payslip.debit_usage_id is filled,
+        resolve the account via usage (falling back to debit_account_id when usage
+        cannot resolve); when no usage is filled, use debit_account_id directly.
+      - Credit: symmetric with rule.credit_account_id + payslip.credit_usage_id.
+      - Consequence: a rule with no fixed account on a side never journals that side;
+        usage only OVERRIDES which account is used when the gate is present.
     """
 
     def setUp(self):
@@ -36,7 +37,7 @@ class TestHrPayslipLineAccountResolution(TransactionCase):
                 "user_type_id": expense_type.id,
             }
         )
-        account_usage = self.env["account.account"].create(
+        self.account_usage = self.env["account.account"].create(
             {
                 "name": "Test Line Resolution Usage",
                 "code": "TSLRUS01",
@@ -49,7 +50,7 @@ class TestHrPayslipLineAccountResolution(TransactionCase):
             {
                 "name": "Test Line Resolution Usage Type",
                 "code": "TSLRUSE",
-                "account_id": account_usage.id,
+                "account_id": self.account_usage.id,
             }
         )
 
@@ -319,75 +320,98 @@ class TestHrPayslipLineAccountResolution(TransactionCase):
     # ------------------------------------------------------------------ #
 
     def test_debit_only_rule_returns_account_for_debit(self):
-        """Positive: _get_debit_account() returns debit_account_id when set."""
+        """Positive: gate present + usage resolves → usage account OVERRIDES fixed.
+
+        rule_debit_only has debit_account_id (gate) and self.payslip has a
+        debit_usage_id that resolves to self.account_usage. The usage account must
+        win over the fixed debit_account_id.
+        """
         result = self.line_debit_only._get_debit_account()
-        self.assertTrue(result)
+        self.assertEqual(
+            result,
+            self.account_usage,
+            "Usage account must override the fixed debit_account_id when the gate is set",
+        )
 
     def test_credit_only_rule_returns_account_for_credit(self):
-        """Positive: _get_credit_account() returns credit_account_id when set."""
+        """Positive: gate present + usage resolves → usage account OVERRIDES fixed."""
         result = self.line_credit_only._get_credit_account()
-        self.assertTrue(result)
+        self.assertEqual(
+            result,
+            self.account_usage,
+            "Usage account must override the fixed credit_account_id when the gate is set",
+        )
 
     # ------------------------------------------------------------------ #
-    #  Full-usage mode (rule without fixed accounts)                       #
+    #  Gate semantics: no fixed account on a side → no line for that side, #
+    #  even when usage could resolve (new design)                          #
     # ------------------------------------------------------------------ #
 
-    def test_no_fixed_account_rule_resolves_debit_via_usage(self):
-        """Full-usage mode: rule with no fixed accounts resolves debit via usage."""
+    def test_no_fixed_account_rule_returns_false_for_debit_even_when_usage_resolves(
+        self,
+    ):
+        """Gate empty: rule without debit_account_id → no debit line, despite usage."""
+        usage_account = self.line_usage_only._get_account_by_product_usage(
+            self.payslip.debit_usage_id
+        )
+        self.assertTrue(usage_account, "Precondition: usage must resolve an account")
+
         result = self.line_usage_only._get_debit_account()
-        self.assertTrue(
+        self.assertFalse(
             result,
-            "_get_debit_account() must resolve via usage when rule has no fixed accounts",
+            "_get_debit_account() must return False when the rule has no "
+            "debit_account_id gate, even if usage resolves",
         )
 
-    def test_no_fixed_account_rule_resolves_credit_via_usage(self):
-        """Full-usage mode: rule with no fixed accounts resolves credit via usage."""
+    def test_no_fixed_account_rule_returns_false_for_credit_even_when_usage_resolves(
+        self,
+    ):
+        """Gate empty: rule without credit_account_id → no credit line, despite usage."""
+        usage_account = self.line_usage_only._get_account_by_product_usage(
+            self.payslip.credit_usage_id
+        )
+        self.assertTrue(usage_account, "Precondition: usage must resolve an account")
+
         result = self.line_usage_only._get_credit_account()
-        self.assertTrue(
+        self.assertFalse(
             result,
-            "_get_credit_account() must resolve via usage when rule has no fixed accounts",
+            "_get_credit_account() must return False when the rule has no "
+            "credit_account_id gate, even if usage resolves",
         )
 
     # ------------------------------------------------------------------ #
-    #  Cross-side: usage prevails even when only the opposite fixed        #
-    #  account is set on the rule (new design, replaces old guard tests)  #
+    #  Cross-side: the opposite side's gate is empty → no line for that    #
+    #  side, even when usage could resolve (gate replaces the old guard)   #
     # ------------------------------------------------------------------ #
 
-    def test_debit_only_rule_returns_credit_via_usage(self):
-        """Usage takes priority: debit-only rule still gets credit account via usage.
-
-        With the new design there is no guard that blocks usage on the side that
-        lacks a fixed account. A debit-only rule (credit_account_id=False) CAN obtain
-        a credit account via credit_usage_id + product_id on the payslip.
-        """
+    def test_debit_only_rule_returns_false_for_credit_without_gate(self):
+        """Gate empty on credit side: debit-only rule (credit_account_id=False) must
+        NOT obtain a credit account via usage."""
         usage_account = self.line_debit_only._get_account_by_product_usage(
             self.payslip.credit_usage_id
         )
         self.assertTrue(usage_account, "Precondition: usage must resolve an account")
 
         result = self.line_debit_only._get_credit_account()
-        self.assertTrue(
+        self.assertFalse(
             result,
-            "_get_credit_account() must return the usage account for a debit-only rule "
-            "when credit_usage_id + product_id resolve an account",
+            "_get_credit_account() must return False for a debit-only rule: the "
+            "credit_account_id gate is empty, so usage is ignored",
         )
 
-    def test_credit_only_rule_returns_debit_via_usage(self):
-        """Usage takes priority: credit-only rule still gets debit account via usage.
-
-        A credit-only rule (debit_account_id=False) CAN obtain a debit account
-        via debit_usage_id + product_id on the payslip.
-        """
+    def test_credit_only_rule_returns_false_for_debit_without_gate(self):
+        """Gate empty on debit side: credit-only rule (debit_account_id=False) must
+        NOT obtain a debit account via usage."""
         usage_account = self.line_credit_only._get_account_by_product_usage(
             self.payslip.debit_usage_id
         )
         self.assertTrue(usage_account, "Precondition: usage must resolve an account")
 
         result = self.line_credit_only._get_debit_account()
-        self.assertTrue(
+        self.assertFalse(
             result,
-            "_get_debit_account() must return the usage account for a credit-only rule "
-            "when debit_usage_id + product_id resolve an account",
+            "_get_debit_account() must return False for a credit-only rule: the "
+            "debit_account_id gate is empty, so usage is ignored",
         )
 
     # ------------------------------------------------------------------ #

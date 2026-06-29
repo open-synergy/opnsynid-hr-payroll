@@ -85,17 +85,29 @@ class HrPayslipLine(models.Model):
 
     def _get_debit_account(self):
         self.ensure_one()
-        account = self._get_account_by_product_usage(self.payslip_id.debit_usage_id)
-        if account:
-            return account
-        return self.rule_id.debit_account_id
+        debit_account = self.rule_id.debit_account_id
+        if not debit_account:
+            return debit_account
+        if self.payslip_id.debit_usage_id:
+            usage_account = self._get_account_by_product_usage(
+                self.payslip_id.debit_usage_id
+            )
+            if usage_account:
+                return usage_account
+        return debit_account
 
     def _get_credit_account(self):
         self.ensure_one()
-        account = self._get_account_by_product_usage(self.payslip_id.credit_usage_id)
-        if account:
-            return account
-        return self.rule_id.credit_account_id
+        credit_account = self.rule_id.credit_account_id
+        if not credit_account:
+            return credit_account
+        if self.payslip_id.credit_usage_id:
+            usage_account = self._get_account_by_product_usage(
+                self.payslip_id.credit_usage_id
+            )
+            if usage_account:
+                return usage_account
+        return credit_account
 
     def _prepare_aml_debit_data(self, move):
         self.ensure_one()
