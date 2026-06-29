@@ -132,6 +132,10 @@ class HrPayslipBatchAccountEntry(models.Model):
         help="Company currency inherited from the batch.",
     )
 
+    def _get_standard_label(self, direction):
+        self.ensure_one()
+        return self.rule_id.name or False
+
     def _create_standard_ml(self):
         self.ensure_one()
         ML = self.env["account.move.line"].with_context(check_move_validity=False)
