@@ -240,6 +240,10 @@ class TestHrPayslipBatchJournaling(YamlTransactionCase):
         self.assertFalse(batch.move_id, "Batch move_id should be cleared after cancel")
         move_exists = self.env["account.move"].search([("id", "=", move_id)])
         self.assertFalse(move_exists, "account.move should be deleted after cancel")
+        self.assertFalse(
+            batch.account_entry_ids,
+            "Batch account entries should be deleted after cancel",
+        )
 
     # ------------------------------------------------------------------ #
     #  Test 9: cancel → restart → done re-journals cleanly               #
@@ -743,3 +747,36 @@ class TestHrPayslipBatchJournaling(YamlTransactionCase):
             ),
             "A rule without a fixed-account gate must not journal, even when usage resolves",
         )
+
+    def test_25_cancel_deletes_entries_even_without_move(self):
+        """Cancel must drop account entries even when the batch has no move_id.
+
+        Guards the early-return removal in _xx_cancel_accounting_entry: an entry
+        attached to a batch with no move (so it can never be cleaned via the move
+        path) must still be unlinked on cancel, so it is regenerated from scratch
+        on the next journaling run.
+        """
+        f = self._create_batch_journaling_fixtures("T25", n_employees=1)
+        batch = f["batch"]
+
+        entry = self.env["hr.payslip_batch_account_entry"].create(
+            {
+                "batch_id": batch.id,
+                "rule_id": f["rule"].id,
+                "debit_account_id": f["debit_acc"].id,
+                "credit_account_id": f["credit_acc"].id,
+                "amount": 100.0,
+            }
+        )
+        batch.invalidate_cache()
+        self.assertTrue(batch.account_entry_ids)
+        self.assertFalse(batch.move_id, "Precondition: batch has no move yet")
+
+        batch._xx_cancel_accounting_entry()
+        batch.invalidate_cache()
+
+        self.assertFalse(
+            entry.exists(),
+            "Entry must be deleted on cancel even when the batch has no move",
+        )
+        self.assertFalse(batch.account_entry_ids)

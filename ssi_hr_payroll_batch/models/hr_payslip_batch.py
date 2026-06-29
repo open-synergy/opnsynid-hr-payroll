@@ -558,22 +558,24 @@ and required fields
     @ssi_decorator.post_cancel_action()
     def _xx_cancel_accounting_entry(self):
         self.ensure_one()
-        if not self.move_id:
-            return True
-        self._unreconcile_batch_account_entry()
-        self.account_entry_ids.write(
-            {
-                "debit_move_line_id": False,
-                "credit_move_line_id": False,
-            }
-        )
-        self.write(
-            {
-                "move_line_debit_id": False,
-                "move_line_credit_id": False,
-            }
-        )
-        self._delete_standard_move()
+        if self.move_id:
+            self._unreconcile_batch_account_entry()
+            self.account_entry_ids.write(
+                {
+                    "debit_move_line_id": False,
+                    "credit_move_line_id": False,
+                }
+            )
+            self.write(
+                {
+                    "move_line_debit_id": False,
+                    "move_line_credit_id": False,
+                }
+            )
+            self._delete_standard_move()
+        # Always drop the entries on cancel, even when there is no move (e.g. a
+        # batch whose rules are all gate-empty). They are regenerated from scratch
+        # by _prepare_batch_account_entries on the next journaling run.
         self.account_entry_ids.unlink()
 
     # -- aggregation helpers --
