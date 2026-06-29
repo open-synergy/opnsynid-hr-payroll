@@ -599,6 +599,24 @@ scenarios:
           code: "TSTUSG_CR"
           user_type_id: "EVAL: registry['expense_account_type'].id"
 
+      - step: "Create debit gate account (fixed on rule, overridden by usage)"
+        action: "create"
+        model: "account.account"
+        save_as: "debit_gate_account"
+        values:
+          name: "Test Usage Debit Gate Account"
+          code: "TSTUSG_DBG"
+          user_type_id: "EVAL: registry['expense_account_type'].id"
+
+      - step: "Create credit gate account (fixed on rule, overridden by usage)"
+        action: "create"
+        model: "account.account"
+        save_as: "credit_gate_account"
+        values:
+          name: "Test Usage Credit Gate Account"
+          code: "TSTUSG_CRG"
+          user_type_id: "EVAL: registry['expense_account_type'].id"
+
       - step: "Create debit usage type"
         action: "create"
         model: "product.usage_type"
@@ -659,7 +677,7 @@ scenarios:
           name: "Test Category Usage"
           code: "TSTPSLCATU"
 
-      - step: "Create salary rule with product but no fixed accounts"
+      - step: "Create salary rule with product and gate accounts (usage overrides)"
         action: "create"
         model: "hr.salary_rule"
         save_as: "rule"
@@ -668,6 +686,8 @@ scenarios:
           code: "TSTPSLRULEU"
           category_id: "EVAL: registry['category'].id"
           product_id: "EVAL: registry['product'].id"
+          debit_account_id: "EVAL: registry['debit_gate_account'].id"
+          credit_account_id: "EVAL: registry['credit_gate_account'].id"
           condition_python: "result = True"
           amount_python: "result = 100.0"
           sequence: 10
