@@ -274,6 +274,49 @@ class TestHrPayslipBatch(YamlTransactionCase):
             )
             self.assertEqual(line.amount, amounts[input_type.code])
 
+    def test_payslip_count_computed(self):
+        """payslip_count must reflect the number of generated payslips."""
+        batch, _input_types = self._create_batch_with_input()
+        self.assertEqual(batch.payslip_count, 1)
+
+    def test_payslip_count_computed_empty(self):
+        """payslip_count must be zero when the batch has no payslips."""
+        journal = self.env["account.journal"].create(
+            {
+                "name": "Test Empty Count Journal",
+                "code": "TECJRN",
+                "type": "general",
+            }
+        )
+        payslip_type = self.env["hr.payslip_type"].create(
+            {
+                "name": "Test Empty Count Type",
+                "code": "TECTYPE",
+                "journal_id": journal.id,
+            }
+        )
+        batch = self.env["hr.payslip_batch"].create(
+            {
+                "type_id": payslip_type.id,
+                "date_start": "2024-11-01",
+                "date_end": "2024-11-30",
+                "date": "2024-11-30",
+            }
+        )
+        self.assertEqual(batch.payslip_count, 0)
+
+    def test_action_open_payslip(self):
+        """action_open_payslip must return a window action scoped to this
+        batch's payslips."""
+        batch, _input_types = self._create_batch_with_input()
+        action = batch.action_open_payslip()
+        self.assertEqual(action["res_model"], "hr.payslip")
+        self.assertEqual(action["domain"], [("batch_id", "=", batch.id)])
+        self.assertEqual(
+            self.env["hr.payslip"].search(action["domain"]),
+            batch.payslip_ids,
+        )
+
     def test_input_import_rejects_unknown_code(self):
         """A header column whose code is not a known input type must raise."""
         batch, _input_types = self._create_batch_with_input()
