@@ -269,6 +269,20 @@ Solution: Set a journal on the batch, or change the Accounting Method to 'Journa
         inverse_name="batch_id",
         readonly=True,
     )
+    payslip_count = fields.Integer(
+        string="# Payslip",
+        compute="_compute_payslip_count",
+        help="Number of payslips generated for this batch. "
+        "Used to display the payslip count on the 'Open Payslip' smart button.",
+    )
+
+    @api.depends(
+        "payslip_ids",
+    )
+    def _compute_payslip_count(self):
+        for record in self:
+            record.payslip_count = len(record.payslip_ids)
+
     state = fields.Selection(
         string="State",
         selection=[
@@ -361,6 +375,23 @@ Solution: Set a journal on the batch, or change the Accounting Method to 'Journa
     def _reload_employee(self):
         self.ensure_one()
         self.write({"employee_ids": [(6, 0, self.allowed_employee_ids.ids)]})
+
+    def action_open_payslip(self):
+        for record in self.sudo():
+            result = record._open_payslip()
+        return result
+
+    def _open_payslip(self):
+        self.ensure_one()
+        waction = self.env.ref("ssi_hr_payroll.hr_payslip_action").read()[0]
+        waction.update(
+            {
+                "view_mode": "tree,form",
+                "domain": [("batch_id", "=", self.id)],
+                "context": {"default_batch_id": self.id},
+            }
+        )
+        return waction
 
     def _get_batch_input_type_ids(self):
         """Return all distinct payslip input types used across every payslip
