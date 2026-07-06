@@ -151,6 +151,11 @@ msgid "# Document"
 msgstr ""
 
 #. module: ssi_hr_payroll_batch
+#: model:ir.model.fields,field_description:ssi_hr_payroll_batch.field_hr_payslip_batch__payslip_count
+msgid "# Payslip"
+msgstr ""
+
+#. module: ssi_hr_payroll_batch
 #: code:addons/ssi_hr_payroll_batch/models/hr_payslip_batch_account_entry.py:0
 #, python-format
 msgid "%s / %s"
@@ -159,6 +164,11 @@ msgstr ""
 #. module: ssi_hr_payroll_batch
 #: model_terms:ir.ui.view,arch_db:ssi_hr_payroll_batch.hr_payslip_batch_view_form
 msgid "<span class=\"o_form_label mx-3\"> to </span>"
+msgstr ""
+
+#. module: ssi_hr_payroll_batch
+#: model_terms:ir.ui.view,arch_db:ssi_hr_payroll_batch.hr_payslip_batch_view_form
+msgid "<span class=\"o_stat_text\">Payslip</span>"
 msgstr ""
 
 #. module: ssi_hr_payroll_batch
@@ -793,6 +803,13 @@ msgstr ""
 #. module: ssi_hr_payroll_batch
 #: model:ir.model.fields,help:ssi_hr_payroll_batch.field_hr_payslip_batch__message_has_error_counter
 msgid "Number of messages with delivery error"
+msgstr ""
+
+#. module: ssi_hr_payroll_batch
+#: model:ir.model.fields,help:ssi_hr_payroll_batch.field_hr_payslip_batch__payslip_count
+msgid ""
+"Number of payslips generated for this batch. Used to display the payslip "
+"count on the 'Open Payslip' smart button."
 msgstr ""
 
 #. module: ssi_hr_payroll_batch
