@@ -37,6 +37,15 @@ Salary Structure
 * `Deactivate Salary Structure <docs/hr_salary_structure/04-deactivate.html>`_
 * `Activate Salary Structure <docs/hr_salary_structure/05-activate.html>`_
 
+Salary Contribution
+-------------------
+
+* `Create Salary Contribution <docs/hr_salary_contribution/01-create.html>`_
+* `Edit Salary Contribution <docs/hr_salary_contribution/02-edit.html>`_
+* `Delete Salary Contribution <docs/hr_salary_contribution/03-delete.html>`_
+* `Deactivate Salary Contribution <docs/hr_salary_contribution/04-deactivate.html>`_
+* `Activate Salary Contribution <docs/hr_salary_contribution/05-activate.html>`_
+
 Payslip Type
 ------------
 
