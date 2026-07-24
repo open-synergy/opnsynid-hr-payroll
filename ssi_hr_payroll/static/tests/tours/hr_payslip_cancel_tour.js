@@ -59,8 +59,12 @@ odoo.define("ssi_hr_payroll.hr_payslip_cancel_tour", function (require) {
                 extra_trigger: ".o_form_view",
             },
             {
+                // When a modal is open the tour scopes triggers INSIDE it
+                // (tour_manager.js: $modal_displayed.find(trigger)), so triggers
+                // here are written relative to the wizard modal — never prefixed
+                // with ".modal".
                 content: "The cancellation reason wizard is displayed",
-                trigger: ".modal .o_form_view",
+                trigger: ".o_form_view",
                 run: function () {
                     // Assertion only; do not trigger the default click action.
                 },
@@ -71,7 +75,7 @@ odoo.define("ssi_hr_payroll.hr_payslip_cancel_tour", function (require) {
             {
                 content: "Select the cancellation reason",
                 trigger:
-                    ".modal .o_field_widget[name='cancel_reason_id'] .o_radio_item label:contains(TOUR CANCEL REASON)",
+                    ".o_field_widget[name='cancel_reason_id'] .o_radio_item label:contains(TOUR CANCEL REASON)",
             },
 
             // ── Flow 5 — Click Confirm.
@@ -80,12 +84,13 @@ odoo.define("ssi_hr_payroll.hr_payslip_cancel_tour", function (require) {
                 trigger: ".modal-footer button[name='action_confirm']",
             },
 
-            // ── Flow 6 — Click OK on the confirmation dialog. The confirmation
-            // dialog is the modal that does NOT contain a form view.
+            // ── Flow 6 — Click OK on the confirmation dialog. Clicking the
+            // wizard Confirm (confirm="Are you sure?") opens a second modal on
+            // top; the tour scopes to that topmost modal, so the trigger is
+            // relative to it.
             {
                 content: "Confirm the dialog",
-                trigger:
-                    ".modal:not(:has(.o_form_view)) .modal-footer button.btn-primary",
+                trigger: ".modal-footer button.btn-primary",
             },
 
             // ── Post-Condition — Status changes to Cancelled.
