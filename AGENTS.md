@@ -59,6 +59,20 @@ Menu: **Human Resource > Configuration > Payroll > Salary Rule Categories**
 
 ---
 
+### `ssi_hr_payroll` — Model: `hr.salary_rule`
+
+Menu: **Human Resource > Configuration > Payroll > Salary Rules**
+
+| File                                                  | Action                   |
+| ----------------------------------------------------- | ------------------------ |
+| `ssi_hr_payroll/docs/hr_salary_rule/01-create.md`     | Create a new salary rule |
+| `ssi_hr_payroll/docs/hr_salary_rule/02-edit.md`       | Edit a salary rule       |
+| `ssi_hr_payroll/docs/hr_salary_rule/03-delete.md`     | Delete a salary rule     |
+| `ssi_hr_payroll/docs/hr_salary_rule/04-deactivate.md` | Deactivate a salary rule |
+| `ssi_hr_payroll/docs/hr_salary_rule/05-activate.md`   | Activate a salary rule   |
+
+---
+
 ### `ssi_hr_payroll` — Model: `hr.payslip`
 
 Menu: **Human Resource > Payroll > Payslips**

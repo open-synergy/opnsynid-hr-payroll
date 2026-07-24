@@ -19,6 +19,15 @@ Salary Rule Category
 * `Deactivate Salary Rule Category <docs/hr_salary_rule_category/04-deactivate.html>`_
 * `Activate Salary Rule Category <docs/hr_salary_rule_category/05-activate.html>`_
 
+Salary Rule
+-----------
+
+* `Create Salary Rule <docs/hr_salary_rule/01-create.html>`_
+* `Edit Salary Rule <docs/hr_salary_rule/02-edit.html>`_
+* `Delete Salary Rule <docs/hr_salary_rule/03-delete.html>`_
+* `Deactivate Salary Rule <docs/hr_salary_rule/04-deactivate.html>`_
+* `Activate Salary Rule <docs/hr_salary_rule/05-activate.html>`_
+
 Payslip Type
 ------------
 
