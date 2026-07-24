@@ -28,6 +28,15 @@ Salary Rule
 * `Deactivate Salary Rule <docs/hr_salary_rule/04-deactivate.html>`_
 * `Activate Salary Rule <docs/hr_salary_rule/05-activate.html>`_
 
+Salary Structure
+----------------
+
+* `Create Salary Structure <docs/hr_salary_structure/01-create.html>`_
+* `Edit Salary Structure <docs/hr_salary_structure/02-edit.html>`_
+* `Delete Salary Structure <docs/hr_salary_structure/03-delete.html>`_
+* `Deactivate Salary Structure <docs/hr_salary_structure/04-deactivate.html>`_
+* `Activate Salary Structure <docs/hr_salary_structure/05-activate.html>`_
+
 Payslip Type
 ------------
 
