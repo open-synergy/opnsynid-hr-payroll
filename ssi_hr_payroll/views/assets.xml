@@ -15,6 +15,10 @@
             />
             <script
                 type="text/javascript"
+                src="/ssi_hr_payroll/static/tests/tours/hr_payslip_input_type_tour.js"
+            />
+            <script
+                type="text/javascript"
                 src="/ssi_hr_payroll/static/tests/tours/hr_salary_rule_category_tour.js"
             />
             <script
