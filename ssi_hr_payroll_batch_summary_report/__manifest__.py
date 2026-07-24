@@ -16,6 +16,7 @@
         "report/templates/hr_payslip_batch_summary_report.xml",
         "reports.xml",
         "views/hr_payslip_batch_views.xml",
+        "views/assets.xml",
     ],
     "demo": [],
     "images": [],
