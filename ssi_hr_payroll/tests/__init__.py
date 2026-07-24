@@ -12,3 +12,4 @@ from . import test_hr_salary_rule  # noqa: F401
 from . import test_hr_salary_rule_category  # noqa: F401
 from . import test_hr_salary_structure  # noqa: F401
 from . import test_ui_hr_payslip_type  # noqa: F401
+from . import test_ui_hr_salary_rule_category  # noqa: F401
