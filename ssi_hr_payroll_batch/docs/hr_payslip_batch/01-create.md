@@ -7,7 +7,7 @@
 ## Flow
 
 1. Open the **Human Resource > Payroll > Payslip Batches** menu.
-2. Click the **New** button.
+2. Click the **New** button. **(14.0: "Create")**
 3. Fill in the required fields:
    - **Type**: Select the payslip type. **Accounting Method** and **Journal** are
      automatically filled from the selected type. Change if needed.
