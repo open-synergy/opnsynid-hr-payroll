@@ -87,6 +87,20 @@ Menu: **Human Resource > Configuration > Payroll > Salary Structures**
 
 ---
 
+### `ssi_hr_payroll` — Model: `hr.salary_contribution`
+
+Menu: **Human Resource > Configuration > Payroll > Salary Contributions**
+
+| File                                                          | Action                           |
+| ------------------------------------------------------------- | -------------------------------- |
+| `ssi_hr_payroll/docs/hr_salary_contribution/01-create.md`     | Create a new salary contribution |
+| `ssi_hr_payroll/docs/hr_salary_contribution/02-edit.md`       | Edit a salary contribution       |
+| `ssi_hr_payroll/docs/hr_salary_contribution/03-delete.md`     | Delete a salary contribution     |
+| `ssi_hr_payroll/docs/hr_salary_contribution/04-deactivate.md` | Deactivate a salary contribution |
+| `ssi_hr_payroll/docs/hr_salary_contribution/05-activate.md`   | Activate a salary contribution   |
+
+---
+
 ### `ssi_hr_payroll` — Model: `hr.payslip_input_type`
 
 Menu: **Human Resource > Configuration > Payroll > Input Types**
