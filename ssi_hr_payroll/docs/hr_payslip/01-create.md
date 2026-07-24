@@ -7,7 +7,7 @@
 ## Flow
 
 1. Open the **Human Resource > Payroll > Payslips** menu.
-2. Click the **New** button.
+2. Click the **New** button. **(14.0: "Create")**
 3. Fill in the required fields:
    - **Employee**: Select the employee. **Department**, **Manager**, and **Job
      Position** are automatically filled from the selected employee.

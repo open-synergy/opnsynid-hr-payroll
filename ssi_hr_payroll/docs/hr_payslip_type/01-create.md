@@ -7,7 +7,7 @@
 ## Flow
 
 1. Open the **Human Resource > Configuration > Payroll > Types** menu.
-2. Click the **New** button.
+2. Click the **New** button. **(14.0: "Create")**
 3. Fill in the required fields:
    - **Name**: Enter the payslip type name.
    - **Code**: Enter a unique code for this type.
