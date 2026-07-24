@@ -13,7 +13,9 @@
         "ssi_hr_payroll_batch",
         "ssi_connector_documenso_signing",
     ],
-    "data": [],
+    "data": [
+        "views/assets.xml",
+    ],
     "demo": [],
     "images": [],
 }
