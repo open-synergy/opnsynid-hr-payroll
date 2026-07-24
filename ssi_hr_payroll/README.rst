@@ -46,6 +46,15 @@ Payslip Type
 * `Deactivate Payslip Type <docs/hr_payslip_type/04-deactivate.html>`_
 * `Activate Payslip Type <docs/hr_payslip_type/05-activate.html>`_
 
+Payslip Input Type
+------------------
+
+* `Create Payslip Input Type <docs/hr_payslip_input_type/01-create.html>`_
+* `Edit Payslip Input Type <docs/hr_payslip_input_type/02-edit.html>`_
+* `Delete Payslip Input Type <docs/hr_payslip_input_type/03-delete.html>`_
+* `Deactivate Payslip Input Type <docs/hr_payslip_input_type/04-deactivate.html>`_
+* `Activate Payslip Input Type <docs/hr_payslip_input_type/05-activate.html>`_
+
 Employee Payslip
 ----------------
 
