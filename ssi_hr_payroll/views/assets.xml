@@ -27,6 +27,10 @@
             />
             <script
                 type="text/javascript"
+                src="/ssi_hr_payroll/static/tests/tours/hr_salary_contribution_tour.js"
+            />
+            <script
+                type="text/javascript"
                 src="/ssi_hr_payroll/static/tests/tours/hr_salary_structure_tour.js"
             />
             <script
