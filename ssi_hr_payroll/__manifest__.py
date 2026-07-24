@@ -18,6 +18,7 @@
         "ssi_employee_document_mixin",
         "ssi_financial_accounting",
         "ssi_product_usage_account_type",
+        "web_tour",
     ],
     "data": [
         "menu.xml",
@@ -41,6 +42,7 @@
         "views/hr_employee_input_type_views.xml",
         "views/hr_employee_input_views.xml",
         "views/hr_employee_views.xml",
+        "views/assets.xml",
     ],
     "demo": [
         # "demo/account_account_demo.xml",
