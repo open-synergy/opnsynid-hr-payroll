@@ -10,6 +10,15 @@ Employee Payslip
 Work Instruction
 ================
 
+Salary Rule Category
+--------------------
+
+* `Create Salary Rule Category <docs/hr_salary_rule_category/01-create.html>`_
+* `Edit Salary Rule Category <docs/hr_salary_rule_category/02-edit.html>`_
+* `Delete Salary Rule Category <docs/hr_salary_rule_category/03-delete.html>`_
+* `Deactivate Salary Rule Category <docs/hr_salary_rule_category/04-deactivate.html>`_
+* `Activate Salary Rule Category <docs/hr_salary_rule_category/05-activate.html>`_
+
 Payslip Type
 ------------
 
