@@ -101,6 +101,20 @@ Menu: **Human Resource > Configuration > Payroll > Input Types**
 
 ---
 
+### `ssi_hr_payroll` — Model: `hr.employee_input_type`
+
+Menu: **Human Resource > Configuration > Payroll > Employee Input Types**
+
+| File                                                          | Action                            |
+| ------------------------------------------------------------- | --------------------------------- |
+| `ssi_hr_payroll/docs/hr_employee_input_type/01-create.md`     | Create a new employee input type  |
+| `ssi_hr_payroll/docs/hr_employee_input_type/02-edit.md`       | Edit an employee input type       |
+| `ssi_hr_payroll/docs/hr_employee_input_type/03-delete.md`     | Delete an employee input type     |
+| `ssi_hr_payroll/docs/hr_employee_input_type/04-deactivate.md` | Deactivate an employee input type |
+| `ssi_hr_payroll/docs/hr_employee_input_type/05-activate.md`   | Activate an employee input type   |
+
+---
+
 ### `ssi_hr_payroll` — Model: `hr.payslip`
 
 Menu: **Human Resource > Payroll > Payslips**
