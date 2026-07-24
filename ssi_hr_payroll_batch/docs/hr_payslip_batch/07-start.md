@@ -10,7 +10,8 @@
 
 1. Open the **Human Resource > Payroll > Payslip Batches** menu.
 2. Open the batch to start.
-3. Click the **Open** button.
+3. Click the **Start** button.
+4. Click **OK** on the confirmation dialog.
 
 ## Post-Condition
 
