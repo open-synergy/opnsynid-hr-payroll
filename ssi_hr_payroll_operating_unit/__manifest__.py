@@ -18,5 +18,6 @@
         "security/res_group/res_group_data.xml",
         "security/ir_rule/ir_rule_data.xml",
         "views/hr_payslip_views.xml",
+        "views/assets.xml",
     ],
 }
