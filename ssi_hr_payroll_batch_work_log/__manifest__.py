@@ -11,8 +11,11 @@
     "depends": [
         "ssi_hr_payroll_batch",
         "ssi_work_log_mixin",
+        "web_tour",
     ],
-    "data": [],
+    "data": [
+        "views/assets.xml",
+    ],
     "demo": [],
     "images": [],
 }
