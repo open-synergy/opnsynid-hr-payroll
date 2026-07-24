@@ -95,6 +95,17 @@ odoo.define("ssi_hr_payroll_batch.hr_payslip_batch_create_tour", function (requi
                 trigger: ".o_form_view button[name='action_reload_employee']",
                 extra_trigger: ".o_form_view",
             },
+            {
+                // Reload is an object button: it auto-saves the record and writes
+                // employee_ids asynchronously. Gate on the loaded employee rows so
+                // the Save below does not race Reload's in-flight save (which would
+                // leave the form stuck in edit mode).
+                content: "Employees are loaded",
+                trigger: ".o_field_widget[name='employee_ids'] .o_data_row",
+                run: function () {
+                    // Assertion only; do not trigger the default click action.
+                },
+            },
 
             // ── Flow 6 — Click Save.
             {
