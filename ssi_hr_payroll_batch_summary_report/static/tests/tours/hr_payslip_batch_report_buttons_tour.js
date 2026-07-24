@@ -123,12 +123,17 @@ odoo.define(
                 },
 
                 // ── On a draft batch both report buttons are hidden (attrs
-                // invisible adds the o_invisible_modifier class).
+                // invisible adds the o_invisible_modifier / display:none). A tour
+                // trigger only matches a VISIBLE element, so the hidden button
+                // cannot be targeted directly; instead assert on the visible
+                // statusbar-buttons container that carries NO visible instance of
+                // the button (jQuery :not(:has(...:visible))).
                 {
                     content: "Salary Summary button is hidden on a draft batch",
                     trigger:
-                        ".o_statusbar_buttons button[name='action_print_salary_summary'].o_invisible_modifier",
-                    extra_trigger: ".o_form_view",
+                        ".o_statusbar_buttons:not(:has(button[name='action_print_salary_summary']:visible))",
+                    extra_trigger:
+                        ".o_statusbar_status .o_arrow_button[data-value='draft'].btn-primary",
                     run: function () {
                         // Assertion only; the button must be present but hidden.
                     },
@@ -136,8 +141,9 @@ odoo.define(
                 {
                     content: "Export XLSX button is hidden on a draft batch",
                     trigger:
-                        ".o_statusbar_buttons button[name='action_export_salary_summary_xlsx'].o_invisible_modifier",
-                    extra_trigger: ".o_form_view",
+                        ".o_statusbar_buttons:not(:has(button[name='action_export_salary_summary_xlsx']:visible))",
+                    extra_trigger:
+                        ".o_statusbar_status .o_arrow_button[data-value='draft'].btn-primary",
                     run: function () {
                         // Assertion only; the button must be present but hidden.
                     },
