@@ -10,6 +10,7 @@
 1. Open the **Human Resource > Payroll > Payslips** menu.
 2. Open the payslip to restart.
 3. Click the **Restart** button.
+4. Click **OK** on the confirmation dialog.
 
 ## Post-Condition
 
