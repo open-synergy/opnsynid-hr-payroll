@@ -45,6 +45,20 @@ operational documentation for using the feature from the user's perspective.
 
 ## Work Instruction Index
 
+### `ssi_hr_payroll` — Model: `hr.salary_rule_category`
+
+Menu: **Human Resource > Configuration > Payroll > Salary Rule Categories**
+
+| File                                                           | Action                            |
+| -------------------------------------------------------------- | --------------------------------- |
+| `ssi_hr_payroll/docs/hr_salary_rule_category/01-create.md`     | Create a new salary rule category |
+| `ssi_hr_payroll/docs/hr_salary_rule_category/02-edit.md`       | Edit a salary rule category       |
+| `ssi_hr_payroll/docs/hr_salary_rule_category/03-delete.md`     | Delete a salary rule category     |
+| `ssi_hr_payroll/docs/hr_salary_rule_category/04-deactivate.md` | Deactivate a salary rule category |
+| `ssi_hr_payroll/docs/hr_salary_rule_category/05-activate.md`   | Activate a salary rule category   |
+
+---
+
 ### `ssi_hr_payroll` — Model: `hr.payslip`
 
 Menu: **Human Resource > Payroll > Payslips**
