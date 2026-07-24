@@ -87,6 +87,20 @@ Menu: **Human Resource > Configuration > Payroll > Salary Structures**
 
 ---
 
+### `ssi_hr_payroll` — Model: `hr.payslip_input_type`
+
+Menu: **Human Resource > Configuration > Payroll > Input Types**
+
+| File                                                         | Action                          |
+| ------------------------------------------------------------ | ------------------------------- |
+| `ssi_hr_payroll/docs/hr_payslip_input_type/01-create.md`     | Create a new payslip input type |
+| `ssi_hr_payroll/docs/hr_payslip_input_type/02-edit.md`       | Edit a payslip input type       |
+| `ssi_hr_payroll/docs/hr_payslip_input_type/03-delete.md`     | Delete a payslip input type     |
+| `ssi_hr_payroll/docs/hr_payslip_input_type/04-deactivate.md` | Deactivate a payslip input type |
+| `ssi_hr_payroll/docs/hr_payslip_input_type/05-activate.md`   | Activate a payslip input type   |
+
+---
+
 ### `ssi_hr_payroll` — Model: `hr.payslip`
 
 Menu: **Human Resource > Payroll > Payslips**
