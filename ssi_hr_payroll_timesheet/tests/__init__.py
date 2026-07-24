@@ -3,3 +3,4 @@
 # License AGPL-3.0 or later (http://www.gnu.org/licenses/agpl).
 
 from . import test_hr_payslip_timesheet  # noqa: F401
+from . import test_ui_hr_payslip  # noqa: F401
