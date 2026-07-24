@@ -73,6 +73,20 @@ Menu: **Human Resource > Configuration > Payroll > Salary Rules**
 
 ---
 
+### `ssi_hr_payroll` — Model: `hr.salary_structure`
+
+Menu: **Human Resource > Configuration > Payroll > Salary Structures**
+
+| File                                                       | Action                        |
+| ---------------------------------------------------------- | ----------------------------- |
+| `ssi_hr_payroll/docs/hr_salary_structure/01-create.md`     | Create a new salary structure |
+| `ssi_hr_payroll/docs/hr_salary_structure/02-edit.md`       | Edit a salary structure       |
+| `ssi_hr_payroll/docs/hr_salary_structure/03-delete.md`     | Delete a salary structure     |
+| `ssi_hr_payroll/docs/hr_salary_structure/04-deactivate.md` | Deactivate a salary structure |
+| `ssi_hr_payroll/docs/hr_salary_structure/05-activate.md`   | Activate a salary structure   |
+
+---
+
 ### `ssi_hr_payroll` — Model: `hr.payslip`
 
 Menu: **Human Resource > Payroll > Payslips**
