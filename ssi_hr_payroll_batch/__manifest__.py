@@ -13,6 +13,7 @@
         "ssi_transaction_open_mixin",
         "ssi_accounting_entry_mixin",
         "ssi_company_currency_mixin",
+        "web_tour",
     ],
     "data": [
         "security/ir_module_category_data.xml",
@@ -26,6 +27,7 @@
         "views/hr_payslip_batch_input_import_views.xml",
         "views/hr_payslip_batch_views.xml",
         "views/hr_payslip_views.xml",
+        "views/assets.xml",
     ],
     "demo": [],
     "images": [],

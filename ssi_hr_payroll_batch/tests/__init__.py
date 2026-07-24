@@ -4,3 +4,4 @@
 
 from . import test_hr_payslip_batch  # noqa: F401
 from . import test_hr_payslip_batch_journaling  # noqa: F401
+from . import test_ui_hr_payslip_batch  # noqa: F401
