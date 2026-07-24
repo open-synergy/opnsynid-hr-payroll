@@ -29,6 +29,10 @@
                 type="text/javascript"
                 src="/ssi_hr_payroll/static/tests/tours/hr_salary_structure_tour.js"
             />
+            <script
+                type="text/javascript"
+                src="/ssi_hr_payroll/static/tests/tours/hr_employee_input_type_tour.js"
+            />
         </xpath>
     </template>
 </odoo>
