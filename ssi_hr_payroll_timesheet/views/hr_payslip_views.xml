@@ -6,7 +6,6 @@
 <record id="hr_payslip_view_form" model="ir.ui.view">
     <field name="name">hr.payslip.form</field>
     <field name="model">hr.payslip</field>
-    <field name="mode">primary</field>
     <field name="inherit_id" ref="ssi_hr_payroll.hr_payslip_view_form" />
     <field name="arch" type="xml">
         <data>
