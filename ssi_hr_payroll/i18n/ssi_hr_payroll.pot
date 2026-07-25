@@ -179,8 +179,28 @@ msgid "Allowed Allowance Move Lines"
 msgstr ""
 
 #. module: ssi_hr_payroll
+#: model:ir.model.fields,field_description:ssi_hr_payroll.field_hr_payslip__allowed_analytic_account_ids
+msgid "Allowed Analytic Accounts"
+msgstr ""
+
+#. module: ssi_hr_payroll
+#: model:ir.model.fields,field_description:ssi_hr_payroll.field_hr_payslip__allowed_credit_usage_ids
+msgid "Allowed Credit Usages"
+msgstr ""
+
+#. module: ssi_hr_payroll
+#: model:ir.model.fields,field_description:ssi_hr_payroll.field_hr_payslip__allowed_debit_usage_ids
+msgid "Allowed Debit Usages"
+msgstr ""
+
+#. module: ssi_hr_payroll
 #: model:ir.model.fields,field_description:ssi_hr_payroll.field_hr_payslip__allowed_deduction_move_line_ids
 msgid "Allowed Deduction Ref Move Lines"
+msgstr ""
+
+#. module: ssi_hr_payroll
+#: model:ir.model.fields,field_description:ssi_hr_payroll.field_hr_payslip__allowed_employee_ids
+msgid "Allowed Employees"
 msgstr ""
 
 #. module: ssi_hr_payroll
@@ -208,6 +228,31 @@ msgid "Analytic Account"
 msgstr ""
 
 #. module: ssi_hr_payroll
+#: model_terms:ir.ui.view,arch_db:ssi_hr_payroll.hr_payslip_type_view_form
+msgid "Analytic Account Configurator"
+msgstr ""
+
+#. module: ssi_hr_payroll
+#: model:ir.model.fields,field_description:ssi_hr_payroll.field_hr_payslip_type__analytic_account_domain
+msgid "Analytic Account Domain"
+msgstr ""
+
+#. module: ssi_hr_payroll
+#: model:ir.model.fields,field_description:ssi_hr_payroll.field_hr_payslip_type__analytic_account_python_code
+msgid "Analytic Account Python Code"
+msgstr ""
+
+#. module: ssi_hr_payroll
+#: model:ir.model.fields,field_description:ssi_hr_payroll.field_hr_payslip_type__analytic_account_selection_method
+msgid "Analytic Account Selection Method"
+msgstr ""
+
+#. module: ssi_hr_payroll
+#: model:ir.model.fields,field_description:ssi_hr_payroll.field_hr_payslip_type__analytic_account_ids
+msgid "Analytic Accounts"
+msgstr ""
+
+#. module: ssi_hr_payroll
 #: model:ir.model.fields,help:ssi_hr_payroll.field_hr_payslip__analytic_account_id
 msgid "Analytic account used for all journal items of this payslip."
 msgstr ""
@@ -216,6 +261,20 @@ msgstr ""
 #: model:ir.model.fields,help:ssi_hr_payroll.field_hr_payslip_type__analytic_account_id
 msgid ""
 "Analytic account used for journal items of payslip entries of this type."
+msgstr ""
+
+#. module: ssi_hr_payroll
+#: model:ir.model.fields,help:ssi_hr_payroll.field_hr_payslip__allowed_analytic_account_ids
+msgid ""
+"Analytic accounts allowed on 'Analytic Account' as configured on the payslip"
+" type's M2O configurator."
+msgstr ""
+
+#. module: ssi_hr_payroll
+#: model:ir.model.fields,help:ssi_hr_payroll.field_hr_payslip_type__analytic_account_ids
+msgid ""
+"Analytic accounts allowed on payslips of this type when 'Analytic Account "
+"Selection Method' is set to 'Manual'."
 msgstr ""
 
 #. module: ssi_hr_payroll
@@ -475,6 +534,31 @@ msgid "Credit Usage"
 msgstr ""
 
 #. module: ssi_hr_payroll
+#: model_terms:ir.ui.view,arch_db:ssi_hr_payroll.hr_payslip_type_view_form
+msgid "Credit Usage Configurator"
+msgstr ""
+
+#. module: ssi_hr_payroll
+#: model:ir.model.fields,field_description:ssi_hr_payroll.field_hr_payslip_type__credit_usage_domain
+msgid "Credit Usage Domain"
+msgstr ""
+
+#. module: ssi_hr_payroll
+#: model:ir.model.fields,field_description:ssi_hr_payroll.field_hr_payslip_type__credit_usage_python_code
+msgid "Credit Usage Python Code"
+msgstr ""
+
+#. module: ssi_hr_payroll
+#: model:ir.model.fields,field_description:ssi_hr_payroll.field_hr_payslip_type__credit_usage_selection_method
+msgid "Credit Usage Selection Method"
+msgstr ""
+
+#. module: ssi_hr_payroll
+#: model:ir.model.fields,field_description:ssi_hr_payroll.field_hr_payslip_type__credit_usage_ids
+msgid "Credit Usages"
+msgstr ""
+
+#. module: ssi_hr_payroll
 #: model:ir.model.fields,field_description:ssi_hr_payroll.field_hr_payslip__date
 #: model_terms:ir.ui.view,arch_db:ssi_hr_payroll.hr_payslip_view_search
 msgid "Date"
@@ -507,6 +591,31 @@ msgstr ""
 #: model:ir.model.fields,field_description:ssi_hr_payroll.field_hr_payslip__debit_usage_id
 #: model:ir.model.fields,field_description:ssi_hr_payroll.field_hr_payslip_type__debit_usage_id
 msgid "Debit Usage"
+msgstr ""
+
+#. module: ssi_hr_payroll
+#: model_terms:ir.ui.view,arch_db:ssi_hr_payroll.hr_payslip_type_view_form
+msgid "Debit Usage Configurator"
+msgstr ""
+
+#. module: ssi_hr_payroll
+#: model:ir.model.fields,field_description:ssi_hr_payroll.field_hr_payslip_type__debit_usage_domain
+msgid "Debit Usage Domain"
+msgstr ""
+
+#. module: ssi_hr_payroll
+#: model:ir.model.fields,field_description:ssi_hr_payroll.field_hr_payslip_type__debit_usage_python_code
+msgid "Debit Usage Python Code"
+msgstr ""
+
+#. module: ssi_hr_payroll
+#: model:ir.model.fields,field_description:ssi_hr_payroll.field_hr_payslip_type__debit_usage_selection_method
+msgid "Debit Usage Selection Method"
+msgstr ""
+
+#. module: ssi_hr_payroll
+#: model:ir.model.fields,field_description:ssi_hr_payroll.field_hr_payslip_type__debit_usage_ids
+msgid "Debit Usages"
 msgstr ""
 
 #. module: ssi_hr_payroll
@@ -557,6 +666,42 @@ msgid "Display Name"
 msgstr ""
 
 #. module: ssi_hr_payroll
+#: model:ir.model.fields.selection,name:ssi_hr_payroll.selection__hr_payslip_type__analytic_account_selection_method__domain
+#: model:ir.model.fields.selection,name:ssi_hr_payroll.selection__hr_payslip_type__credit_usage_selection_method__domain
+#: model:ir.model.fields.selection,name:ssi_hr_payroll.selection__hr_payslip_type__debit_usage_selection_method__domain
+#: model:ir.model.fields.selection,name:ssi_hr_payroll.selection__hr_payslip_type__employee_selection_method__domain
+msgid "Domain"
+msgstr ""
+
+#. module: ssi_hr_payroll
+#: model:ir.model.fields,help:ssi_hr_payroll.field_hr_payslip_type__analytic_account_domain
+msgid ""
+"Domain used to filter the analytic accounts allowed on payslips of this type"
+" when 'Analytic Account Selection Method' is set to 'Domain'."
+msgstr ""
+
+#. module: ssi_hr_payroll
+#: model:ir.model.fields,help:ssi_hr_payroll.field_hr_payslip_type__credit_usage_domain
+msgid ""
+"Domain used to filter the credit usages allowed on payslips of this type "
+"when 'Credit Usage Selection Method' is set to 'Domain'."
+msgstr ""
+
+#. module: ssi_hr_payroll
+#: model:ir.model.fields,help:ssi_hr_payroll.field_hr_payslip_type__debit_usage_domain
+msgid ""
+"Domain used to filter the debit usages allowed on payslips of this type when"
+" 'Debit Usage Selection Method' is set to 'Domain'."
+msgstr ""
+
+#. module: ssi_hr_payroll
+#: model:ir.model.fields,help:ssi_hr_payroll.field_hr_payslip_type__employee_domain
+msgid ""
+"Domain used to filter the employees allowed to be assigned a payslip of this"
+" type when 'Employee Selection Method' is set to 'Domain'."
+msgstr ""
+
+#. module: ssi_hr_payroll
 #: model:ir.model.fields.selection,name:ssi_hr_payroll.selection__hr_payslip__state__done
 msgid "Done"
 msgstr ""
@@ -578,6 +723,16 @@ msgstr ""
 #: model:ir.model,name:ssi_hr_payroll.model_hr_employee
 #: model:ir.model.fields,field_description:ssi_hr_payroll.field_hr_payslip__employee_id
 msgid "Employee"
+msgstr ""
+
+#. module: ssi_hr_payroll
+#: model_terms:ir.ui.view,arch_db:ssi_hr_payroll.hr_payslip_type_view_form
+msgid "Employee Configurator"
+msgstr ""
+
+#. module: ssi_hr_payroll
+#: model:ir.model.fields,field_description:ssi_hr_payroll.field_hr_payslip_type__employee_domain
+msgid "Employee Domain"
 msgstr ""
 
 #. module: ssi_hr_payroll
@@ -605,6 +760,35 @@ msgstr ""
 #. module: ssi_hr_payroll
 #: model:ir.model,name:ssi_hr_payroll.model_hr_payslip
 msgid "Employee Payslip"
+msgstr ""
+
+#. module: ssi_hr_payroll
+#: model:ir.model.fields,field_description:ssi_hr_payroll.field_hr_payslip_type__employee_python_code
+msgid "Employee Python Code"
+msgstr ""
+
+#. module: ssi_hr_payroll
+#: model:ir.model.fields,field_description:ssi_hr_payroll.field_hr_payslip_type__employee_selection_method
+msgid "Employee Selection Method"
+msgstr ""
+
+#. module: ssi_hr_payroll
+#: model:ir.model.fields,field_description:ssi_hr_payroll.field_hr_payslip_type__employee_ids
+msgid "Employees"
+msgstr ""
+
+#. module: ssi_hr_payroll
+#: model:ir.model.fields,help:ssi_hr_payroll.field_hr_payslip__allowed_employee_ids
+msgid ""
+"Employees allowed on 'Employee' as configured on the payslip type's M2O "
+"configurator."
+msgstr ""
+
+#. module: ssi_hr_payroll
+#: model:ir.model.fields,help:ssi_hr_payroll.field_hr_payslip_type__employee_ids
+msgid ""
+"Employees allowed to be assigned a payslip of this type when 'Employee "
+"Selection Method' is set to 'Manual'."
 msgstr ""
 
 #. module: ssi_hr_payroll
@@ -884,6 +1068,14 @@ msgstr ""
 #. module: ssi_hr_payroll
 #: model:ir.model.fields,field_description:ssi_hr_payroll.field_hr_payslip__manager_id
 msgid "Manager"
+msgstr ""
+
+#. module: ssi_hr_payroll
+#: model:ir.model.fields.selection,name:ssi_hr_payroll.selection__hr_payslip_type__analytic_account_selection_method__manual
+#: model:ir.model.fields.selection,name:ssi_hr_payroll.selection__hr_payslip_type__credit_usage_selection_method__manual
+#: model:ir.model.fields.selection,name:ssi_hr_payroll.selection__hr_payslip_type__debit_usage_selection_method__manual
+#: model:ir.model.fields.selection,name:ssi_hr_payroll.selection__hr_payslip_type__employee_selection_method__manual
+msgid "Manual"
 msgstr ""
 
 #. module: ssi_hr_payroll
@@ -1236,8 +1428,72 @@ msgid "Product usage type used to resolve the debit account of this payslip."
 msgstr ""
 
 #. module: ssi_hr_payroll
+#: model:ir.model.fields,help:ssi_hr_payroll.field_hr_payslip_type__credit_usage_ids
+msgid ""
+"Product usage types allowed as credit usage on payslips of this type when "
+"'Credit Usage Selection Method' is set to 'Manual'."
+msgstr ""
+
+#. module: ssi_hr_payroll
+#: model:ir.model.fields,help:ssi_hr_payroll.field_hr_payslip_type__debit_usage_ids
+msgid ""
+"Product usage types allowed as debit usage on payslips of this type when "
+"'Debit Usage Selection Method' is set to 'Manual'."
+msgstr ""
+
+#. module: ssi_hr_payroll
+#: model:ir.model.fields,help:ssi_hr_payroll.field_hr_payslip__allowed_credit_usage_ids
+msgid ""
+"Product usage types allowed on 'Credit Usage' as configured on the payslip "
+"type's M2O configurator."
+msgstr ""
+
+#. module: ssi_hr_payroll
+#: model:ir.model.fields,help:ssi_hr_payroll.field_hr_payslip__allowed_debit_usage_ids
+msgid ""
+"Product usage types allowed on 'Debit Usage' as configured on the payslip "
+"type's M2O configurator."
+msgstr ""
+
+#. module: ssi_hr_payroll
+#: model:ir.model.fields.selection,name:ssi_hr_payroll.selection__hr_payslip_type__analytic_account_selection_method__code
+#: model:ir.model.fields.selection,name:ssi_hr_payroll.selection__hr_payslip_type__credit_usage_selection_method__code
+#: model:ir.model.fields.selection,name:ssi_hr_payroll.selection__hr_payslip_type__debit_usage_selection_method__code
+#: model:ir.model.fields.selection,name:ssi_hr_payroll.selection__hr_payslip_type__employee_selection_method__code
+msgid "Python Code"
+msgstr ""
+
+#. module: ssi_hr_payroll
 #: model:ir.model.fields,field_description:ssi_hr_payroll.field_hr_salary_rule__condition_python
 msgid "Python Condition"
+msgstr ""
+
+#. module: ssi_hr_payroll
+#: model:ir.model.fields,help:ssi_hr_payroll.field_hr_payslip_type__analytic_account_python_code
+msgid ""
+"Python code used to compute the analytic accounts allowed on payslips of "
+"this type when 'Analytic Account Selection Method' is set to 'Python Code'."
+msgstr ""
+
+#. module: ssi_hr_payroll
+#: model:ir.model.fields,help:ssi_hr_payroll.field_hr_payslip_type__credit_usage_python_code
+msgid ""
+"Python code used to compute the credit usages allowed on payslips of this "
+"type when 'Credit Usage Selection Method' is set to 'Python Code'."
+msgstr ""
+
+#. module: ssi_hr_payroll
+#: model:ir.model.fields,help:ssi_hr_payroll.field_hr_payslip_type__debit_usage_python_code
+msgid ""
+"Python code used to compute the debit usages allowed on payslips of this "
+"type when 'Debit Usage Selection Method' is set to 'Python Code'."
+msgstr ""
+
+#. module: ssi_hr_payroll
+#: model:ir.model.fields,help:ssi_hr_payroll.field_hr_payslip_type__employee_python_code
+msgid ""
+"Python code used to compute the employees allowed to be assigned a payslip "
+"of this type when 'Employee Selection Method' is set to 'Python Code'."
 msgstr ""
 
 #. module: ssi_hr_payroll
@@ -1424,6 +1680,38 @@ msgid ""
 "Overdue: Due date is already passed\n"
 "Today: Activity date is today\n"
 "Planned: Future activities."
+msgstr ""
+
+#. module: ssi_hr_payroll
+#: model:ir.model.fields,help:ssi_hr_payroll.field_hr_payslip_type__analytic_account_selection_method
+msgid ""
+"Strategy used to compute the analytic accounts allowed on payslips of this "
+"type. 'Manual' uses 'Analytic Accounts', 'Domain' evaluates 'Analytic "
+"Account Domain', 'Python Code' evaluates 'Analytic Account Python Code'."
+msgstr ""
+
+#. module: ssi_hr_payroll
+#: model:ir.model.fields,help:ssi_hr_payroll.field_hr_payslip_type__credit_usage_selection_method
+msgid ""
+"Strategy used to compute the credit usages allowed on payslips of this type."
+" 'Manual' uses 'Credit Usages', 'Domain' evaluates 'Credit Usage Domain', "
+"'Python Code' evaluates 'Credit Usage Python Code'."
+msgstr ""
+
+#. module: ssi_hr_payroll
+#: model:ir.model.fields,help:ssi_hr_payroll.field_hr_payslip_type__debit_usage_selection_method
+msgid ""
+"Strategy used to compute the debit usages allowed on payslips of this type. "
+"'Manual' uses 'Debit Usages', 'Domain' evaluates 'Debit Usage Domain', "
+"'Python Code' evaluates 'Debit Usage Python Code'."
+msgstr ""
+
+#. module: ssi_hr_payroll
+#: model:ir.model.fields,help:ssi_hr_payroll.field_hr_payslip_type__employee_selection_method
+msgid ""
+"Strategy used to compute the employees allowed on payslips of this type. "
+"'Manual' uses 'Employees', 'Domain' evaluates 'Employee Domain', 'Python "
+"Code' evaluates 'Employee Python Code'."
 msgstr ""
 
 #. module: ssi_hr_payroll
