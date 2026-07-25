@@ -75,19 +75,55 @@ odoo.define("ssi_hr_payroll.hr_payslip_type_tour", function (require) {
             // This Flow step is optional in the work instruction and is not
             // needed to save the record, so no field is filled here.
 
-            // ── Flow 5 — Click Save
+            // ── Flow 5 — (Optional) Configure the M2O configurator. Open the
+            // Employee Configurator tab and switch Selection Method to
+            // "Manual".
+            {
+                content: "Open the Employee Configurator tab",
+                trigger: ".o_notebook .nav-link:contains(Employee Configurator)",
+            },
+            {
+                content: "Employee Configurator tab is displayed",
+                trigger: ".o_field_widget[name='employee_selection_method']",
+                run: function () {
+                    // Assertion only; do not trigger the default click action.
+                },
+            },
+            {
+                content: "Switch Employee Selection Method to Manual",
+                trigger: "select.o_field_widget[name='employee_selection_method']",
+                run: "text Manual",
+            },
+            {
+                content: "Employees field becomes visible for the Manual method",
+                trigger: ".o_field_widget[name='employee_ids']",
+                run: function () {
+                    // Assertion only; do not trigger the default click action.
+                },
+            },
+
+            // ── Flow 6 — Click Save
             {
                 content: "Save the record",
                 trigger: ".o_form_button_save",
             },
 
             // ── Post-Condition — A new Payslip Type record is created; the
-            // saved record is displayed on the form and in the breadcrumb.
+            // saved record is displayed on the form and in the breadcrumb,
+            // and the M2O configurator choice made in Flow 5 was persisted.
             {
                 content: "Payslip Type record is saved and displayed",
                 trigger:
                     ".o_control_panel .breadcrumb-item.active:contains(TOUR-PAYSLIP-TYPE)",
                 extra_trigger: ".o_form_view.o_form_readonly",
+                run: function () {
+                    // Assertion only; do not trigger the default click action.
+                },
+            },
+            {
+                content: "Employee Selection Method was saved as Manual",
+                trigger:
+                    ".o_field_widget[name='employee_selection_method']:contains(Manual)",
                 run: function () {
                     // Assertion only; do not trigger the default click action.
                 },

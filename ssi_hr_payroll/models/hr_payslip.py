@@ -83,6 +83,7 @@ class HrPayslip(models.Model):
         "mixin.transaction_cancel",
         "mixin.employee_document",
         "mixin.date_duration",
+        "mixin.many2one_configurator",
     ]
     # Multiple Approval Attribute
     _approval_from_state = "draft"
@@ -240,6 +241,42 @@ class HrPayslip(models.Model):
         help="Product usage type used to resolve the credit account "
         "of this payslip.",
     )
+    allowed_analytic_account_ids = fields.Many2many(
+        string="Allowed Analytic Accounts",
+        comodel_name="account.analytic.account",
+        compute="_compute_allowed_analytic_account_ids",
+        store=False,
+        compute_sudo=True,
+        help="Analytic accounts allowed on 'Analytic Account' as configured "
+        "on the payslip type's M2O configurator.",
+    )
+    allowed_debit_usage_ids = fields.Many2many(
+        string="Allowed Debit Usages",
+        comodel_name="product.usage_type",
+        compute="_compute_allowed_debit_usage_ids",
+        store=False,
+        compute_sudo=True,
+        help="Product usage types allowed on 'Debit Usage' as configured on "
+        "the payslip type's M2O configurator.",
+    )
+    allowed_credit_usage_ids = fields.Many2many(
+        string="Allowed Credit Usages",
+        comodel_name="product.usage_type",
+        compute="_compute_allowed_credit_usage_ids",
+        store=False,
+        compute_sudo=True,
+        help="Product usage types allowed on 'Credit Usage' as configured on "
+        "the payslip type's M2O configurator.",
+    )
+    allowed_employee_ids = fields.Many2many(
+        string="Allowed Employees",
+        comodel_name="hr.employee",
+        compute="_compute_allowed_employee_ids",
+        store=False,
+        compute_sudo=True,
+        help="Employees allowed on 'Employee' as configured on the payslip "
+        "type's M2O configurator.",
+    )
     debit_account_2b_reconciled_ids = fields.Many2many(
         string="Debit Accounts To Be Reconciled",
         comodel_name="account.account",
@@ -297,6 +334,84 @@ class HrPayslip(models.Model):
                 rule_list = structures.get_all_rules()
                 result = [id for id, sequence in sorted(rule_list, key=lambda x: x[1])]
             record.rule_ids = result
+
+    @api.depends(
+        "type_id",
+    )
+    def _compute_allowed_analytic_account_ids(self):
+        # No type_id yet (e.g. the Employee field is filled in before Type on
+        # a new record): behave like the type's own "no restriction" default
+        # (selection_method="domain", domain="[]") instead of blocking every
+        # record, so the field stays usable while the form is being filled in.
+        AnalyticAccount = self.env["account.analytic.account"]
+        for record in self:
+            result = AnalyticAccount.search([])
+            if record.type_id:
+                result = record._m2o_configurator_get_filter(
+                    object_name="account.analytic.account",
+                    method_selection=record.type_id.analytic_account_selection_method,
+                    manual_recordset=record.type_id.analytic_account_ids,
+                    domain=record.type_id.analytic_account_domain,
+                    python_code=record.type_id.analytic_account_python_code,
+                )
+            record.allowed_analytic_account_ids = result
+
+    @api.depends(
+        "type_id",
+    )
+    def _compute_allowed_debit_usage_ids(self):
+        # See _compute_allowed_analytic_account_ids for why the no-type_id
+        # default is an unrestricted search rather than an empty result.
+        ProductUsage = self.env["product.usage_type"]
+        for record in self:
+            result = ProductUsage.search([])
+            if record.type_id:
+                result = record._m2o_configurator_get_filter(
+                    object_name="product.usage_type",
+                    method_selection=record.type_id.debit_usage_selection_method,
+                    manual_recordset=record.type_id.debit_usage_ids,
+                    domain=record.type_id.debit_usage_domain,
+                    python_code=record.type_id.debit_usage_python_code,
+                )
+            record.allowed_debit_usage_ids = result
+
+    @api.depends(
+        "type_id",
+    )
+    def _compute_allowed_credit_usage_ids(self):
+        # See _compute_allowed_analytic_account_ids for why the no-type_id
+        # default is an unrestricted search rather than an empty result.
+        ProductUsage = self.env["product.usage_type"]
+        for record in self:
+            result = ProductUsage.search([])
+            if record.type_id:
+                result = record._m2o_configurator_get_filter(
+                    object_name="product.usage_type",
+                    method_selection=record.type_id.credit_usage_selection_method,
+                    manual_recordset=record.type_id.credit_usage_ids,
+                    domain=record.type_id.credit_usage_domain,
+                    python_code=record.type_id.credit_usage_python_code,
+                )
+            record.allowed_credit_usage_ids = result
+
+    @api.depends(
+        "type_id",
+    )
+    def _compute_allowed_employee_ids(self):
+        # See _compute_allowed_analytic_account_ids for why the no-type_id
+        # default is an unrestricted search rather than an empty result.
+        Employee = self.env["hr.employee"]
+        for record in self:
+            result = Employee.search([])
+            if record.type_id:
+                result = record._m2o_configurator_get_filter(
+                    object_name="hr.employee",
+                    method_selection=record.type_id.employee_selection_method,
+                    manual_recordset=record.type_id.employee_ids,
+                    domain=record.type_id.employee_domain,
+                    python_code=record.type_id.employee_python_code,
+                )
+            record.allowed_employee_ids = result
 
     @api.depends(
         "rule_ids",

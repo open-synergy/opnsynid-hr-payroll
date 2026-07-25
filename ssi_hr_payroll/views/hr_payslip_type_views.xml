@@ -58,6 +58,105 @@
                     <field name="debit_usage_id" />
                     <field name="credit_usage_id" />
                 </xpath>
+                <xpath expr="//page[@name='note']" position="before">
+                    <page
+                        name="analytic_account_configurator"
+                        string="Analytic Account Configurator"
+                    >
+                        <group
+                            name="analytic_account_configurator_1"
+                            colspan="4"
+                            col="2"
+                        >
+                            <field name="analytic_account_selection_method" />
+                            <field
+                                name="analytic_account_ids"
+                                widget="many2many_tags"
+                                attrs="{'invisible':[('analytic_account_selection_method','!=','manual')]}"
+                            />
+                            <field
+                                name="analytic_account_domain"
+                                widget="domain"
+                                options="{'model': 'account.analytic.account', 'in_dialog': True}"
+                                attrs="{'invisible':[('analytic_account_selection_method','!=','domain')]}"
+                            />
+                            <field
+                                name="analytic_account_python_code"
+                                widget="ace"
+                                attrs="{'invisible':[('analytic_account_selection_method','!=','code')]}"
+                            />
+                        </group>
+                    </page>
+                    <page
+                        name="debit_usage_configurator"
+                        string="Debit Usage Configurator"
+                    >
+                        <group name="debit_usage_configurator_1" colspan="4" col="2">
+                            <field name="debit_usage_selection_method" />
+                            <field
+                                name="debit_usage_ids"
+                                widget="many2many_tags"
+                                attrs="{'invisible':[('debit_usage_selection_method','!=','manual')]}"
+                            />
+                            <field
+                                name="debit_usage_domain"
+                                widget="domain"
+                                options="{'model': 'product.usage_type', 'in_dialog': True}"
+                                attrs="{'invisible':[('debit_usage_selection_method','!=','domain')]}"
+                            />
+                            <field
+                                name="debit_usage_python_code"
+                                widget="ace"
+                                attrs="{'invisible':[('debit_usage_selection_method','!=','code')]}"
+                            />
+                        </group>
+                    </page>
+                    <page
+                        name="credit_usage_configurator"
+                        string="Credit Usage Configurator"
+                    >
+                        <group name="credit_usage_configurator_1" colspan="4" col="2">
+                            <field name="credit_usage_selection_method" />
+                            <field
+                                name="credit_usage_ids"
+                                widget="many2many_tags"
+                                attrs="{'invisible':[('credit_usage_selection_method','!=','manual')]}"
+                            />
+                            <field
+                                name="credit_usage_domain"
+                                widget="domain"
+                                options="{'model': 'product.usage_type', 'in_dialog': True}"
+                                attrs="{'invisible':[('credit_usage_selection_method','!=','domain')]}"
+                            />
+                            <field
+                                name="credit_usage_python_code"
+                                widget="ace"
+                                attrs="{'invisible':[('credit_usage_selection_method','!=','code')]}"
+                            />
+                        </group>
+                    </page>
+                    <page name="employee_configurator" string="Employee Configurator">
+                        <group name="employee_configurator_1" colspan="4" col="2">
+                            <field name="employee_selection_method" />
+                            <field
+                                name="employee_ids"
+                                widget="many2many_tags"
+                                attrs="{'invisible':[('employee_selection_method','!=','manual')]}"
+                            />
+                            <field
+                                name="employee_domain"
+                                widget="domain"
+                                options="{'model': 'hr.employee', 'in_dialog': True}"
+                                attrs="{'invisible':[('employee_selection_method','!=','domain')]}"
+                            />
+                            <field
+                                name="employee_python_code"
+                                widget="ace"
+                                attrs="{'invisible':[('employee_selection_method','!=','code')]}"
+                            />
+                        </group>
+                    </page>
+                </xpath>
             </data>
         </field>
     </record>
