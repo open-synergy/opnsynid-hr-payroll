@@ -1,77 +1,45 @@
-setup:
-  steps:
-    - step: "Create payroll journal"
-      action: "create"
-      model: "account.journal"
-      save_as: "journal"
-      values:
-        name: "Test M2O Configurator Journal"
-        code: "TM2OJ"
-        type: "general"
-
-    - step: "Create salary structure"
-      action: "create"
-      model: "hr.salary_structure"
-      save_as: "structure"
-      values:
-        name: "Test M2O Configurator Structure"
-        code: "TM2OSTR"
-
-    - step: "Create payslip employee"
-      action: "create"
-      model: "hr.employee"
-      save_as: "employee"
-      values:
-        name: "Test M2O Configurator Employee"
-        salary_structure_id: "REC: structure.id"
-
-    - step: "Create analytic account (candidate to include)"
-      action: "create"
-      model: "account.analytic.account"
-      save_as: "aa_1"
-      values:
-        name: "Test M2O AA Include"
-
-    - step: "Create analytic account (candidate to exclude)"
-      action: "create"
-      model: "account.analytic.account"
-      save_as: "aa_2"
-      values:
-        name: "Test M2O AA Exclude"
-
-    - step: "Create product usage type (candidate to include)"
-      action: "create"
-      model: "product.usage_type"
-      save_as: "usage_1"
-      values:
-        name: "Test M2O Usage Include"
-        code: "TM2OUSG1"
-
-    - step: "Create product usage type (candidate to exclude)"
-      action: "create"
-      model: "product.usage_type"
-      save_as: "usage_2"
-      values:
-        name: "Test M2O Usage Exclude"
-        code: "TM2OUSG2"
-
-    - step: "Create employee (candidate to include)"
-      action: "create"
-      model: "hr.employee"
-      save_as: "employee_1"
-      values:
-        name: "Test M2O Employee Include"
-
-    - step: "Create employee (candidate to exclude)"
-      action: "create"
-      model: "hr.employee"
-      save_as: "employee_2"
-      values:
-        name: "Test M2O Employee Exclude"
-
 scenarios:
   - name: "HR Payslip - Allowed analytic accounts via manual method"
     steps:
+      - step: "Create payroll journal"
+        action: "create"
+        model: "account.journal"
+        save_as: "journal"
+        values:
+          name: "Test M2O Configurator Journal 1"
+          code: "TM2OJ1"
+          type: "general"
+
+      - step: "Create salary structure"
+        action: "create"
+        model: "hr.salary_structure"
+        save_as: "structure"
+        values:
+          name: "Test M2O Configurator Structure 1"
+          code: "TM2OSTR1"
+
+      - step: "Create payslip employee"
+        action: "create"
+        model: "hr.employee"
+        save_as: "employee"
+        values:
+          name: "Test M2O Configurator Employee 1"
+          salary_structure_id: "REC: structure.id"
+
+      - step: "Create analytic account (candidate to include)"
+        action: "create"
+        model: "account.analytic.account"
+        save_as: "aa_1"
+        values:
+          name: "Test M2O AA Manual Include"
+
+      - step: "Create analytic account (candidate to exclude)"
+        action: "create"
+        model: "account.analytic.account"
+        save_as: "aa_2"
+        values:
+          name: "Test M2O AA Manual Exclude"
+
       - step: "Create payslip type with manual analytic account configurator"
         action: "create"
         model: "hr.payslip_type"
@@ -110,6 +78,45 @@ scenarios:
 
   - name: "HR Payslip - Allowed analytic accounts via domain method"
     steps:
+      - step: "Create payroll journal"
+        action: "create"
+        model: "account.journal"
+        save_as: "journal"
+        values:
+          name: "Test M2O Configurator Journal 2"
+          code: "TM2OJ2"
+          type: "general"
+
+      - step: "Create salary structure"
+        action: "create"
+        model: "hr.salary_structure"
+        save_as: "structure"
+        values:
+          name: "Test M2O Configurator Structure 2"
+          code: "TM2OSTR2"
+
+      - step: "Create payslip employee"
+        action: "create"
+        model: "hr.employee"
+        save_as: "employee"
+        values:
+          name: "Test M2O Configurator Employee 2"
+          salary_structure_id: "REC: structure.id"
+
+      - step: "Create analytic account (candidate to include)"
+        action: "create"
+        model: "account.analytic.account"
+        save_as: "aa_1"
+        values:
+          name: "Test M2O AA Domain Include"
+
+      - step: "Create analytic account (candidate to exclude)"
+        action: "create"
+        model: "account.analytic.account"
+        save_as: "aa_2"
+        values:
+          name: "Test M2O AA Domain Exclude"
+
       - step: "Create payslip type with domain analytic account configurator"
         action: "create"
         model: "hr.payslip_type"
@@ -119,7 +126,7 @@ scenarios:
           code: "TM2OAADOM"
           journal_id: "REC: journal.id"
           analytic_account_selection_method: "domain"
-          analytic_account_domain: "[('name', '=', 'Test M2O AA Include')]"
+          analytic_account_domain: "[('name', '=', 'Test M2O AA Domain Include')]"
 
       - step: "Create payslip"
         action: "create"
@@ -147,6 +154,45 @@ scenarios:
 
   - name: "HR Payslip - Allowed analytic accounts via python code method"
     steps:
+      - step: "Create payroll journal"
+        action: "create"
+        model: "account.journal"
+        save_as: "journal"
+        values:
+          name: "Test M2O Configurator Journal 3"
+          code: "TM2OJ3"
+          type: "general"
+
+      - step: "Create salary structure"
+        action: "create"
+        model: "hr.salary_structure"
+        save_as: "structure"
+        values:
+          name: "Test M2O Configurator Structure 3"
+          code: "TM2OSTR3"
+
+      - step: "Create payslip employee"
+        action: "create"
+        model: "hr.employee"
+        save_as: "employee"
+        values:
+          name: "Test M2O Configurator Employee 3"
+          salary_structure_id: "REC: structure.id"
+
+      - step: "Create analytic account (candidate to include)"
+        action: "create"
+        model: "account.analytic.account"
+        save_as: "aa_1"
+        values:
+          name: "Test M2O AA Code Include"
+
+      - step: "Create analytic account (candidate to exclude)"
+        action: "create"
+        model: "account.analytic.account"
+        save_as: "aa_2"
+        values:
+          name: "Test M2O AA Code Exclude"
+
       - step: "Create payslip type with python code analytic account configurator"
         action: "create"
         model: "hr.payslip_type"
@@ -158,7 +204,7 @@ scenarios:
           analytic_account_selection_method: "code"
           analytic_account_python_code:
             "result = env['account.analytic.account'].search([('name', '=', 'Test M2O AA
-            Include')])"
+            Code Include')])"
 
       - step: "Create payslip"
         action: "create"
@@ -186,6 +232,47 @@ scenarios:
 
   - name: "HR Payslip - Allowed debit usages via manual method"
     steps:
+      - step: "Create payroll journal"
+        action: "create"
+        model: "account.journal"
+        save_as: "journal"
+        values:
+          name: "Test M2O Configurator Journal 4"
+          code: "TM2OJ4"
+          type: "general"
+
+      - step: "Create salary structure"
+        action: "create"
+        model: "hr.salary_structure"
+        save_as: "structure"
+        values:
+          name: "Test M2O Configurator Structure 4"
+          code: "TM2OSTR4"
+
+      - step: "Create payslip employee"
+        action: "create"
+        model: "hr.employee"
+        save_as: "employee"
+        values:
+          name: "Test M2O Configurator Employee 4"
+          salary_structure_id: "REC: structure.id"
+
+      - step: "Create product usage type (candidate to include)"
+        action: "create"
+        model: "product.usage_type"
+        save_as: "usage_1"
+        values:
+          name: "Test M2O Debit Usage Include"
+          code: "TM2ODBU1"
+
+      - step: "Create product usage type (candidate to exclude)"
+        action: "create"
+        model: "product.usage_type"
+        save_as: "usage_2"
+        values:
+          name: "Test M2O Debit Usage Exclude"
+          code: "TM2ODBU2"
+
       - step: "Create payslip type with manual debit usage configurator"
         action: "create"
         model: "hr.payslip_type"
@@ -224,6 +311,47 @@ scenarios:
 
   - name: "HR Payslip - Allowed credit usages via manual method"
     steps:
+      - step: "Create payroll journal"
+        action: "create"
+        model: "account.journal"
+        save_as: "journal"
+        values:
+          name: "Test M2O Configurator Journal 5"
+          code: "TM2OJ5"
+          type: "general"
+
+      - step: "Create salary structure"
+        action: "create"
+        model: "hr.salary_structure"
+        save_as: "structure"
+        values:
+          name: "Test M2O Configurator Structure 5"
+          code: "TM2OSTR5"
+
+      - step: "Create payslip employee"
+        action: "create"
+        model: "hr.employee"
+        save_as: "employee"
+        values:
+          name: "Test M2O Configurator Employee 5"
+          salary_structure_id: "REC: structure.id"
+
+      - step: "Create product usage type (candidate to include)"
+        action: "create"
+        model: "product.usage_type"
+        save_as: "usage_1"
+        values:
+          name: "Test M2O Credit Usage Include"
+          code: "TM2OCRU1"
+
+      - step: "Create product usage type (candidate to exclude)"
+        action: "create"
+        model: "product.usage_type"
+        save_as: "usage_2"
+        values:
+          name: "Test M2O Credit Usage Exclude"
+          code: "TM2OCRU2"
+
       - step: "Create payslip type with manual credit usage configurator"
         action: "create"
         model: "hr.payslip_type"
@@ -262,6 +390,45 @@ scenarios:
 
   - name: "HR Payslip - Allowed employees via manual method"
     steps:
+      - step: "Create payroll journal"
+        action: "create"
+        model: "account.journal"
+        save_as: "journal"
+        values:
+          name: "Test M2O Configurator Journal 6"
+          code: "TM2OJ6"
+          type: "general"
+
+      - step: "Create salary structure"
+        action: "create"
+        model: "hr.salary_structure"
+        save_as: "structure"
+        values:
+          name: "Test M2O Configurator Structure 6"
+          code: "TM2OSTR6"
+
+      - step: "Create payslip employee"
+        action: "create"
+        model: "hr.employee"
+        save_as: "employee"
+        values:
+          name: "Test M2O Configurator Employee 6"
+          salary_structure_id: "REC: structure.id"
+
+      - step: "Create employee (candidate to include)"
+        action: "create"
+        model: "hr.employee"
+        save_as: "employee_1"
+        values:
+          name: "Test M2O Employee Manual Include"
+
+      - step: "Create employee (candidate to exclude)"
+        action: "create"
+        model: "hr.employee"
+        save_as: "employee_2"
+        values:
+          name: "Test M2O Employee Manual Exclude"
+
       - step: "Create payslip type with manual employee configurator"
         action: "create"
         model: "hr.payslip_type"
@@ -300,6 +467,31 @@ scenarios:
 
   - name: "HR Payslip - Allowed analytic accounts empty when manual list is empty"
     steps:
+      - step: "Create payroll journal"
+        action: "create"
+        model: "account.journal"
+        save_as: "journal"
+        values:
+          name: "Test M2O Configurator Journal 7"
+          code: "TM2OJ7"
+          type: "general"
+
+      - step: "Create salary structure"
+        action: "create"
+        model: "hr.salary_structure"
+        save_as: "structure"
+        values:
+          name: "Test M2O Configurator Structure 7"
+          code: "TM2OSTR7"
+
+      - step: "Create payslip employee"
+        action: "create"
+        model: "hr.employee"
+        save_as: "employee"
+        values:
+          name: "Test M2O Configurator Employee 7"
+          salary_structure_id: "REC: structure.id"
+
       - step:
           "Create payslip type with manual analytic account configurator, no records"
         action: "create"
@@ -336,6 +528,31 @@ scenarios:
 
   - name: "HR Payslip - Allowed debit usages empty when manual list is empty"
     steps:
+      - step: "Create payroll journal"
+        action: "create"
+        model: "account.journal"
+        save_as: "journal"
+        values:
+          name: "Test M2O Configurator Journal 8"
+          code: "TM2OJ8"
+          type: "general"
+
+      - step: "Create salary structure"
+        action: "create"
+        model: "hr.salary_structure"
+        save_as: "structure"
+        values:
+          name: "Test M2O Configurator Structure 8"
+          code: "TM2OSTR8"
+
+      - step: "Create payslip employee"
+        action: "create"
+        model: "hr.employee"
+        save_as: "employee"
+        values:
+          name: "Test M2O Configurator Employee 8"
+          salary_structure_id: "REC: structure.id"
+
       - step: "Create payslip type with manual debit usage configurator, no records"
         action: "create"
         model: "hr.payslip_type"
@@ -371,6 +588,31 @@ scenarios:
 
   - name: "HR Payslip - Allowed credit usages empty when manual list is empty"
     steps:
+      - step: "Create payroll journal"
+        action: "create"
+        model: "account.journal"
+        save_as: "journal"
+        values:
+          name: "Test M2O Configurator Journal 9"
+          code: "TM2OJ9"
+          type: "general"
+
+      - step: "Create salary structure"
+        action: "create"
+        model: "hr.salary_structure"
+        save_as: "structure"
+        values:
+          name: "Test M2O Configurator Structure 9"
+          code: "TM2OSTR9"
+
+      - step: "Create payslip employee"
+        action: "create"
+        model: "hr.employee"
+        save_as: "employee"
+        values:
+          name: "Test M2O Configurator Employee 9"
+          salary_structure_id: "REC: structure.id"
+
       - step: "Create payslip type with manual credit usage configurator, no records"
         action: "create"
         model: "hr.payslip_type"
@@ -406,6 +648,31 @@ scenarios:
 
   - name: "HR Payslip - Allowed employees empty when manual list is empty"
     steps:
+      - step: "Create payroll journal"
+        action: "create"
+        model: "account.journal"
+        save_as: "journal"
+        values:
+          name: "Test M2O Configurator Journal 10"
+          code: "TM2OJ10"
+          type: "general"
+
+      - step: "Create salary structure"
+        action: "create"
+        model: "hr.salary_structure"
+        save_as: "structure"
+        values:
+          name: "Test M2O Configurator Structure 10"
+          code: "TM2OSTR10"
+
+      - step: "Create payslip employee"
+        action: "create"
+        model: "hr.employee"
+        save_as: "employee"
+        values:
+          name: "Test M2O Configurator Employee 10"
+          salary_structure_id: "REC: structure.id"
+
       - step: "Create payslip type with manual employee configurator, no records"
         action: "create"
         model: "hr.payslip_type"
