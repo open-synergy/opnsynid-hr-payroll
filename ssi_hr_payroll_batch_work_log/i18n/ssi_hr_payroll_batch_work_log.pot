@@ -15,7 +15,14 @@ msgstr ""
 
 #. module: ssi_hr_payroll_batch_work_log
 #: model:ir.model.fields,field_description:ssi_hr_payroll_batch_work_log.field_hr_payslip_batch__allowed_analytic_account_ids
-msgid "Analytic Accounts"
+msgid "Allowed Analytic Accounts"
+msgstr ""
+
+#. module: ssi_hr_payroll_batch_work_log
+#: model:ir.model.fields,help:ssi_hr_payroll_batch_work_log.field_hr_payslip_batch__allowed_analytic_account_ids
+msgid ""
+"Analytic accounts allowed on 'Analytic Account' as configured on the payslip"
+" type's M2O configurator."
 msgstr ""
 
 #. module: ssi_hr_payroll_batch_work_log
