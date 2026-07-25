@@ -18,6 +18,7 @@
         "ssi_employee_document_mixin",
         "ssi_financial_accounting",
         "ssi_product_usage_account_type",
+        "ssi_m2o_configurator_mixin",
         "web_tour",
     ],
     "data": [

@@ -6,7 +6,9 @@ from . import test_hr_payslip  # noqa: F401
 from . import test_hr_payslip_accounting_hook  # noqa: F401
 from . import test_hr_payslip_line_account_resolution  # noqa: F401
 from . import test_hr_payslip_input_type  # noqa: F401
+from . import test_hr_payslip_m2o_configurator  # noqa: F401
 from . import test_hr_payslip_type  # noqa: F401
+from . import test_hr_payslip_type_m2o_configurator  # noqa: F401
 from . import test_hr_salary_contribution  # noqa: F401
 from . import test_hr_salary_rule  # noqa: F401
 from . import test_hr_salary_rule_category  # noqa: F401

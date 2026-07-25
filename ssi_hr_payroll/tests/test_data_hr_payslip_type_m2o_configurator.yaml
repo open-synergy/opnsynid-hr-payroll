@@ -1,0 +1,87 @@
+scenarios:
+  - name: "HR Payslip Type - M2O configurator defaults"
+    steps:
+      - step: "Create payslip type without configurator input"
+        action: "create"
+        model: "hr.payslip_type"
+        save_as: "payslip_type"
+        values:
+          name: "Test M2O Configurator Defaults"
+          code: "TSTM2ODEF"
+
+      - step: "Assert configurator fields default to unrestricted domain"
+        action: "assert"
+        target: "payslip_type"
+        asserts:
+          analytic_account_selection_method:
+            type: "value"
+            expected: "domain"
+          analytic_account_domain:
+            type: "value"
+            expected: "[]"
+          analytic_account_python_code:
+            type: "value"
+            expected: "result = []"
+          debit_usage_selection_method:
+            type: "value"
+            expected: "domain"
+          debit_usage_domain:
+            type: "value"
+            expected: "[]"
+          debit_usage_python_code:
+            type: "value"
+            expected: "result = []"
+          credit_usage_selection_method:
+            type: "value"
+            expected: "domain"
+          credit_usage_domain:
+            type: "value"
+            expected: "[]"
+          credit_usage_python_code:
+            type: "value"
+            expected: "result = []"
+          employee_selection_method:
+            type: "value"
+            expected: "domain"
+          employee_domain:
+            type: "value"
+            expected: "[]"
+          employee_python_code:
+            type: "value"
+            expected: "result = []"
+
+  - name: "HR Payslip Type - Write employee selection method to manual"
+    steps:
+      - step: "Create payslip type"
+        action: "create"
+        model: "hr.payslip_type"
+        save_as: "payslip_type"
+        values:
+          name: "Test Write Employee Selection Method"
+          code: "TSTM2OWR"
+
+      - step: "Write employee selection method to manual"
+        action: "write"
+        target: "payslip_type"
+        values:
+          employee_selection_method: "manual"
+
+      - step: "Assert employee selection method persisted"
+        action: "assert"
+        target: "payslip_type"
+        asserts:
+          employee_selection_method:
+            type: "value"
+            expected: "manual"
+
+  - name: "HR Payslip Type - Invalid employee selection method rejected"
+    steps:
+      - step: "Create payslip type with invalid employee selection method"
+        action: "create"
+        model: "hr.payslip_type"
+        expect_error:
+          type: "ValueError"
+        values:
+          name: "Test Invalid Selection Method"
+          code: "TSTM2OINV"
+          employee_selection_method: "invalid"
