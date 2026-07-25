@@ -24,21 +24,17 @@ class HrPayslipBatch(models.Model):  # pylint: disable=too-few-public-methods
     ]
 
     @api.depends(
-        "company_id",
         "operating_unit_id",
     )
     def _compute_employee_ids(self):
-        obj_employee = self.env["hr.employee"]
+        super()._compute_employee_ids()
         for document in self:
-            criteria = [
-                ("salary_structure_id", "!=", False),
-            ]
             if document.operating_unit_id:
-                criteria.append(
-                    ("operating_unit_id", "=", document.operating_unit_id.id)
+                employee_ids = document.allowed_employee_ids.filtered(
+                    lambda employee, ou=document.operating_unit_id: employee.operating_unit_id
+                    == ou
                 )
-            employee_ids = obj_employee.search(criteria)
-            document.allowed_employee_ids = [(6, 0, employee_ids.ids)]
+                document.allowed_employee_ids = [(6, 0, employee_ids.ids)]
 
     def _prepare_payslip_data(self, employee):
         res = super()._prepare_payslip_data(employee)

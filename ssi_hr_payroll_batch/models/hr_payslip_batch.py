@@ -25,6 +25,7 @@ class HrPayslipBatch(models.Model):
         "mixin.date_duration",
         "mixin.account_move",
         "mixin.company_currency",
+        "mixin.many2one_configurator",
     ]
     # Multiple Approval Attribute
     _approval_from_state = "draft"
@@ -173,6 +174,33 @@ class HrPayslipBatch(models.Model):
         help="Product usage type used to resolve the credit account "
         "of this payslip batch.",
     )
+    allowed_analytic_account_ids = fields.Many2many(
+        string="Allowed Analytic Accounts",
+        comodel_name="account.analytic.account",
+        compute="_compute_allowed_analytic_account_ids",
+        store=False,
+        compute_sudo=True,
+        help="Analytic accounts allowed on 'Analytic Account' as configured "
+        "on the payslip type's M2O configurator.",
+    )
+    allowed_debit_usage_ids = fields.Many2many(
+        string="Allowed Debit Usages",
+        comodel_name="product.usage_type",
+        compute="_compute_allowed_debit_usage_ids",
+        store=False,
+        compute_sudo=True,
+        help="Product usage types allowed on 'Debit Usage' as configured on "
+        "the payslip type's M2O configurator.",
+    )
+    allowed_credit_usage_ids = fields.Many2many(
+        string="Allowed Credit Usages",
+        comodel_name="product.usage_type",
+        compute="_compute_allowed_credit_usage_ids",
+        store=False,
+        compute_sudo=True,
+        help="Product usage types allowed on 'Credit Usage' as configured on "
+        "the payslip type's M2O configurator.",
+    )
     date = fields.Date(
         string="Batch Date",
         required=True,
@@ -238,7 +266,67 @@ Solution: Set a journal on the batch, or change the Accounting Method to 'Journa
                 )
 
     @api.depends(
+        "type_id",
+    )
+    def _compute_allowed_analytic_account_ids(self):
+        # No type_id yet (e.g. the batch is still being filled in on a new
+        # record): behave like the type's own "no restriction" default
+        # (selection_method="domain", domain="[]") instead of blocking every
+        # record, so the field stays usable while the form is being filled in.
+        AnalyticAccount = self.env["account.analytic.account"]
+        for record in self:
+            result = AnalyticAccount.search([])
+            if record.type_id:
+                result = record._m2o_configurator_get_filter(
+                    object_name="account.analytic.account",
+                    method_selection=record.type_id.analytic_account_selection_method,
+                    manual_recordset=record.type_id.analytic_account_ids,
+                    domain=record.type_id.analytic_account_domain,
+                    python_code=record.type_id.analytic_account_python_code,
+                )
+            record.allowed_analytic_account_ids = result
+
+    @api.depends(
+        "type_id",
+    )
+    def _compute_allowed_debit_usage_ids(self):
+        # See _compute_allowed_analytic_account_ids for why the no-type_id
+        # default is an unrestricted search rather than an empty result.
+        ProductUsage = self.env["product.usage_type"]
+        for record in self:
+            result = ProductUsage.search([])
+            if record.type_id:
+                result = record._m2o_configurator_get_filter(
+                    object_name="product.usage_type",
+                    method_selection=record.type_id.debit_usage_selection_method,
+                    manual_recordset=record.type_id.debit_usage_ids,
+                    domain=record.type_id.debit_usage_domain,
+                    python_code=record.type_id.debit_usage_python_code,
+                )
+            record.allowed_debit_usage_ids = result
+
+    @api.depends(
+        "type_id",
+    )
+    def _compute_allowed_credit_usage_ids(self):
+        # See _compute_allowed_analytic_account_ids for why the no-type_id
+        # default is an unrestricted search rather than an empty result.
+        ProductUsage = self.env["product.usage_type"]
+        for record in self:
+            result = ProductUsage.search([])
+            if record.type_id:
+                result = record._m2o_configurator_get_filter(
+                    object_name="product.usage_type",
+                    method_selection=record.type_id.credit_usage_selection_method,
+                    manual_recordset=record.type_id.credit_usage_ids,
+                    domain=record.type_id.credit_usage_domain,
+                    python_code=record.type_id.credit_usage_python_code,
+                )
+            record.allowed_credit_usage_ids = result
+
+    @api.depends(
         "company_id",
+        "type_id",
     )
     def _compute_employee_ids(self):
         obj_employee = self.env["hr.employee"]
@@ -247,6 +335,15 @@ Solution: Set a journal on the batch, or change the Accounting Method to 'Journa
                 ("salary_structure_id", "!=", False),
             ]
             employee_ids = obj_employee.search(criteria)
+            if document.type_id:
+                configurator_employee_ids = document._m2o_configurator_get_filter(
+                    object_name="hr.employee",
+                    method_selection=document.type_id.employee_selection_method,
+                    manual_recordset=document.type_id.employee_ids,
+                    domain=document.type_id.employee_domain,
+                    python_code=document.type_id.employee_python_code,
+                )
+                employee_ids = employee_ids & configurator_employee_ids
             document.allowed_employee_ids = [(6, 0, employee_ids.ids)]
 
     allowed_employee_ids = fields.Many2many(
