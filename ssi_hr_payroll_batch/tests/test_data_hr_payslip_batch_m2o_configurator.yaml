@@ -181,7 +181,7 @@ scenarios:
             expected_count: 0
 
   - name:
-      "HR Payslip Batch - Allowed employees is the intersection with type configurator"
+      "HR Payslip Batch - Allowed employees back-compat with unrestricted type domain"
     steps:
       - step: "Create payroll journal"
         action: "create"
@@ -199,6 +199,83 @@ scenarios:
         values:
           name: "Test Batch M2O Configurator Structure 4"
           code: "TBM2OSTR4"
+
+      - step: "Create employee E-1 (has structure)"
+        action: "create"
+        model: "hr.employee"
+        save_as: "employee_1"
+        values:
+          name: "Test Batch M2O Employee Domain E-1"
+          salary_structure_id: "REC: structure.id"
+
+      - step: "Create employee E-2 (has structure)"
+        action: "create"
+        model: "hr.employee"
+        save_as: "employee_2"
+        values:
+          name: "Test Batch M2O Employee Domain E-2"
+          salary_structure_id: "REC: structure.id"
+
+      - step: "Create employee E-3 (no structure)"
+        action: "create"
+        model: "hr.employee"
+        save_as: "employee_3"
+        values:
+          name: "Test Batch M2O Employee Domain E-3"
+
+      - step: "Create payslip type with default (unrestricted) employee domain"
+        action: "create"
+        model: "hr.payslip_type"
+        save_as: "payslip_type"
+        values:
+          name: "Test Batch M2O Employee Domain Type"
+          code: "TBM2OEMDOM"
+          journal_id: "REC: journal.id"
+          employee_selection_method: "domain"
+          employee_domain: "[]"
+
+      - step: "Create payslip batch"
+        action: "create"
+        model: "hr.payslip_batch"
+        save_as: "batch"
+        as_user: "base.user_admin"
+        values:
+          type_id: "REC: payslip_type.id"
+          date_start: "2026-04-01"
+          date_end: "2026-04-30"
+          date: "2026-04-30"
+
+      - step:
+          "Assert allowed employees contains E-1 and E-2 (both have structure), not E-3"
+        action: "assert"
+        target: "batch"
+        asserts:
+          allowed_employee_ids:
+            type: "m2m"
+            check: "exact"
+            expected_records:
+              - "REC: employee_1"
+              - "REC: employee_2"
+
+  - name:
+      "HR Payslip Batch - Allowed employees is the intersection with type configurator"
+    steps:
+      - step: "Create payroll journal"
+        action: "create"
+        model: "account.journal"
+        save_as: "journal"
+        values:
+          name: "Test Batch M2O Configurator Journal 5"
+          code: "TBM2OJ5"
+          type: "general"
+
+      - step: "Create salary structure"
+        action: "create"
+        model: "hr.salary_structure"
+        save_as: "structure"
+        values:
+          name: "Test Batch M2O Configurator Structure 5"
+          code: "TBM2OSTR5"
 
       - step: "Create employee E-1 (has structure, listed on type)"
         action: "create"
@@ -243,9 +320,9 @@ scenarios:
         as_user: "base.user_admin"
         values:
           type_id: "REC: payslip_type.id"
-          date_start: "2026-04-01"
-          date_end: "2026-04-30"
-          date: "2026-04-30"
+          date_start: "2026-05-01"
+          date_end: "2026-05-31"
+          date: "2026-05-31"
 
       - step:
           "Assert allowed employees contains only E-1 (E-2 not on type, E-3 no
@@ -258,80 +335,3 @@ scenarios:
             check: "exact"
             expected_records:
               - "REC: employee_1"
-
-  - name:
-      "HR Payslip Batch - Allowed employees back-compat with unrestricted type domain"
-    steps:
-      - step: "Create payroll journal"
-        action: "create"
-        model: "account.journal"
-        save_as: "journal"
-        values:
-          name: "Test Batch M2O Configurator Journal 5"
-          code: "TBM2OJ5"
-          type: "general"
-
-      - step: "Create salary structure"
-        action: "create"
-        model: "hr.salary_structure"
-        save_as: "structure"
-        values:
-          name: "Test Batch M2O Configurator Structure 5"
-          code: "TBM2OSTR5"
-
-      - step: "Create employee E-1 (has structure)"
-        action: "create"
-        model: "hr.employee"
-        save_as: "employee_1"
-        values:
-          name: "Test Batch M2O Employee Domain E-1"
-          salary_structure_id: "REC: structure.id"
-
-      - step: "Create employee E-2 (has structure)"
-        action: "create"
-        model: "hr.employee"
-        save_as: "employee_2"
-        values:
-          name: "Test Batch M2O Employee Domain E-2"
-          salary_structure_id: "REC: structure.id"
-
-      - step: "Create employee E-3 (no structure)"
-        action: "create"
-        model: "hr.employee"
-        save_as: "employee_3"
-        values:
-          name: "Test Batch M2O Employee Domain E-3"
-
-      - step: "Create payslip type with default (unrestricted) employee domain"
-        action: "create"
-        model: "hr.payslip_type"
-        save_as: "payslip_type"
-        values:
-          name: "Test Batch M2O Employee Domain Type"
-          code: "TBM2OEMDOM"
-          journal_id: "REC: journal.id"
-          employee_selection_method: "domain"
-          employee_domain: "[]"
-
-      - step: "Create payslip batch"
-        action: "create"
-        model: "hr.payslip_batch"
-        save_as: "batch"
-        as_user: "base.user_admin"
-        values:
-          type_id: "REC: payslip_type.id"
-          date_start: "2026-05-01"
-          date_end: "2026-05-31"
-          date: "2026-05-31"
-
-      - step:
-          "Assert allowed employees contains E-1 and E-2 (both have structure), not E-3"
-        action: "assert"
-        target: "batch"
-        asserts:
-          allowed_employee_ids:
-            type: "m2m"
-            check: "exact"
-            expected_records:
-              - "REC: employee_1"
-              - "REC: employee_2"
