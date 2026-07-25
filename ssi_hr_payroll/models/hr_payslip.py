@@ -339,8 +339,13 @@ class HrPayslip(models.Model):
         "type_id",
     )
     def _compute_allowed_analytic_account_ids(self):
+        # No type_id yet (e.g. the Employee field is filled in before Type on
+        # a new record): behave like the type's own "no restriction" default
+        # (selection_method="domain", domain="[]") instead of blocking every
+        # record, so the field stays usable while the form is being filled in.
+        AnalyticAccount = self.env["account.analytic.account"]
         for record in self:
-            result = False
+            result = AnalyticAccount.search([])
             if record.type_id:
                 result = record._m2o_configurator_get_filter(
                     object_name="account.analytic.account",
@@ -355,8 +360,11 @@ class HrPayslip(models.Model):
         "type_id",
     )
     def _compute_allowed_debit_usage_ids(self):
+        # See _compute_allowed_analytic_account_ids for why the no-type_id
+        # default is an unrestricted search rather than an empty result.
+        ProductUsage = self.env["product.usage_type"]
         for record in self:
-            result = False
+            result = ProductUsage.search([])
             if record.type_id:
                 result = record._m2o_configurator_get_filter(
                     object_name="product.usage_type",
@@ -371,8 +379,11 @@ class HrPayslip(models.Model):
         "type_id",
     )
     def _compute_allowed_credit_usage_ids(self):
+        # See _compute_allowed_analytic_account_ids for why the no-type_id
+        # default is an unrestricted search rather than an empty result.
+        ProductUsage = self.env["product.usage_type"]
         for record in self:
-            result = False
+            result = ProductUsage.search([])
             if record.type_id:
                 result = record._m2o_configurator_get_filter(
                     object_name="product.usage_type",
@@ -387,8 +398,11 @@ class HrPayslip(models.Model):
         "type_id",
     )
     def _compute_allowed_employee_ids(self):
+        # See _compute_allowed_analytic_account_ids for why the no-type_id
+        # default is an unrestricted search rather than an empty result.
+        Employee = self.env["hr.employee"]
         for record in self:
-            result = False
+            result = Employee.search([])
             if record.type_id:
                 result = record._m2o_configurator_get_filter(
                     object_name="hr.employee",

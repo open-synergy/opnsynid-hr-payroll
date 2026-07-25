@@ -91,7 +91,7 @@ odoo.define("ssi_hr_payroll.hr_payslip_type_tour", function (require) {
             },
             {
                 content: "Switch Employee Selection Method to Manual",
-                trigger: ".o_field_widget[name='employee_selection_method'] select",
+                trigger: "select.o_field_widget[name='employee_selection_method']",
                 run: "text Manual",
             },
             {
