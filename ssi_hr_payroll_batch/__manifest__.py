@@ -13,6 +13,7 @@
         "ssi_transaction_open_mixin",
         "ssi_accounting_entry_mixin",
         "ssi_company_currency_mixin",
+        "ssi_m2o_configurator_mixin",
         "web_tour",
     ],
     "data": [
