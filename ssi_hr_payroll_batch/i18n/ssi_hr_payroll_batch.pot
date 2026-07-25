@@ -267,6 +267,21 @@ msgid "All Company"
 msgstr ""
 
 #. module: ssi_hr_payroll_batch
+#: model:ir.model.fields,field_description:ssi_hr_payroll_batch.field_hr_payslip_batch__allowed_analytic_account_ids
+msgid "Allowed Analytic Accounts"
+msgstr ""
+
+#. module: ssi_hr_payroll_batch
+#: model:ir.model.fields,field_description:ssi_hr_payroll_batch.field_hr_payslip_batch__allowed_credit_usage_ids
+msgid "Allowed Credit Usages"
+msgstr ""
+
+#. module: ssi_hr_payroll_batch
+#: model:ir.model.fields,field_description:ssi_hr_payroll_batch.field_hr_payslip_batch__allowed_debit_usage_ids
+msgid "Allowed Debit Usages"
+msgstr ""
+
+#. module: ssi_hr_payroll_batch
 #: model:ir.model.fields,field_description:ssi_hr_payroll_batch.field_hr_payslip_batch__allowed_employee_ids
 msgid "Allowed Employees"
 msgstr ""
@@ -296,6 +311,13 @@ msgstr ""
 #. module: ssi_hr_payroll_batch
 #: model:ir.model.fields,help:ssi_hr_payroll_batch.field_hr_payslip_batch__analytic_account_id
 msgid "Analytic account used for journal items of payslips in this batch."
+msgstr ""
+
+#. module: ssi_hr_payroll_batch
+#: model:ir.model.fields,help:ssi_hr_payroll_batch.field_hr_payslip_batch__allowed_analytic_account_ids
+msgid ""
+"Analytic accounts allowed on 'Analytic Account' as configured on the payslip"
+" type's M2O configurator."
 msgstr ""
 
 #. module: ssi_hr_payroll_batch
@@ -886,6 +908,20 @@ msgstr ""
 #: model:ir.model.fields,help:ssi_hr_payroll_batch.field_hr_payslip_batch__debit_usage_id
 msgid ""
 "Product usage type used to resolve the debit account of this payslip batch."
+msgstr ""
+
+#. module: ssi_hr_payroll_batch
+#: model:ir.model.fields,help:ssi_hr_payroll_batch.field_hr_payslip_batch__allowed_credit_usage_ids
+msgid ""
+"Product usage types allowed on 'Credit Usage' as configured on the payslip "
+"type's M2O configurator."
+msgstr ""
+
+#. module: ssi_hr_payroll_batch
+#: model:ir.model.fields,help:ssi_hr_payroll_batch.field_hr_payslip_batch__allowed_debit_usage_ids
+msgid ""
+"Product usage types allowed on 'Debit Usage' as configured on the payslip "
+"type's M2O configurator."
 msgstr ""
 
 #. module: ssi_hr_payroll_batch
