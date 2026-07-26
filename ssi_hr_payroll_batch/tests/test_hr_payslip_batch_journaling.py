@@ -118,6 +118,14 @@ class TestHrPayslipBatchJournaling(YamlTransactionCase):
         }
 
     def _run_batch_to_done(self, batch):
+        """Drive ``batch`` from draft up to its ``done`` state as admin.
+
+        Runs open, compute, confirm and approve with the approval policy
+        bypassed, invalidating the cache between steps so the computed
+        fields are re-read from database.
+
+        :param batch: the ``hr.payslip_batch`` record to advance
+        """
         admin = self.env.ref("base.user_admin")
         batch.with_user(admin).action_open()
         batch.invalidate_cache()
@@ -563,6 +571,12 @@ class TestHrPayslipBatchJournaling(YamlTransactionCase):
         acc_type = env.ref("account.data_account_type_expenses")
 
         def _acc(name, code):
+            """Create an expense-type account for the gate fixtures.
+
+            :param name: account name
+            :param code: account code
+            :return: the created ``account.account`` record
+            """
             return env["account.account"].create(
                 {"name": name, "code": code, "user_type_id": acc_type.id}
             )

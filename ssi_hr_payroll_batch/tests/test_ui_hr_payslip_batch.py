@@ -7,8 +7,16 @@ from odoo.tests import HttpSavepointCase, tagged
 
 @tagged("post_install", "-at_install")
 class TestUiHrPayslipBatch(HttpSavepointCase):
+    """Tour tests covering every ``hr.payslip_batch`` work instruction."""
+
     @classmethod
     def setUpClass(cls):
+        """Prepare the access groups and records every batch tour needs.
+
+        Adds ``admin`` to the batch and payslip validator groups so the
+        state buttons are visible, then creates the payroll master data
+        and one batch per tour starting state.
+        """
         super().setUpClass()
         # Pre-Condition: the batch state buttons are gated by the batch access
         # groups (open_ok/confirm_ok use the batch User group; approve_ok/reject_ok

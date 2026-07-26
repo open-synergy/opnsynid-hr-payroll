@@ -15,7 +15,10 @@ from odoo.tests import Form, tagged
 
 @tagged("post_install", "-at_install")
 class TestHrPayslipBatch(YamlTransactionCase):
+    """Tests ``hr.payslip_batch`` workflow, payslip counts and inputs."""
+
     def test_hr_payslip_batch(self):
+        """Runs the YAML batch workflow, reject, cancel and reload cases."""
         self.run_yaml_scenario("test_data_hr_payslip_batch.yaml")
 
     def test_onchange_analytic_account_id_set_from_type(self):
