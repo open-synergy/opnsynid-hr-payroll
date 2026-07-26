@@ -9,5 +9,8 @@ from odoo.tests import tagged
 
 @tagged("post_install", "-at_install")
 class TestHrPayslipType(YamlTransactionCase):
+    """Test suite for the ``hr.payslip_type`` master data model."""
+
     def test_hr_payslip_type(self):
+        """Run the create-and-verify scenario for ``hr.payslip_type``."""
         self.run_yaml_scenario("test_data_hr_payslip_type.yaml")

@@ -7,8 +7,11 @@ from odoo.tests import HttpSavepointCase, tagged
 
 @tagged("post_install", "-at_install")
 class TestUiHrSalaryRule(HttpSavepointCase):
+    """UI tour test suite for the ``hr.salary_rule`` menu."""
+
     @classmethod
     def setUpClass(cls):
+        """Grant configurator group to admin and create a rule category."""
         super().setUpClass()
         # Pre-Condition: the Salary Rules master data menu is gated by the
         # Salary Rule configurator group. Without it the tour would fail on its

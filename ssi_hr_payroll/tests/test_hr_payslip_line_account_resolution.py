@@ -20,6 +20,7 @@ class TestHrPayslipLineAccountResolution(TransactionCase):
     """
 
     def setUp(self):
+        """Build accounts, usage types, rules, and payslips for the tests."""
         super().setUp()
         expense_type = self.env.ref("account.data_account_type_expenses")
 

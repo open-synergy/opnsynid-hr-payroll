@@ -7,8 +7,11 @@ from odoo.tests import HttpSavepointCase, tagged
 
 @tagged("post_install", "-at_install")
 class TestUiHrPayslip(HttpSavepointCase):
+    """UI tour test suite for the ``hr.payslip`` state-transition flows."""
+
     @classmethod
     def setUpClass(cls):
+        """Grant access group to admin and prepare payslips per tour state."""
         super().setUpClass()
         # Pre-Condition: the transaction state buttons (Confirm/Approve/Reject/
         # Cancel/Restart) and the Payslips menu are gated by the payslip access

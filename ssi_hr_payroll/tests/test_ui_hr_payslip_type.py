@@ -7,8 +7,11 @@ from odoo.tests import HttpSavepointCase, tagged
 
 @tagged("post_install", "-at_install")
 class TestUiHrPayslipType(HttpSavepointCase):
+    """UI tour test suite for the ``hr.payslip_type`` menu."""
+
     @classmethod
     def setUpClass(cls):
+        """Grant the configurator group to admin so the tour menu renders."""
         super().setUpClass()
         # Pre-Condition: the Payslip Type master data menu is gated by the
         # Payslip Type configurator group. Without it the tour would fail on

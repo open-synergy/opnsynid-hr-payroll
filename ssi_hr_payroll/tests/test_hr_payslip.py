@@ -9,7 +9,10 @@ from odoo.tests import Form, tagged
 
 @tagged("post_install", "-at_install")
 class TestHrPayslip(YamlTransactionCase):
+    """Test suite for the ``hr.payslip`` model workflow and accounting."""
+
     def test_hr_payslip(self):
+        """Run the full payslip workflow scenario: draft to done."""
         self.run_yaml_scenario("test_data_hr_payslip.yaml")
 
     def test_onchange_analytic_account_id_set_from_type(self):
