@@ -12,12 +12,22 @@ from odoo.addons.ssi_decorator import ssi_decorator
 
 
 class BrowsableObject(object):
+    """Expose a plain dict as attribute lookups for Python code.
+
+    Base class for the objects injected into the localdict passed to
+    ``safe_eval`` when evaluating a salary rule's ``condition_python``
+    / ``amount_python``; missing keys resolve to ``0.0`` instead of
+    raising ``AttributeError``.
+    """
+
     def __init__(self, employee_id, vals_dict, env):
+        """Store the employee id, backing dict and environment."""
         self.employee_id = employee_id
         self.dict = vals_dict
         self.env = env
 
     def __getattr__(self, attr):
+        """Return ``vals_dict[attr]`` if present, else ``0.0``."""
         return attr in self.dict and self.dict.__getitem__(attr) or 0.0
 
 
@@ -26,6 +36,18 @@ class Payslips(BrowsableObject):
     usability purposes"""
 
     def sum(self, code, from_date, to_date=None):
+        """Sum a salary rule's ``total`` across posted payslips.
+
+        Reads directly from ``hr_payslip``/``hr_payslip_line`` for
+        payslips of this employee in state ``done`` whose
+        ``date_from``/``date_to`` fall within the given range,
+        negating the amount when the payslip is a credit note.
+
+        :param code: ``hr.salary_rule`` code to sum
+        :param from_date: lower bound of ``date_from``
+        :param to_date: upper bound of ``date_to``; defaults to today
+        :return: summed ``total``, or ``0.0`` if nothing matches
+        """
         if to_date is None:
             to_date = fields.Date.today()
         self.env.cr.execute(
@@ -46,6 +68,17 @@ class InputLine(BrowsableObject):
     usability purposes"""
 
     def sum(self, code, from_date, to_date=None):
+        """Sum a payslip input's ``amount`` across posted payslips.
+
+        Reads directly from ``hr_payslip``/``hr_payslip_input`` for
+        payslips of this employee in state ``done`` whose
+        ``date_from``/``date_to`` fall within the given range.
+
+        :param code: ``hr.payslip_input_type`` code to sum
+        :param from_date: lower bound of ``date_from``
+        :param to_date: upper bound of ``date_to``; defaults to today
+        :return: summed ``amount``, or ``0.0`` if nothing matches
+        """
         if to_date is None:
             to_date = fields.Date.today()
         self.env.cr.execute(
@@ -61,7 +94,22 @@ class InputLine(BrowsableObject):
 
 
 class EmployeeInputLine(BrowsableObject):
+    """Expose an employee's recurring input amounts by code.
+
+    Backs the ``emp_inputs`` local variable made available to salary
+    rule Python code.
+    """
+
     def sum(self, code):
+        """Sum an employee input's ``amount`` for a given code.
+
+        Reads directly from ``hr_employee_input`` /
+        ``hr_employee_input_type`` for this employee, independently
+        of any single payslip.
+
+        :param code: ``hr.employee_input_type`` code to sum
+        :return: summed ``amount``, or ``0.0`` if nothing matches
+        """
         self.env.cr.execute(
             """
             SELECT sum(b.amount) as sum
@@ -75,6 +123,17 @@ class EmployeeInputLine(BrowsableObject):
 
 
 class HrPayslip(models.Model):
+    """
+    Represents a single employee payslip and drives its computation.
+
+    Combines an employee's ``hr.salary_structure`` with the payslip's
+    input lines to evaluate every applicable ``hr.salary_rule`` and
+    produce ``hr.payslip_line`` results, then books the resulting
+    debit/credit ``account.move.line`` entries once the payslip is
+    confirmed and approved. Goes through the mixin-provided
+    draft -> confirm -> done/cancel/reject workflow.
+    """
+
     _name = "hr.payslip"
     _description = "Employee Payslip"
     _inherit = [
@@ -327,6 +386,12 @@ class HrPayslip(models.Model):
         "structure_id",
     )
     def _compute_rule_ids(self):
+        """Compute ``rule_ids`` from the structure's rule hierarchy.
+
+        Expands ``structure_id`` and all of its ancestors through
+        ``hr.salary_structure._get_parent_structure`` /
+        ``get_all_rules``, sorted by rule ``sequence``.
+        """
         for record in self:
             result = []
             if record.structure_id:
@@ -339,6 +404,14 @@ class HrPayslip(models.Model):
         "type_id",
     )
     def _compute_allowed_analytic_account_ids(self):
+        """Compute the analytic accounts selectable on this payslip.
+
+        Delegates to ``_m2o_configurator_get_filter`` using
+        ``type_id``'s analytic account selection method (manual/
+        domain/Python code). Without a ``type_id`` yet, falls back to
+        every ``account.analytic.account`` so the field stays usable
+        while the form is being filled in.
+        """
         # No type_id yet (e.g. the Employee field is filled in before Type on
         # a new record): behave like the type's own "no restriction" default
         # (selection_method="domain", domain="[]") instead of blocking every
@@ -360,6 +433,14 @@ class HrPayslip(models.Model):
         "type_id",
     )
     def _compute_allowed_debit_usage_ids(self):
+        """Compute the debit product usages selectable on this payslip.
+
+        Delegates to ``_m2o_configurator_get_filter`` using
+        ``type_id``'s debit usage selection method (manual/domain/
+        Python code). Without a ``type_id`` yet, falls back to every
+        ``product.usage_type`` so the field stays usable while the
+        form is being filled in.
+        """
         # See _compute_allowed_analytic_account_ids for why the no-type_id
         # default is an unrestricted search rather than an empty result.
         ProductUsage = self.env["product.usage_type"]
@@ -379,6 +460,14 @@ class HrPayslip(models.Model):
         "type_id",
     )
     def _compute_allowed_credit_usage_ids(self):
+        """Compute the credit product usages selectable on this payslip.
+
+        Delegates to ``_m2o_configurator_get_filter`` using
+        ``type_id``'s credit usage selection method (manual/domain/
+        Python code). Without a ``type_id`` yet, falls back to every
+        ``product.usage_type`` so the field stays usable while the
+        form is being filled in.
+        """
         # See _compute_allowed_analytic_account_ids for why the no-type_id
         # default is an unrestricted search rather than an empty result.
         ProductUsage = self.env["product.usage_type"]
@@ -398,6 +487,14 @@ class HrPayslip(models.Model):
         "type_id",
     )
     def _compute_allowed_employee_ids(self):
+        """Compute the employees selectable on this payslip.
+
+        Delegates to ``_m2o_configurator_get_filter`` using
+        ``type_id``'s employee selection method (manual/domain/
+        Python code). Without a ``type_id`` yet, falls back to every
+        ``hr.employee`` so the field stays usable while the form is
+        being filled in.
+        """
         # See _compute_allowed_analytic_account_ids for why the no-type_id
         # default is an unrestricted search rather than an empty result.
         Employee = self.env["hr.employee"]
@@ -417,6 +514,12 @@ class HrPayslip(models.Model):
         "rule_ids",
     )
     def _compute_debit_account_2b_reconciled_ids(self):
+        """Compute debit accounts eligible for allowance reconciliation.
+
+        Collects ``reconcile_debit_account_id`` from every rule in
+        ``rule_ids`` that has ``reconcile_debit`` enabled; used by
+        ``_compute_allowed_allowance_move_line_ids``.
+        """
         SalaryRule = self.env["hr.salary_rule"]
         for record in self:
             result = []
@@ -433,6 +536,12 @@ class HrPayslip(models.Model):
         "rule_ids",
     )
     def _compute_credit_account_2b_reconciled_ids(self):
+        """Compute credit accounts eligible for deduction reconciliation.
+
+        Collects ``reconcile_credit_account_id`` from every rule in
+        ``rule_ids`` that has ``reconcile_credit`` enabled; used by
+        ``_compute_allowed_deduction_move_line_ids``.
+        """
         SalaryRule = self.env["hr.salary_rule"]
         for record in self:
             result = []
@@ -450,6 +559,12 @@ class HrPayslip(models.Model):
         "structure_id",
     )
     def _compute_allowed_deduction_move_line_ids(self):
+        """Compute move lines eligible as deduction reference lines.
+
+        Searches unreconciled debit ``account.move.line`` records for
+        the employee's home address partner on
+        ``credit_account_2b_reconciled_ids``.
+        """
         ML = self.env["account.move.line"]
         for record in self:
             result = []
@@ -468,6 +583,12 @@ class HrPayslip(models.Model):
         "structure_id",
     )
     def _compute_allowed_allowance_move_line_ids(self):
+        """Compute move lines eligible as allowance reference lines.
+
+        Searches unreconciled credit ``account.move.line`` records
+        for the employee's home address partner on
+        ``debit_account_2b_reconciled_ids``.
+        """
         ML = self.env["account.move.line"]
         for record in self:
             result = []
@@ -517,6 +638,13 @@ class HrPayslip(models.Model):
         "structure_id",
     )
     def onchange_input_line_ids(self):
+        """Rebuild ``input_line_ids`` from the selected structure.
+
+        Clears the current input lines, then re-creates one new
+        (unsaved) ``hr.payslip_input`` command per input type
+        resolved from ``_get_input_line_ids`` for the current
+        ``structure_id``.
+        """
         res = []
         self.input_line_ids = False
         if self.structure_id:
@@ -535,18 +663,39 @@ class HrPayslip(models.Model):
             self.structure_id = self.employee_id.salary_structure_id
 
     def action_recompute_allowance_ref(self):
+        """Refresh ``allowance_ref_move_line_ids`` for these payslips.
+
+        Runs under ``sudo()`` and delegates to
+        ``_recompute_allowance_ref`` for each record.
+        """
         for record in self.sudo():
             record._recompute_allowance_ref()
 
     def action_recompute_deduction_ref(self):
+        """Refresh ``deduction_ref_move_line_ids`` for these payslips.
+
+        Runs under ``sudo()`` and delegates to
+        ``_recompute_deduction_ref`` for each record.
+        """
         for record in self.sudo():
             record._recompute_deduction_ref()
 
     def action_reload_input_lines(self):
+        """Reload ``input_line_ids`` for these payslips.
+
+        Runs under ``sudo()`` and delegates to
+        ``_reload_input_lines`` for each record.
+        """
         for record in self.sudo():
             record._reload_input_lines()
 
     def action_compute_payslip(self):
+        """Recompute reference lines and salary rule results.
+
+        Runs under ``sudo()`` and, for each payslip, refreshes the
+        allowance and deduction reference lines then re-evaluates
+        the salary rules through ``_compute_payslip``.
+        """
         for document in self.sudo():
             document._recompute_allowance_ref()
             document._recompute_deduction_ref()
@@ -554,6 +703,15 @@ class HrPayslip(models.Model):
 
     @ssi_decorator.post_cancel_action()
     def _10_cancel_accounting_entry(self):
+        """Undo the accounting entry created for this payslip.
+
+        Runs after the payslip is cancelled. Cancels and deletes
+        ``move_id`` (posting it to cancelled first if needed), clears
+        ``move_line_debit_id`` / ``move_line_credit_id`` on the
+        payslip and its lines, and unreconciles every line whose
+        rule has ``reconcile_debit`` / ``reconcile_credit`` enabled.
+        Does nothing when no ``move_id`` exists.
+        """
         self.ensure_one()
         PayslipLine = self.env["hr.payslip_line"]
 
@@ -605,6 +763,16 @@ class HrPayslip(models.Model):
 
     @ssi_decorator.post_done_action()
     def _10_create_accounting_entry(self):
+        """Create the accounting entry for this payslip.
+
+        Runs after the payslip is set to done, unless
+        ``_need_accounting_entry`` returns ``False``. Creates
+        ``move_id`` from ``_prepare_account_move_data``, then the
+        debit/credit journal items for every ``line_ids`` through
+        ``create_move_line``, adds a balancing adjustment entry when
+        debit and credit sums differ, posts the move, and reconciles
+        the debit/credit payslip lines.
+        """
         if not self._need_accounting_entry():
             return True
 
@@ -636,11 +804,22 @@ class HrPayslip(models.Model):
         self._reconcile_credit_payslip_line()
 
     def _compute_payslip(self):
+        """Recompute this payslip's salary rule results.
+
+        Deletes the current ``line_ids`` and re-creates them from
+        ``_prepare_payslip_line_data``.
+        """
         self.ensure_one()
         self.line_ids.unlink()
         self.write(self._prepare_payslip_line_data())
 
     def _recompute_allowance_ref(self):
+        """Refresh ``allowance_ref_move_line_ids`` from eligible lines.
+
+        Re-searches ``allowed_allowance_move_line_ids`` restricted to
+        the payslip's ``date_start`` / ``date_end`` window and writes
+        the matches back to ``allowance_ref_move_line_ids``.
+        """
         self.ensure_one()
         ML = self.env["account.move.line"]
         criteria = [
@@ -658,6 +837,12 @@ class HrPayslip(models.Model):
         self.write({"allowance_ref_move_line_ids": [(6, 0, move_lines.ids)]})
 
     def _recompute_deduction_ref(self):
+        """Refresh ``deduction_ref_move_line_ids`` from eligible lines.
+
+        Re-searches ``allowed_deduction_move_line_ids`` restricted to
+        the payslip's ``date_start`` / ``date_end`` window and writes
+        the matches back to ``deduction_ref_move_line_ids``.
+        """
         self.ensure_one()
         ML = self.env["account.move.line"]
         criteria = [
@@ -678,6 +863,17 @@ class HrPayslip(models.Model):
 
     @api.model
     def _get_policy_field(self):
+        """Extend the multiple-approval policy fields for payslips.
+
+        Adds this model's workflow policy fields (``confirm_ok``,
+        ``approve_ok``, ``done_ok``, ``cancel_ok``, ``reject_ok``,
+        ``restart_ok``, ``restart_approval_ok``,
+        ``manual_number_ok``) to the ones returned by the mixin, so
+        the multiple approval framework can build the related
+        boolean fields and view elements.
+
+        :return: list of policy field names
+        """
         res = super(HrPayslip, self)._get_policy_field()
         policy_field = [
             "confirm_ok",
@@ -693,11 +889,25 @@ class HrPayslip(models.Model):
         return res
 
     def _prepare_payslip_line_data(self):
+        """Build the ``line_ids`` create commands for this payslip.
+
+        :return: dict with a single ``line_ids`` key of ``(0, 0,
+            vals)`` commands, one per rule returned by
+            ``_get_payslip_lines``
+        """
         self.ensure_one()
         lines = [(0, 0, line) for line in self._get_payslip_lines(self.id)]
         return {"line_ids": lines}
 
     def _prepare_account_move_data(self):
+        """Build the ``account.move`` values for this payslip.
+
+        Extension point: override in a glue module to add analytic
+        or operating unit fields without touching
+        ``_10_create_accounting_entry``.
+
+        :return: dict of ``account.move`` values
+        """
         self.ensure_one()
         name = _("Payslip of %s") % (self.employee_id.name)
         data = {
@@ -712,6 +922,21 @@ class HrPayslip(models.Model):
     def _prepare_adjustment_aml_data(
         self, currency, credit_sum, debit_sum, move_id, type_data
     ):
+        """Build the balancing ``account.move.line`` for this payslip.
+
+        Used when the debit and credit sums of the payslip lines do
+        not match, so the journal entry still balances.
+
+        :param currency: currency used to round the adjustment
+        :param credit_sum: total credit amount already posted
+        :param debit_sum: total debit amount already posted
+        :param move_id: the ``account.move`` the line will belong to
+        :param type_data: ``"debit"`` to post the adjustment as a
+            debit, anything else posts it as a credit
+        :return: dict of ``account.move.line`` values
+        :raises UserError: if the payslip's journal has no default
+            account configured
+        """
         self.ensure_one()
         journal_acc_id = self.journal_id.default_account_id.id
         if not journal_acc_id:
@@ -738,6 +963,19 @@ class HrPayslip(models.Model):
         return data
 
     def _sum_salary_rule_category(self, localdict, category, amount):
+        """Add ``amount`` to ``category`` and to its ancestor categories.
+
+        Mutates ``localdict["categories"]`` in place, recursing
+        through ``category.parent_id`` first so parent totals include
+        every descendant category's amount.
+
+        :param localdict: evaluation context built by
+            ``_get_base_localdict``
+        :param category: the ``hr.salary_rule_category`` the amount
+            belongs to
+        :param amount: amount to add to the category subtotal
+        :return: the same ``localdict``, for convenience
+        """
         self.ensure_one()
         if category.parent_id:
             localdict = self._sum_salary_rule_category(
@@ -752,6 +990,14 @@ class HrPayslip(models.Model):
         return localdict
 
     def _get_salary_rules(self):
+        """Return this payslip's applicable rules, sequence-sorted.
+
+        Expands ``structure_id`` and its ancestors through
+        ``hr.salary_structure._get_parent_structure`` /
+        ``get_all_rules``.
+
+        :return: ``hr.salary_rule`` recordset sorted by ``sequence``
+        """
         self.ensure_one()
         obj_hr_salary_rule = self.env["hr.salary_rule"]
         obj_hr_salary_struc = self.env["hr.salary_structure"]
@@ -768,6 +1014,28 @@ class HrPayslip(models.Model):
         return rule_ids
 
     def _get_base_localdict(self, payslip):
+        """Build the evaluation context shared by every salary rule.
+
+        The returned dict is the localdict later passed to
+        ``hr.salary_rule._evaluate_rule`` (and, through it, to
+        ``safe_eval``) while computing ``payslip``. It exposes:
+
+        * ``env`` -- the current Odoo environment
+        * ``time`` / ``datetime`` / ``dateutil`` / ``timezone`` --
+          date/time helpers
+        * ``float_compare`` / ``UserError`` -- helper callables
+        * ``categories`` -- running per-category totals, mutated by
+          ``_sum_salary_rule_category``
+        * ``inputs`` -- this payslip's ``hr.payslip_input`` lines,
+          keyed by input type ``code``
+        * ``emp_inputs`` -- the employee's ``hr.employee_input``
+          lines, keyed by input type ``code``
+        * ``payslip`` -- helper exposing ``sum()`` over past payslips
+        * ``rules`` -- running per-rule totals, keyed by rule ``code``
+
+        :param payslip: the ``hr.payslip`` being computed
+        :return: dict evaluation context (localdict)
+        """
         self.ensure_one()
         inputs_dict = {}
         emp_inputs_dict = {}
@@ -811,6 +1079,21 @@ class HrPayslip(models.Model):
 
     @api.model
     def _get_payslip_lines(self, payslip_id):
+        """Evaluate every applicable rule and build payslip line data.
+
+        For each rule returned by ``_get_salary_rules``, seeds
+        ``localdict["result"]`` / ``["result_qty"]`` /
+        ``["result_rate"]``, evaluates the rule's condition and, when
+        it applies, its amount; both are read back from ``localdict``
+        after ``hr.salary_rule._evaluate_rule`` runs the rule's
+        Python code through ``safe_eval``. Rules whose condition is
+        false blacklist their descendants (via
+        ``_recursive_search_of_rules``) so they are skipped too.
+
+        :param payslip_id: id of the ``hr.payslip`` being computed
+        :return: list of ``hr.payslip_line`` value dicts, one per
+            applied rule
+        """
         self.ensure_one()
         result_dict = {}
         rules_dict = {}
@@ -854,6 +1137,14 @@ class HrPayslip(models.Model):
         return list(result_dict.values())
 
     def _get_input_line_ids(self):
+        """Resolve the input types expected by this payslip's structure.
+
+        Expands ``structure_id`` and its ancestors to the sorted list
+        of applicable rules, then collects their ``input_type_ids``.
+
+        :return: list of dicts with a single ``input_type_id`` key,
+            one per distinct ``hr.payslip_input_type``
+        """
         self.ensure_one()
         res = []
         obj_hr_salary_struc = self.env["hr.salary_structure"]
@@ -876,10 +1167,21 @@ class HrPayslip(models.Model):
         return res
 
     def _reload_input_lines(self):
+        """Rebuild ``input_line_ids`` by re-running the structure onchange.
+
+        Thin wrapper around ``onchange_input_line_ids`` so it can be
+        called outside of an onchange context (e.g. from
+        ``action_reload_input_lines``).
+        """
         self.ensure_one()
         self.onchange_input_line_ids()
 
     def _reconcile_debit_payslip_line(self):
+        """Reconcile every line whose rule has ``reconcile_debit`` set.
+
+        Delegates to ``hr.payslip_line._reconcile_debit`` for each
+        matching ``line_ids`` record.
+        """
         self.ensure_one()
         PayslipLine = self.env["hr.payslip_line"]
         criteria = [
@@ -890,6 +1192,11 @@ class HrPayslip(models.Model):
             detail._reconcile_debit()
 
     def _reconcile_credit_payslip_line(self):
+        """Reconcile every line whose rule has ``reconcile_credit`` set.
+
+        Delegates to ``hr.payslip_line._reconcile_credit`` for each
+        matching ``line_ids`` record.
+        """
         self.ensure_one()
         PayslipLine = self.env["hr.payslip_line"]
         criteria = [

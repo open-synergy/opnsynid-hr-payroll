@@ -6,6 +6,15 @@ from odoo import fields, models
 
 
 class HrEmployee(models.Model):  # pylint: disable=too-few-public-methods
+    """
+    Extends employees with payroll configuration.
+
+    Adds the default ``hr.salary_structure`` used when generating a
+    payslip for this employee, and the recurring per-employee input
+    lines (``hr.employee_input``) that feed amounts into salary rule
+    Python code via the ``emp_inputs`` local variable.
+    """
+
     _inherit = "hr.employee"
 
     salary_structure_id = fields.Many2one(

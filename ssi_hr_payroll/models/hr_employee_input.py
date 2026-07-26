@@ -7,6 +7,14 @@ from odoo import api, fields, models
 
 
 class HrEmployeeInput(models.Model):  # pylint: disable=too-few-public-methods
+    """
+    Stores a recurring payroll input amount for one employee.
+
+    Each line pairs an ``hr.employee_input_type`` with an ``amount``
+    that salary rule Python code can read through the ``emp_inputs``
+    local variable, independently of any single payslip.
+    """
+
     _name = "hr.employee_input"
 
     _description = "Employee Input"

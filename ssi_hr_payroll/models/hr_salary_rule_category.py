@@ -7,6 +7,15 @@ from odoo.exceptions import ValidationError
 
 
 class HrSalaryRuleCategory(models.Model):
+    """
+    Groups salary rules for subtotal aggregation on a payslip.
+
+    Categories can be nested through ``parent_id``; when a payslip is
+    computed, the amount of a rule is added to its own category and
+    to every ancestor category, exposed as the ``categories`` local
+    variable available to salary rule Python code.
+    """
+
     _name = "hr.salary_rule_category"
     _inherit = [
         "mixin.master_data",
@@ -26,6 +35,11 @@ class HrSalaryRuleCategory(models.Model):
 
     @api.constrains("parent_id")
     def _check_parent_id(self):
+        """Forbid a salary rule category from being its own ancestor.
+
+        :raises ValidationError: if ``parent_id`` closes a cycle in
+            the category hierarchy.
+        """
         if not self._check_recursion():
             raise ValidationError(
                 _(

@@ -17,6 +17,16 @@ M2O_CONFIGURATOR_SELECTION_METHOD = [
 
 
 class HrPayslipType(models.Model):
+    """
+    Configures the accounting behaviour of a category of payslips.
+
+    Decides where the journal entry for a payslip is created
+    (``accounting_method``), which journal, analytic account and
+    debit/credit product usage to use, and which analytic accounts,
+    usages and employees are selectable, each resolved through the
+    M2O configurator strategy fields (manual/domain/Python code).
+    """
+
     _name = "hr.payslip_type"
     _inherit = [
         "mixin.master_data",

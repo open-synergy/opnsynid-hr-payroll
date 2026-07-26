@@ -7,6 +7,14 @@ from odoo import api, fields, models
 
 
 class HrPayslipInput(models.Model):  # pylint: disable=too-few-public-methods
+    """
+    Stores a one-off input amount attached to a single payslip.
+
+    Each line pairs an ``hr.payslip_input_type`` with an ``amount``
+    that salary rule Python code can read through the ``inputs``
+    local variable while computing that specific payslip.
+    """
+
     _name = "hr.payslip_input"
 
     _description = "Payslip Input"

@@ -6,6 +6,14 @@ from odoo import _, api, fields, models
 
 
 class HrPayslipLine(models.Model):
+    """
+    Represents one computed salary rule result on a payslip.
+
+    Stores the amount produced by evaluating a ``hr.salary_rule`` for
+    a given ``hr.payslip``, together with the ``account.move.line``
+    records created and reconciled for it once the payslip is done.
+    """
+
     _name = "hr.payslip_line"
 
     _description = "Payslip Input"
@@ -56,6 +64,7 @@ class HrPayslipLine(models.Model):
         "rate",
     )
     def _compute_total(self):
+        """Compute ``total`` as ``quantity * amount * rate / 100``."""
         for document in self:
             quantity = float(document.quantity)
             amount = document.amount
@@ -68,6 +77,16 @@ class HrPayslipLine(models.Model):
     )
 
     def _get_partner_id(self):
+        """Resolve the partner the accounting entry is booked against.
+
+        Uses the rule's ``contribution_id.partner_id`` when the
+        salary rule is linked to a ``hr.salary_contribution`` with a
+        partner set; otherwise falls back to the payslip employee's
+        home address partner. Returns ``False`` when no contribution
+        is configured on the rule.
+
+        :return: ``res.partner`` id, or ``False``
+        """
         self.ensure_one()
         partner_id = False
         contribution = self.rule_id.contribution_id
@@ -78,12 +97,27 @@ class HrPayslipLine(models.Model):
         return partner_id
 
     def _get_account_by_product_usage(self, usage):
+        """Resolve the account for ``usage`` on the rule's product.
+
+        :param usage: a ``product.usage_type`` record
+        :return: ``account.account`` id resolved through the rule's
+            ``product_id``, or ``False`` when ``usage`` or the
+            product is not set
+        """
         self.ensure_one()
         if not usage or not self.rule_id.product_id:
             return False
         return self.rule_id.product_id._get_product_account(usage.code)
 
     def _get_debit_account(self):
+        """Resolve the debit account used for this line's entry.
+
+        Falls back to the rule's ``debit_account_id`` when the
+        payslip has no ``debit_usage_id``, or when the product usage
+        lookup does not resolve an account.
+
+        :return: ``account.account`` record, possibly empty
+        """
         self.ensure_one()
         debit_account = self.rule_id.debit_account_id
         if not debit_account:
@@ -97,6 +131,14 @@ class HrPayslipLine(models.Model):
         return debit_account
 
     def _get_credit_account(self):
+        """Resolve the credit account used for this line's entry.
+
+        Falls back to the rule's ``credit_account_id`` when the
+        payslip has no ``credit_usage_id``, or when the product usage
+        lookup does not resolve an account.
+
+        :return: ``account.account`` record, possibly empty
+        """
         self.ensure_one()
         credit_account = self.rule_id.credit_account_id
         if not credit_account:
@@ -110,6 +152,14 @@ class HrPayslipLine(models.Model):
         return credit_account
 
     def _prepare_aml_debit_data(self, move):
+        """Build the debit ``account.move.line`` values for this line.
+
+        Extension point: override to add analytic or operating unit
+        fields without touching ``create_move_line``.
+
+        :param move: the ``account.move`` the line will belong to
+        :return: dict of ``account.move.line`` values
+        """
         self.ensure_one()
         payslip = self.payslip_id
         debit_account_id = self._get_debit_account().id
@@ -130,6 +180,14 @@ class HrPayslipLine(models.Model):
         return data
 
     def _prepare_aml_credit_data(self, move):
+        """Build the credit ``account.move.line`` values for this line.
+
+        Extension point: override to add analytic or operating unit
+        fields without touching ``create_move_line``.
+
+        :param move: the ``account.move`` the line will belong to
+        :return: dict of ``account.move.line`` values
+        """
         self.ensure_one()
         payslip = self.payslip_id
         credit_account_id = self._get_credit_account().id
@@ -150,6 +208,20 @@ class HrPayslipLine(models.Model):
         return data
 
     def create_move_line(self, move):
+        """Create the debit and credit journal items for these lines.
+
+        For each line with a non-zero ``amount``, creates an
+        ``account.move.line`` on ``move`` for the resolved debit
+        and/or credit account and stores it back on
+        ``move_line_debit_id`` / ``move_line_credit_id``. Runs under
+        ``sudo()`` and skips move validity checks while creating the
+        items.
+
+        :param move: the ``account.move`` to attach the journal
+            items to
+        :return: tuple ``(debit_sum, credit_sum)`` of the net debit
+            and credit amounts created
+        """
         obj_account_move_line = self.env["account.move.line"].with_context(
             check_move_validity=False
         )
@@ -177,6 +249,12 @@ class HrPayslipLine(models.Model):
         return debit_sum, credit_sum
 
     def _reconcile_debit(self):
+        """Reconcile this line's debit item against allowance refs.
+
+        Searches the payslip's ``allowance_ref_move_line_ids`` on the
+        same account for a matching credit line and reconciles it
+        together with ``move_line_debit_id``.
+        """
         self.ensure_one()
 
         ML = self.env["account.move.line"]
@@ -191,6 +269,12 @@ class HrPayslipLine(models.Model):
         (move_lines + self.move_line_debit_id).reconcile()
 
     def _reconcile_credit(self):
+        """Reconcile this line's credit item against deduction refs.
+
+        Searches the payslip's ``deduction_ref_move_line_ids`` on the
+        same account for a matching debit line and reconciles it
+        together with ``move_line_credit_id``.
+        """
         self.ensure_one()
         ML = self.env["account.move.line"]
 
@@ -204,7 +288,9 @@ class HrPayslipLine(models.Model):
         (move_lines + self.move_line_credit_id).reconcile()
 
     def _unreconcile_debit(self):
+        """Undo the reconciliation of ``move_line_debit_id``, if any."""
         self.move_line_debit_id.remove_move_reconcile()
 
     def _unreconcile_credit(self):
+        """Undo the reconciliation of ``move_line_credit_id``, if any."""
         self.move_line_credit_id.remove_move_reconcile()
