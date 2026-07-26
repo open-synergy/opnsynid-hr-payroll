@@ -7,6 +7,17 @@ from odoo.exceptions import UserError
 
 
 class HrPayslip(models.Model):
+    """
+    Links a payslip to the ``hr.payslip_batch`` that generated it.
+
+    When ``batch_id`` is set, this payslip's individual journaling is
+    skipped in favour of the batch-level entry (see
+    ``_need_accounting_entry``), and its workflow actions are locked
+    so it can only be driven through the batch (see
+    ``_check_batch_lock``), keeping every payslip of a batch in sync
+    with the batch's own state.
+    """
+
     _inherit = "hr.payslip"
 
     batch_id = fields.Many2one(
@@ -23,7 +34,16 @@ class HrPayslip(models.Model):
         return super()._need_accounting_entry()
 
     def _check_batch_lock(self, action_name):
-        """Raise if called directly on a batched payslip without batch context."""
+        """Raise if called directly on a batched payslip.
+
+        Applies only when there is no batch context, i.e. the payslip
+        belongs to a batch but was not driven through it.
+
+        :param action_name: label of the action being attempted, used
+            in the raised error message
+        :raises UserError: if ``batch_id`` is set and the call is not
+            flagged with the ``from_batch`` context key
+        """
         self.ensure_one()
         if self.batch_id and not self.env.context.get("from_batch"):
             raise UserError(
@@ -39,26 +59,54 @@ Solution: Use the payslip batch workflow to drive payslip state changes
             )
 
     def action_confirm(self):
+        """Confirm the payslip.
+
+        Overridden only to enforce ``_check_batch_lock`` before
+        delegating to the inherited transition.
+        """
         for record in self:
             record._check_batch_lock("Confirm")
         return super().action_confirm()
 
     def action_approve_approval(self):
+        """Approve the payslip.
+
+        Overridden only to enforce ``_check_batch_lock`` before
+        delegating to the inherited transition.
+        """
         for record in self:
             record._check_batch_lock("Approve")
         return super().action_approve_approval()
 
     def action_done(self):
+        """Mark the payslip as done.
+
+        Overridden only to enforce ``_check_batch_lock`` before
+        delegating to the inherited transition.
+        """
         for record in self:
             record._check_batch_lock("Done")
         return super().action_done()
 
     def action_cancel(self, cancel_reason=False):
+        """Cancel the payslip.
+
+        Overridden only to enforce ``_check_batch_lock`` before
+        delegating to the inherited transition.
+
+        :param cancel_reason: ``ssi_transaction_cancel_mixin`` cancel
+            reason record
+        """
         for record in self:
             record._check_batch_lock("Cancel")
         return super().action_cancel(cancel_reason)
 
     def action_restart(self):
+        """Restart the payslip.
+
+        Overridden only to enforce ``_check_batch_lock`` before
+        delegating to the inherited transition.
+        """
         for record in self:
             record._check_batch_lock("Restart")
         return super().action_restart()

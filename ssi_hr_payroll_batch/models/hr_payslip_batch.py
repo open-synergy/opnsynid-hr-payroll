@@ -15,6 +15,21 @@ from odoo.addons.ssi_hr_payroll.models.hr_payslip_type import ACCOUNTING_METHOD
 
 
 class HrPayslipBatch(models.Model):
+    """
+    Group multiple employee payslips into one batch that shares a single
+    approval workflow (draft/open/confirm/done/cancel/reject).
+
+    Opening the batch generates one ``hr.payslip`` per selected employee.
+    Confirming, approving, cancelling, or restarting the batch drives all
+    its payslips through the same transition, so an employee's payslip
+    can never be individually out of sync with the batch (see
+    ``hr.payslip._check_batch_lock``). When ``accounting_method`` is
+    ``'batch'``, journal entries of the individual payslip lines are
+    aggregated per (rule, partner) into
+    ``hr.payslip_batch_account_entry`` and posted as a single
+    ``account.move`` instead of one move per payslip.
+    """
+
     _name = "hr.payslip_batch"
     _description = "Employee Payslip Batch"
     _inherit = [
@@ -251,6 +266,11 @@ class HrPayslipBatch(models.Model):
 
     @api.constrains("accounting_method", "journal_id")
     def _check_batch_journal_id_required(self):
+        """Ensure ``journal_id`` is set when journaling at batch level.
+
+        :raises ValidationError: if ``accounting_method`` is ``'batch'``
+            and ``journal_id`` is empty.
+        """
         for record in self:
             if record.accounting_method == "batch" and not record.journal_id:
                 raise ValidationError(
@@ -269,6 +289,14 @@ Solution: Set a journal on the batch, or change the Accounting Method to 'Journa
         "type_id",
     )
     def _compute_allowed_analytic_account_ids(self):
+        """Compute ``allowed_analytic_account_ids`` from the payslip type.
+
+        Resolves the M2O configurator filter (manual/domain/code)
+        defined on ``type_id`` for the analytic account. Falls back to
+        every ``account.analytic.account`` record when ``type_id`` is
+        not yet set, so the field stays usable while the batch is
+        being filled in.
+        """
         # No type_id yet (e.g. the batch is still being filled in on a new
         # record): behave like the type's own "no restriction" default
         # (selection_method="domain", domain="[]") instead of blocking every
@@ -290,6 +318,14 @@ Solution: Set a journal on the batch, or change the Accounting Method to 'Journa
         "type_id",
     )
     def _compute_allowed_debit_usage_ids(self):
+        """Compute ``allowed_debit_usage_ids`` from the payslip type.
+
+        Resolves the M2O configurator filter (manual/domain/code)
+        defined on ``type_id`` for the debit usage. Falls back to
+        every ``product.usage_type`` record when ``type_id`` is not
+        yet set, so the field stays usable while the batch is being
+        filled in.
+        """
         # See _compute_allowed_analytic_account_ids for why the no-type_id
         # default is an unrestricted search rather than an empty result.
         ProductUsage = self.env["product.usage_type"]
@@ -309,6 +345,14 @@ Solution: Set a journal on the batch, or change the Accounting Method to 'Journa
         "type_id",
     )
     def _compute_allowed_credit_usage_ids(self):
+        """Compute ``allowed_credit_usage_ids`` from the payslip type.
+
+        Resolves the M2O configurator filter (manual/domain/code)
+        defined on ``type_id`` for the credit usage. Falls back to
+        every ``product.usage_type`` record when ``type_id`` is not
+        yet set, so the field stays usable while the batch is being
+        filled in.
+        """
         # See _compute_allowed_analytic_account_ids for why the no-type_id
         # default is an unrestricted search rather than an empty result.
         ProductUsage = self.env["product.usage_type"]
@@ -329,6 +373,13 @@ Solution: Set a journal on the batch, or change the Accounting Method to 'Journa
         "type_id",
     )
     def _compute_employee_ids(self):
+        """Compute ``allowed_employee_ids`` for this batch.
+
+        Starts from every ``hr.employee`` with a salary structure
+        assigned, then narrows it down with the M2O configurator
+        filter defined on ``type_id`` (when set) to obtain the
+        employees that may be added to ``employee_ids``.
+        """
         obj_employee = self.env["hr.employee"]
         for document in self:
             criteria = [
@@ -377,6 +428,7 @@ Solution: Set a journal on the batch, or change the Accounting Method to 'Journa
         "payslip_ids",
     )
     def _compute_payslip_count(self):
+        """Compute ``payslip_count`` from the number of ``payslip_ids``."""
         for record in self:
             record.payslip_count = len(record.payslip_ids)
 
@@ -413,6 +465,15 @@ Solution: Set a journal on the batch, or change the Accounting Method to 'Journa
         return res
 
     def _prepare_payslip_data(self, employee):
+        """Build the ``hr.payslip`` creation values for ``employee``.
+
+        Extension point: override to add or override default values
+        (e.g. company, contract) before the payslip is created by
+        ``_generate_payslip``.
+
+        :param employee: ``hr.employee`` record the payslip is for
+        :return: dict of ``hr.payslip`` values
+        """
         type = self.type_id
         structure_id = employee.salary_structure_id.id
         return {
@@ -429,11 +490,31 @@ Solution: Set a journal on the batch, or change the Accounting Method to 'Journa
         }
 
     def _prepare_payslip_batch_line_data(self, payslip):
+        """Build the write values applied to a freshly created payslip.
+
+        Delegates to ``payslip._prepare_payslip_line_data`` and stamps
+        the result with this batch's ``batch_id``.
+
+        :param payslip: ``hr.payslip`` record just created for an
+            employee of this batch
+        :return: dict of values to write on ``payslip``
+        """
         result = payslip._prepare_payslip_line_data()
         result["batch_id"] = self.id
         return result
 
     def _trigger_onchange(self, payslip):
+        """Replay the onchange methods needed after creating a payslip.
+
+        A payslip created via ``create()`` does not run its form
+        onchange methods automatically; this forces
+        ``onchange_input_line_ids``, ``onchange_department_id``,
+        ``onchange_manager_id``, and ``onchange_job_id`` so ``payslip``
+        ends up with the same values as if it had been filled in
+        through the UI.
+
+        :param payslip: ``hr.payslip`` record to trigger onchange on
+        """
         self.ensure_one()
         payslip.onchange_input_line_ids()
         payslip.onchange_department_id()
@@ -441,6 +522,15 @@ Solution: Set a journal on the batch, or change the Accounting Method to 'Journa
         payslip.onchange_job_id()
 
     def _generate_payslip(self):
+        """Create one ``hr.payslip`` per employee of this batch.
+
+        Skipped entirely when ``payslip_ids`` is already populated
+        (e.g. batch re-opened after being restarted), so payslips are
+        never duplicated. Each created payslip is initialised via
+        ``_prepare_payslip_data``, has its onchange replayed with
+        ``_trigger_onchange``, then gets its computed lines written
+        back via ``_prepare_payslip_batch_line_data``.
+        """
         self.ensure_one()
         obj_hr_payslip = self.env["hr.payslip"]
         if not self.payslip_ids:
@@ -450,6 +540,16 @@ Solution: Set a journal on the batch, or change the Accounting Method to 'Journa
                 payslip.write(self._prepare_payslip_batch_line_data(payslip))
 
     def _check_payslip_state(self, list_state):
+        """Check whether none of this batch's payslips are in ``list_state``.
+
+        Used to gate batch-level state transitions until every
+        individual payslip has already left ``list_state`` on its own.
+
+        :param list_state: iterable of payslip state values to check
+            against
+        :return: ``True`` when no payslip of this batch is in any of
+            ``list_state``
+        """
         self.ensure_one()
         result = False
         state_payslip_ids = self.payslip_ids.filtered(lambda x: x.state in list_state)
@@ -458,6 +558,11 @@ Solution: Set a journal on the batch, or change the Accounting Method to 'Journa
         return result
 
     def action_compute_payslip(self):
+        """Trigger salary rule computation on every draft payslip.
+
+        Calls ``action_compute_payslip`` on each payslip of this batch
+        currently in ``draft`` state.
+        """
         for document in self.sudo():
             draft_payslip_ids = document.payslip_ids.filtered(
                 lambda x: x.state == "draft"
@@ -466,19 +571,37 @@ Solution: Set a journal on the batch, or change the Accounting Method to 'Journa
                 payslip.action_compute_payslip()
 
     def action_reload_employee(self):
+        """Refresh ``employee_ids`` from the current M2O configurator filter.
+
+        Delegates to ``_reload_employee`` for each record.
+        """
         for record in self.sudo():
             record._reload_employee()
 
     def _reload_employee(self):
+        """Replace ``employee_ids`` with ``allowed_employee_ids``."""
         self.ensure_one()
         self.write({"employee_ids": [(6, 0, self.allowed_employee_ids.ids)]})
 
     def action_open_payslip(self):
+        """Open the smart-button window action for this batch's payslips.
+
+        :return: the ``ir.actions.act_window`` dict built by
+            ``_open_payslip``
+        """
         for record in self.sudo():
             result = record._open_payslip()
         return result
 
     def _open_payslip(self):
+        """Build the window action for this batch's payslips.
+
+        Reuses ``ssi_hr_payroll.hr_payslip_action`` restricted to this
+        batch via domain, with the batch pre-filled as default for new
+        records.
+
+        :return: an ``ir.actions.act_window`` dict
+        """
         self.ensure_one()
         waction = self.env.ref("ssi_hr_payroll.hr_payslip_action").read()[0]
         waction.update(
@@ -491,22 +614,42 @@ Solution: Set a journal on the batch, or change the Accounting Method to 'Journa
         return waction
 
     def _get_batch_input_type_ids(self):
-        """Return all distinct payslip input types used across every payslip
-        of this batch, sorted by their code. These become the dynamic input
-        columns of the export/import spreadsheet."""
+        """Return the distinct payslip input types used across this batch.
+
+        Collects every ``hr.payslip_input_type`` referenced by any
+        payslip of this batch and sorts it by ``code``. The result
+        becomes the dynamic input columns of the export/import
+        spreadsheet built by ``action_export_input``.
+
+        :return: ``hr.payslip_input_type`` recordset
+        """
         self.ensure_one()
         input_type_ids = self.payslip_ids.mapped("input_line_ids.input_type_id")
         return input_type_ids.sorted(key=lambda record: (record.code or "", record.id))
 
     def _prepare_input_export_filename(self):
+        """Build the filename of the input export spreadsheet.
+
+        :return: filename string, based on ``name`` when the batch is
+            already numbered, otherwise on its database ID
+        """
         self.ensure_one()
         name = self.name and self.name != "/" and self.name or str(self.id)
         return "payslip_batch_input_%s.xlsx" % name
 
     def action_export_input(self):
-        """Generate an xlsx file containing, for every payslip of the batch,
-        its database ID, the employee name, and one dynamic column per input
-        code present in the batch. The cell value is the input amount."""
+        """Export this batch's payslip inputs to an xlsx attachment.
+
+        Builds one row per payslip with its database ID, employee
+        name, and one dynamic column per input code used in the batch
+        (see ``_get_batch_input_type_ids``), filled with the input
+        amount. The spreadsheet is stored as an ``ir.attachment`` on
+        this record and can be re-imported via
+        ``hr.payslip_batch_input_import`` after being edited.
+
+        :return: an ``ir.actions.act_url`` dict pointing to the
+            generated attachment
+        """
         self.ensure_one()
         input_type_ids = self._get_batch_input_type_ids()
 
@@ -551,6 +694,14 @@ Solution: Set a journal on the batch, or change the Accounting Method to 'Journa
         }
 
     def action_open(self):
+        """Open the batch and generate its payslips.
+
+        Extends the inherited transition: after the state moves to
+        ``open``, generates the batch's payslips via
+        ``_generate_payslip``.
+
+        :raises UserError: if no employee is selected on the batch
+        """
         _super = super(HrPayslipBatch, self)
         res = _super.action_open()
         for document in self.sudo():
@@ -570,6 +721,10 @@ Solution: Set a journal on the batch, or change the Accounting Method to 'Journa
         return res
 
     def _check_employee_ids(self):
+        """Check whether at least one employee is selected on this batch.
+
+        :return: ``True`` when ``employee_ids`` is not empty
+        """
         self.ensure_one()
         result = True
         if not self.employee_ids:
@@ -577,6 +732,12 @@ Solution: Set a journal on the batch, or change the Accounting Method to 'Journa
         return result
 
     def action_confirm(self):
+        """Confirm the batch after confirming its draft payslips.
+
+        Drives every payslip still in ``draft`` state to ``confirm``
+        first, then only calls the inherited transition once none of
+        the batch's payslips remain in ``draft``.
+        """
         _super = super(HrPayslipBatch, self)
         for document in self.sudo():
             draft_payslip_ids = document.payslip_ids.filtered(
@@ -588,10 +749,19 @@ Solution: Set a journal on the batch, or change the Accounting Method to 'Journa
                 return _super.action_confirm()
 
     def action_approve_approval(self):
-        """Record batch approval. Payslips are driven to done in _05_done_payslip."""
+        """Record batch approval.
+
+        Payslips are driven to done in ``_05_done_payslip``.
+        """
         return super(HrPayslipBatch, self).action_approve_approval()
 
     def action_reject_approval(self):
+        """Reject the batch's approval after rejecting its payslips.
+
+        Drives every payslip still in ``confirm`` state to rejected
+        first, then only calls the inherited transition once none of
+        the batch's payslips remain in ``confirm``.
+        """
         _super = super(HrPayslipBatch, self)
         for document in self.sudo():
             confirm_payslip_ids = document.payslip_ids.filtered(
@@ -603,6 +773,15 @@ Solution: Set a journal on the batch, or change the Accounting Method to 'Journa
                 return _super.action_reject_approval()
 
     def action_cancel(self, cancel_reason=False):
+        """Cancel the batch after cancelling its still-open payslips.
+
+        Cancels every payslip in ``draft``, ``open``, ``confirm``, or
+        ``done`` state first, then only calls the inherited transition
+        once none of the batch's payslips remain in those states.
+
+        :param cancel_reason: ``ssi_transaction_cancel_mixin`` cancel
+            reason record propagated to each payslip
+        """
         _super = super(HrPayslipBatch, self)
         for document in self.sudo():
             cancel_payslip_ids = document.payslip_ids.filtered(
@@ -618,6 +797,12 @@ Solution: Set a journal on the batch, or change the Accounting Method to 'Journa
                 return _super.action_cancel(cancel_reason)
 
     def action_restart(self):
+        """Restart the batch after restarting its cancelled payslips.
+
+        Restarts every payslip in ``cancel`` or ``reject`` state
+        first, then only calls the inherited transition once none of
+        the batch's payslips remain in those states.
+        """
         _super = super(HrPayslipBatch, self)
         for document in self.sudo():
             cancel_payslip_ids = document.payslip_ids.filtered(
@@ -658,6 +843,18 @@ and required fields
 
     @ssi_decorator.post_done_action()
     def _10_create_accounting_entry(self):
+        """Create the batch-level journal entry, when applicable.
+
+        Runs after the batch reaches ``done``. No-op when
+        ``accounting_method`` is not ``'batch'``. Otherwise aggregates
+        payslip lines into ``account_entry_ids`` (see
+        ``_prepare_batch_account_entries``), creates the
+        ``account.move`` and its debit/credit lines per entry,
+        balances the move with an adjustment line when debit and
+        credit totals differ, posts it, and reconciles the batch's
+        account entries against the payslips' allowance/deduction
+        reference move lines.
+        """
         self.ensure_one()
         if self.accounting_method != "batch":
             return True
@@ -685,6 +882,16 @@ and required fields
 
     @ssi_decorator.post_cancel_action()
     def _xx_cancel_accounting_entry(self):
+        """Reverse the batch-level journal entry on cancellation.
+
+        Runs after the batch is cancelled. When a ``move_id`` exists,
+        unreconciles the batch's account entries, clears their move
+        line references (and the batch's adjustment move lines), and
+        deletes the standard move. ``account_entry_ids`` are always
+        unlinked, even without a move, since they are regenerated from
+        scratch by ``_prepare_batch_account_entries`` on the next
+        journaling run.
+        """
         self.ensure_one()
         if self.move_id:
             self._unreconcile_batch_account_entry()
@@ -709,6 +916,15 @@ and required fields
     # -- aggregation helpers --
 
     def _prepare_batch_account_entries(self):
+        """Rebuild ``account_entry_ids`` by aggregating payslip lines.
+
+        Deletes any existing entries, then groups every non-zero
+        payslip line of this batch by ``(rule_id, partner_id)``,
+        summing their amounts and resolving the debit/credit account
+        of each group. An ``hr.payslip_batch_account_entry`` is
+        created for each group whose amount and at least one account
+        are set.
+        """
         self.ensure_one()
         self.account_entry_ids.unlink()
         lines = self.payslip_ids.mapped("line_ids").filtered(lambda l: l.amount)
@@ -738,6 +954,18 @@ and required fields
     def _prepare_balance_adjustment_aml(
         self, currency, credit_sum, debit_sum, move, type_data
     ):
+        """Build the values of the adjustment ``account.move.line``.
+
+        :param currency: currency used to round the adjustment amount
+        :param credit_sum: total credit posted so far on ``move``
+        :param debit_sum: total debit posted so far on ``move``
+        :param move: ``account.move`` the adjustment line is added to
+        :param type_data: ``'debit'`` to post the adjustment as a
+            debit, any other value posts it as a credit
+        :raises UserError: if the batch's journal has no default
+            account configured
+        :return: dict of ``account.move.line`` values
+        """
         self.ensure_one()
         journal_acc_id = self.journal_id.default_account_id.id
         if not journal_acc_id:
@@ -770,6 +998,19 @@ the accounting journal settings
         return data
 
     def _create_balance_adjustment(self, debit_sum, credit_sum):
+        """Balance the batch move when debit and credit totals differ.
+
+        Creates a single adjustment ``account.move.line`` (built by
+        ``_prepare_balance_adjustment_aml``) on ``move_id`` for the
+        difference, storing it on ``move_line_credit_id`` or
+        ``move_line_debit_id`` depending on which side is short. Does
+        nothing when both totals already match.
+
+        :param debit_sum: total debit posted from the aggregated
+            entries
+        :param credit_sum: total credit posted from the aggregated
+            entries
+        """
         self.ensure_one()
         ML = self.env["account.move.line"].with_context(check_move_validity=False)
         currency = self.company_currency_id
@@ -792,14 +1033,33 @@ the accounting journal settings
     # -- reconciliation helpers --
 
     def _get_batch_allowance_ref_ml(self):
+        """Return the allowance reference move lines of this batch.
+
+        :return: ``account.move.line`` recordset gathered from every
+            payslip's ``allowance_ref_move_line_ids``
+        """
         self.ensure_one()
         return self.payslip_ids.mapped("allowance_ref_move_line_ids")
 
     def _get_batch_deduction_ref_ml(self):
+        """Return the deduction reference move lines of this batch.
+
+        :return: ``account.move.line`` recordset gathered from every
+            payslip's ``deduction_ref_move_line_ids``
+        """
         self.ensure_one()
         return self.payslip_ids.mapped("deduction_ref_move_line_ids")
 
     def _reconcile_batch_account_entry(self):
+        """Reconcile the batch's account entries against payslip references.
+
+        For each ``account_entry_ids`` whose rule requests
+        reconciliation, matches its debit move line against the
+        batch's allowance reference move lines, and its credit move
+        line against the deduction reference move lines, via
+        ``hr.payslip_batch_account_entry._reconcile_debit`` /
+        ``_reconcile_credit``.
+        """
         self.ensure_one()
         allowance = self._get_batch_allowance_ref_ml()
         deduction = self._get_batch_deduction_ref_ml()
@@ -810,6 +1070,13 @@ the accounting journal settings
                 entry._reconcile_credit(deduction)
 
     def _unreconcile_batch_account_entry(self):
+        """Undo the reconciliation of the batch's account entries.
+
+        Removes the reconciliation of every ``debit_move_line_id`` and
+        ``credit_move_line_id`` present on ``account_entry_ids``.
+        Called before the batch's journal entry is deleted on
+        cancellation.
+        """
         self.ensure_one()
         for entry in self.account_entry_ids:
             if entry.debit_move_line_id:

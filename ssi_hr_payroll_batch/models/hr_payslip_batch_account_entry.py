@@ -6,6 +6,18 @@ from odoo import _, fields, models
 
 
 class HrPayslipBatchAccountEntry(models.Model):
+    """
+    Aggregated (salary rule, partner) journal line of a payslip batch.
+
+    One record represents the summed amount of a given ``rule_id`` for
+    a given ``partner_id`` across every payslip of ``batch_id``, so
+    the batch posts a single debit/credit line pair per group instead
+    of one pair per individual payslip line (see
+    ``hr.payslip_batch._prepare_batch_account_entries``). Debit/credit
+    creation itself is delegated to the inherited
+    ``mixin.account_move_double_line``.
+    """
+
     _name = "hr.payslip_batch_account_entry"
     _description = "Payslip Batch Account Entry"
     _inherit = [
@@ -133,10 +145,27 @@ class HrPayslipBatchAccountEntry(models.Model):
     )
 
     def _get_standard_label(self, direction):
+        """Return the move line label for either side of this entry.
+
+        Extension point of ``mixin.account_move_double_line``.
+
+        :param direction: ``'debit'`` or ``'credit'`` (unused, both
+            sides share the same label)
+        :return: ``rule_id.name``, or ``False`` when the rule has none
+        """
         self.ensure_one()
         return self.rule_id.name or False
 
     def _create_standard_ml(self):
+        """Create this entry's debit and credit ``account.move.line``.
+
+        Skips a side when its account field
+        (``debit_account_id``/``credit_account_id``) is not set.
+
+        :return: tuple ``(debit_ml, credit_ml)`` of
+            ``account.move.line`` recordsets (empty recordset for a
+            skipped side)
+        """
         self.ensure_one()
         ML = self.env["account.move.line"].with_context(check_move_validity=False)
         debit_ml = self.env["account.move.line"]
@@ -178,6 +207,11 @@ class HrPayslipBatchAccountEntry(models.Model):
             (refs + self.credit_move_line_id).reconcile()
 
     def name_get(self):
+        """Display each entry as ``"<batch> / <salary rule>"``.
+
+        Overridden so entries stay identifiable in list/many2one
+        widgets without exposing raw database IDs.
+        """
         result = []
         for record in self:
             name = _("%s / %s") % (
