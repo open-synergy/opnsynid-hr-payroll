@@ -15,6 +15,16 @@ except ImportError:
 
 
 class HrPayslipBatchInputImport(models.TransientModel):
+    """
+    Wizard that re-imports payslip input amounts from an xlsx file.
+
+    Reads back the spreadsheet previously produced by
+    ``hr.payslip_batch.action_export_input``, matches its rows to the
+    payslips of ``batch_id`` by database ID, and writes the amount of
+    each dynamic input column onto the matching ``input_line_ids`` of
+    each draft payslip.
+    """
+
     _name = "hr.payslip_batch_input_import"
     _description = "Import Payslip Batch Input"
 
@@ -36,8 +46,16 @@ class HrPayslipBatchInputImport(models.TransientModel):
     )
 
     def _read_rows(self):
-        """Decode the uploaded xlsx file and return its rows as a list of
-        tuples (header row first)."""
+        """Decode the uploaded xlsx file into a list of row tuples.
+
+        The first row of the result is the header row.
+
+        :raises UserError: if the ``openpyxl`` library is not
+            installed, the file is not a valid xlsx spreadsheet, or
+            the spreadsheet has no rows
+        :return: list of row tuples as returned by ``openpyxl``'s
+            ``iter_rows(values_only=True)``
+        """
         self.ensure_one()
         if load_workbook is None:
             error_message = _(
@@ -83,8 +101,15 @@ Solution: Upload the xlsx file exported from this payslip batch
         return rows
 
     def _get_code_columns(self, header):
-        """Map each dynamic input column index to its input code. The first
-        two columns ('Payslip ID' and 'Employee') are skipped."""
+        """Map each dynamic input column index to its input code.
+
+        The first two columns (``Payslip ID`` and ``Employee``) are
+        skipped, as well as any column with an empty header.
+
+        :param header: header row (first row) of the imported
+            spreadsheet
+        :return: dict mapping column index to input code string
+        """
         code_columns = {}
         for index, value in enumerate(header):
             if index <= 1 or not value:
@@ -93,6 +118,13 @@ Solution: Upload the xlsx file exported from this payslip batch
         return code_columns
 
     def _check_input_codes(self, codes):
+        """Ensure every input code from the spreadsheet header exists.
+
+        :param codes: iterable of input code strings found in the
+            spreadsheet header
+        :raises UserError: if any code has no matching
+            ``hr.payslip_input_type``
+        """
         self.ensure_one()
         obj_input_type = self.env["hr.payslip_input_type"]
         unknown_codes = []
@@ -113,6 +145,14 @@ the header row
             raise UserError(error_message)
 
     def _get_payslip(self, payslip_id):
+        """Resolve and validate a payslip targeted by an imported row.
+
+        :param payslip_id: database ID read from the first column of
+            an imported row
+        :raises UserError: if ``payslip_id`` does not belong to
+            ``batch_id``, or the payslip is not in ``draft`` state
+        :return: the matching ``hr.payslip`` record
+        """
         self.ensure_one()
         payslip = self.batch_id.payslip_ids.filtered(
             lambda record: record.id == payslip_id
@@ -142,6 +182,17 @@ Solution: Only import inputs while every payslip is still in Draft state
         return payslip
 
     def action_import(self):
+        """Apply the uploaded spreadsheet's amounts onto the batch's payslips.
+
+        Reads the file (``_read_rows``), validates its input codes
+        (``_check_input_codes``), then for every data row resolves
+        the target payslip (``_get_payslip``) and writes ``amount`` on
+        each of its ``input_line_ids`` whose input code matches a
+        non-empty cell. Rows with a missing/invalid ID, or cells that
+        are empty, are silently skipped.
+
+        :return: an ``ir.actions.act_window_close`` dict
+        """
         self.ensure_one()
         rows = self._read_rows()
         header = rows[0]
