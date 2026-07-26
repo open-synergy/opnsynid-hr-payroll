@@ -8,6 +8,17 @@ from odoo.tools.safe_eval import safe_eval
 
 
 class HrSalaryRule(models.Model):
+    """
+    Defines a single computation step of a payroll salary structure.
+
+    A rule decides, through ``condition_python``, whether it applies
+    to a payslip, and computes an amount through ``amount_python``;
+    both are evaluated with ``safe_eval`` against a localdict built
+    by ``hr.payslip``. Rules can be nested through ``parent_id`` /
+    ``child_ids`` and belong to a ``hr.salary_rule_category`` used
+    for subtotal aggregation.
+    """
+
     _name = "hr.salary_rule"
     _inherit = [
         "mixin.master_data",
@@ -133,13 +144,19 @@ result = True""",
 
     @api.constrains("parent_id")
     def _check_parent_id(self):
+        """Forbid a salary rule from being its own ancestor.
+
+        :raises ValidationError: if ``parent_id`` closes a cycle in
+            the rule hierarchy.
+        """
         if not self._check_recursion():
             raise ValidationError(_("You cannot create a recursive salary rule."))
 
     def _recursive_search_of_rules(self):
-        """
-        @return: returns a list of tuple (id, sequence) which are all the
-                 children of the passed rule_ids
+        """Return this rule and every rule nested under ``child_ids``.
+
+        :return: list of ``(rule_id, sequence)`` tuples for ``self``
+            and all of its descendants, depth-first
         """
         children_rules = []
         for rule in self.filtered(lambda rule: rule.child_ids):
@@ -147,6 +164,19 @@ result = True""",
         return [(rule.id, rule.sequence) for rule in self] + children_rules
 
     def _evaluate_rule(self, computation_method, localdict):
+        """Dispatch rule evaluation to the matching helper method.
+
+        Calls ``_evaluate_rule_<computation_method>`` (currently
+        ``condition`` or ``amount``) with ``localdict``.
+
+        :param computation_method: suffix of the helper method to
+            call, e.g. ``"condition"`` or ``"amount"``
+        :param localdict: evaluation context built by
+            ``hr.payslip._get_base_localdict``
+        :return: the helper method's return value, or ``False`` when
+            ``computation_method`` is falsy
+        :raises UserError: if the helper method raises any exception
+        """
         self.ensure_one()
         if not computation_method:
             return False
@@ -159,6 +189,22 @@ result = True""",
         return result
 
     def _evaluate_rule_condition(self, localdict):
+        """Evaluate ``condition_python`` to decide if the rule applies.
+
+        Runs ``condition_python`` through ``safe_eval`` against
+        ``localdict``, which exposes ``payslip``, ``employee``,
+        ``categories``, ``rules``, ``inputs`` and ``emp_inputs`` (see
+        ``hr.payslip._get_base_localdict``). The Python code is
+        expected to set the ``result`` variable to a truthy value
+        when the rule should be applied.
+
+        :param localdict: evaluation context, mutated in place by
+            ``safe_eval``
+        :return: ``localdict["result"]``, or ``False`` if it was left
+            unset
+        :raises UserError: if ``condition_python`` raises during
+            evaluation
+        """
         self.ensure_one()
         res = False
         try:
@@ -179,6 +225,23 @@ Here is the error received:
         return res
 
     def _evaluate_rule_amount(self, localdict):
+        """Evaluate ``amount_python`` to compute the rule's amount.
+
+        Runs ``amount_python`` through ``safe_eval`` against
+        ``localdict``, which exposes ``payslip``, ``employee``,
+        ``categories``, ``rules``, ``inputs`` and ``emp_inputs`` (see
+        ``hr.payslip._get_base_localdict``). The Python code is
+        expected to set ``result`` (amount) and may optionally set
+        ``result_qty`` (default ``1.0``) and ``result_rate``
+        (default ``100.0``).
+
+        :param localdict: evaluation context, mutated in place by
+            ``safe_eval``
+        :return: tuple ``(amount, quantity, rate)`` read back from
+            ``localdict``
+        :raises UserError: if ``amount_python`` raises during
+            evaluation
+        """
         self.ensure_one()
         res = False
         try:

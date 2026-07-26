@@ -7,6 +7,15 @@ from odoo.exceptions import ValidationError
 
 
 class HrSalaryStructure(models.Model):
+    """
+    Defines the set of salary rules applied to an employee's payslip.
+
+    Structures can be nested through ``parent_id``; a payslip using a
+    given structure applies every rule from that structure and from
+    all of its ancestors, in ``sequence`` order (see
+    ``_get_parent_structure`` and ``get_all_rules``).
+    """
+
     _name = "hr.salary_structure"
     _inherit = [
         "mixin.master_data",
@@ -28,13 +37,22 @@ class HrSalaryStructure(models.Model):
 
     @api.constrains("parent_id")
     def _check_parent_id(self):
+        """Forbid a salary structure from being its own ancestor.
+
+        :raises ValidationError: if ``parent_id`` closes a cycle in
+            the structure hierarchy.
+        """
         if not self._check_recursion():
             raise ValidationError(_("You cannot create a recursive salary structure."))
 
     def get_all_rules(self):
-        """
-        @return: returns a list of tuple (id, sequence) of rules that are maybe
-                 to apply
+        """Return every rule reachable from this structure's rules.
+
+        For each structure in ``self``, recursively expands
+        ``rule_ids`` (and their ``child_ids``) through
+        ``hr.salary_rule._recursive_search_of_rules``.
+
+        :return: list of ``(rule_id, sequence)`` tuples
         """
         all_rules = []
         for document in self:
@@ -42,6 +60,14 @@ class HrSalaryStructure(models.Model):
         return all_rules
 
     def _get_parent_structure(self):
+        """Return this structure together with all of its ancestors.
+
+        Follows ``parent_id`` recursively so the caller can collect
+        rules from the full inheritance chain, not just ``self``.
+
+        :return: recordset of ``hr.salary_structure`` including
+            ``self`` and every ancestor structure
+        """
         parent = self.mapped("parent_id")
         if parent:
             parent = parent._get_parent_structure()
