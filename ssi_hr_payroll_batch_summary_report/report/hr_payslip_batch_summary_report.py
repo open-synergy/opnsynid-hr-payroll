@@ -5,11 +5,24 @@ from odoo import api, models
 
 
 class HrPayslipBatchSummaryReport(models.AbstractModel):
+    """
+    Builds the values consumed by the Salary Summary QWeb report.
+    Aggregates the payslips of one or more ``hr.payslip_batch`` records
+    into a per-employee, per-salary-rule breakdown with row and column
+    totals, shared by both the HTML report and the ``.xlsx`` export.
+    """
+
     _name = "report.ssi_hr_payroll_batch_summary_report.batch_summary"
     _description = "Payslip Batch Salary Summary Report"
 
     def _get_salary_rules(self, batch):
-        """Return salary rules used in this batch, sorted by sequence."""
+        """Return salary rules used in this batch, sorted by sequence.
+
+        :param batch: a single ``hr.payslip_batch`` record
+        :return: ``hr.salary_rule`` recordset, ordered by
+            ``sequence, id``; empty recordset when the batch has no
+            payslips
+        """
         SalaryRule = self.env["hr.salary_rule"]
         rule_ids = set()
         for payslip in batch.payslip_ids:
@@ -20,14 +33,25 @@ class HrPayslipBatchSummaryReport(models.AbstractModel):
         return SalaryRule.search([("id", "in", list(rule_ids))], order="sequence, id")
 
     def _get_amounts_by_rule(self, payslip):
-        """Return {rule_id: total} mapping for a payslip."""
+        """Return {rule_id: total} mapping for a payslip.
+
+        :param payslip: a single ``hr.payslip`` record
+        :return: dict mapping ``hr.salary_rule`` id to the summed
+            ``total`` of that rule's ``hr.payslip_line`` records on
+            this payslip
+        """
         result = {}
         for line in payslip.line_ids:
             result[line.rule_id.id] = line.total
         return result
 
     def _fmt(self, amount):
-        """Format amount in Indonesian style: 1.234.567"""
+        """Format amount in Indonesian style, e.g. ``1.234.567``.
+
+        :param amount: numeric amount to format
+        :return: string with ``.`` as the thousands separator and a
+            leading ``-`` for negative amounts
+        """
         formatted = "{:,.0f}".format(abs(float(amount)))
         formatted = formatted.replace(",", ".")
         if float(amount) < 0:
@@ -36,6 +60,22 @@ class HrPayslipBatchSummaryReport(models.AbstractModel):
 
     @api.model
     def _get_report_values(self, docids, data=None):
+        """Build the rendering context for the QWeb report engine.
+
+        For each ``hr.payslip_batch`` in ``docids``, resolves the
+        salary rules used, builds one formatted row per payslip
+        (ordered by id) with per-rule amounts, and accumulates
+        per-rule and grand totals across the batch.
+
+        :param docids: ids of ``hr.payslip_batch`` records to render
+        :param data: unused, present for the ``_get_report_values``
+            override signature required by the QWeb report engine
+        :return: dict with ``doc_ids``, ``doc_model`` and ``docs`` —
+            the list of per-batch context dicts (``batch``, ``rules``,
+            ``payslips``, ``rule_totals``, ``rule_totals_fmt``,
+            ``grand_total``, ``grand_total_fmt``) consumed by the
+            report template
+        """
         batches = self.env["hr.payslip_batch"].browse(docids)
         docs = []
         for batch in batches:

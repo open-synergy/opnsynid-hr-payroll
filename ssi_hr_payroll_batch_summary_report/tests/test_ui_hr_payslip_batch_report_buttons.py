@@ -7,8 +7,16 @@ from odoo.tests import HttpSavepointCase, tagged
 
 @tagged("post_install", "-at_install")
 class TestUiHrPayslipBatchReportButtons(HttpSavepointCase):
+    """Tour: Salary Summary report buttons visibility by batch state."""
+
     @classmethod
     def setUpClass(cls):
+        """Grant access, build rule/structure fixtures, prepare batches.
+
+        Prepares one non-draft (opened, payslips computed) and one
+        draft batch so the tour can assert the report buttons are
+        shown only on the non-draft batch.
+        """
         super().setUpClass()
 
         # Pre-Condition: opening a batch (leaving Draft) is gated by the batch
