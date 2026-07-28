@@ -5,11 +5,32 @@ from odoo import _, models
 
 
 class HrPayslipBatchSummaryReportXlsx(models.AbstractModel):
+    """
+    Renders the Salary Summary report as an ``.xlsx`` workbook.
+    Reuses the aggregation logic of ``batch_summary`` (the HTML report
+    model) and lays out one worksheet per ``hr.payslip_batch``.
+    """
+
     _name = "report.ssi_hr_payroll_batch_summary_report.batch_summary_xlsx"
     _description = "Payslip Batch Salary Summary XLSX Report"
     _inherit = "report.report_xlsx.abstract"
 
     def generate_xlsx_report(self, workbook, data, batches):
+        """Write one Salary Summary worksheet per batch into workbook.
+
+        Override of the ``report.report_xlsx.abstract`` contract
+        method. For each batch, adds a worksheet (named after the
+        batch, truncated to 31 characters) with a title/period header,
+        one column per salary rule used in the batch, one row per
+        payslip (linked to the payslip form), and a totals row.
+
+        :param workbook: ``xlsxwriter.Workbook`` to write the report
+            into; formats and worksheets are added directly on it
+        :param data: unused, present for the abstract report contract
+        :param batches: ``hr.payslip_batch`` recordset to render
+        :return: ``None`` — output is the side effect of writing to
+            ``workbook``
+        """
         report_obj = self.env[
             "report.ssi_hr_payroll_batch_summary_report.batch_summary"
         ]

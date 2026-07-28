@@ -7,8 +7,11 @@ from odoo.tests import SavepointCase, tagged
 
 @tagged("post_install", "-at_install")
 class TestHrPayslipBatchSummaryReport(SavepointCase):
+    """Test the Salary Summary report values and XLSX generation."""
+
     @classmethod
     def setUpClass(cls):
+        """Create rules, structure, employee, batch and payslip fixtures."""
         super().setUpClass()
 
         # Salary rule category
