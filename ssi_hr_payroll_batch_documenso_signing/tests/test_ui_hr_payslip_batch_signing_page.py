@@ -7,8 +7,13 @@ from odoo.tests import HttpSavepointCase, tagged
 
 @tagged("post_install", "-at_install")
 class TestUiHrPayslipBatchSigningPage(HttpSavepointCase):
+    """Tour: the Documenso signing page/tab is reachable from the
+    payslip batch form (IK 01-create.md, E2a delta)."""
+
     @classmethod
     def setUpClass(cls):
+        """Grant admin the validator group so the tour's menu and
+        create (New) button steps are reachable."""
         super().setUpClass()
         # Pre-Condition: the Payslip Batches menu and the create (New) button are
         # gated by the payslip batch access groups. Granting the validator group
