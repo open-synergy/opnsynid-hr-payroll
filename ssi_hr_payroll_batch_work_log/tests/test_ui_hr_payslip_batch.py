@@ -7,8 +7,11 @@ from odoo.tests import HttpSavepointCase, tagged
 
 @tagged("post_install", "-at_install")
 class TestUiHrPayslipBatchWorkLog(HttpSavepointCase):
+    """Tour the Work Log tab added to the ``hr.payslip_batch`` form."""
+
     @classmethod
     def setUpClass(cls):
+        """Grant batch access and build the draft batch the tour opens."""
         super().setUpClass()
         # Pre-Condition: the Payslip Batches menu is gated by the batch access
         # groups. Granting the batch Validator group to admin implies the batch
