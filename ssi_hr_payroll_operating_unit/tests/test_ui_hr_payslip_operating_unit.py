@@ -7,8 +7,11 @@ from odoo.tests import HttpSavepointCase, tagged
 
 @tagged("post_install", "-at_install")
 class TestUiHrPayslipOperatingUnit(HttpSavepointCase):
+    """Tours the Operating Unit field added to the payslip form."""
+
     @classmethod
     def setUpClass(cls):
+        """Grant admin the groups needed to see and use the OU field."""
         super().setUpClass()
         # Pre-Condition: the Operating Unit field is gated by the multi operating
         # unit group; without it the field is not rendered and the delta assertion

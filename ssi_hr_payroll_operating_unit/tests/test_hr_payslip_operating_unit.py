@@ -9,7 +9,10 @@ from odoo.tests import tagged
 
 @tagged("post_install", "-at_install")
 class TestHrPayslipOperatingUnit(YamlTransactionCase):
+    """Tests that a payslip propagates its operating unit to the move."""
+
     def test_hr_payslip_operating_unit(self):
+        """Confirm the generated ``account.move`` keeps the payslip's OU."""
         self.run_yaml_scenario("test_data_hr_payslip_operating_unit.yaml")
         payslip = self.registry.get("payslip")
         self.assertTrue(payslip, "Payslip should be in registry after scenario")
