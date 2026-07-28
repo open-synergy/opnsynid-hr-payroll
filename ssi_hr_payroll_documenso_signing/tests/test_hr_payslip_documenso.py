@@ -9,5 +9,8 @@ from odoo.tests import tagged
 
 @tagged("post_install", "-at_install")
 class TestHrPayslipDocumenso(YamlTransactionCase):
+    """Test Documenso signing approval scenarios for ``hr.payslip``."""
+
     def test_hr_payslip_documenso(self):
+        """Run the YAML scenario covering payslip Documenso signing."""
         self.run_yaml_scenario("test_data_hr_payslip_documenso.yaml")

@@ -7,8 +7,11 @@ from odoo.tests import HttpSavepointCase, tagged
 
 @tagged("post_install", "-at_install")
 class TestUiHrPayslipSigningPage(HttpSavepointCase):
+    """UI tour test for the payslip Documenso signing page."""
+
     @classmethod
     def setUpClass(cls):
+        """Grant the payslip validator group to admin for the tour."""
         super().setUpClass()
         # Pre-Condition: the Payslips menu and the create (New) button are gated
         # by the payslip access groups. Granting the validator group to admin
