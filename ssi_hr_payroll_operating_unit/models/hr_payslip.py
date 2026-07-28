@@ -21,6 +21,13 @@ class HrPayslip(models.Model):
     ]
 
     def _prepare_account_move_data(self):
+        """Add ``operating_unit_id`` to the ``account.move`` values.
+
+        Overridden so the accounting entry generated for this payslip
+        is scoped to the same operating unit as the payslip itself.
+
+        :return: dict of ``account.move`` values
+        """
         res = super()._prepare_account_move_data()
         res["operating_unit_id"] = self.operating_unit_id.id
         return res
