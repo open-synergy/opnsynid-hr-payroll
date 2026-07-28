@@ -7,8 +7,11 @@ from odoo.tests import HttpSavepointCase, tagged
 
 @tagged("post_install", "-at_install")
 class TestUiHrPayslipWorkLog(HttpSavepointCase):
+    """Tour: assert the Work Log tab renders on the payslip form."""
+
     @classmethod
     def setUpClass(cls):
+        """Grant admin access and build a computed payslip for the tour."""
         super().setUpClass()
         # Pre-Condition: the Payslips menu is gated by the payslip access groups.
         # Granting the validator group to admin implies the user and viewer
