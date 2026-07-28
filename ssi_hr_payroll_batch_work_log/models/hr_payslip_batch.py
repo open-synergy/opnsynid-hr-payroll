@@ -6,6 +6,14 @@ from odoo import models
 
 
 class HrPayslipBatch(models.Model):
+    """
+    Adds work log tracking to payslip batches.
+    Activates the Work Log tab on the ``hr.payslip_batch`` form via
+    ``mixin.work_object``, so hours logged while processing a batch
+    are recorded against ``work_estimation`` and rolled up into
+    ``total_work``, ``remaining_work``, and ``excess_work``.
+    """
+
     _name = "hr.payslip_batch"
     _inherit = [
         "hr.payslip_batch",
