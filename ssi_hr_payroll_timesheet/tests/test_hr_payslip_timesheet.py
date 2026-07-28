@@ -9,5 +9,8 @@ from odoo.tests import tagged
 
 @tagged("post_install", "-at_install")
 class TestHrPayslipTimesheet(YamlTransactionCase):
+    """Tests ``hr.payslip`` creation with timesheet-related master data."""
+
     def test_hr_payslip_timesheet(self):
+        """Test creating a payslip lands in ``draft`` state."""
         self.run_yaml_scenario("test_data_hr_payslip_timesheet.yaml")
