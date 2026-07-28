@@ -9,10 +9,14 @@ from odoo.tests import tagged
 
 @tagged("post_install", "-at_install")
 class TestHrPayslipBatchOperatingUnit(YamlTransactionCase):
+    """Test hr.payslip_batch operating unit scoping and OU propagation."""
+
     def test_hr_payslip_batch_operating_unit(self):
+        """Run the YAML scenario for OU-scoped payslip batch behavior."""
         self.run_yaml_scenario("test_data_hr_payslip_batch_operating_unit.yaml")
 
     def _create_salary_structure(self, suffix):
+        """Create a minimal salary structure with one flat-rate rule."""
         rule_cat = self.env["hr.salary_rule_category"].create(
             {"name": "OU Reload Test Cat %s" % suffix, "code": "OURLCAT%s" % suffix}
         )

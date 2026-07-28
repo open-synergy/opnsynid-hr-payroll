@@ -17,6 +17,15 @@ class HrPayslip(models.Model):  # pylint: disable=too-few-public-methods
 
     @api.constrains("batch_id", "operating_unit_id")
     def _check_batch_operating_unit(self):
+        """Ensure ``operating_unit_id`` matches the linked batch.
+
+        Delegates the actual check to
+        ``_check_payslip_batch_operating_unit_condition`` and raises when
+        it returns falsy.
+
+        :raises ValidationError: when the payslip's ``operating_unit_id``
+            differs from its ``batch_id.operating_unit_id``
+        """
         for document in self.sudo():
             if not document._check_payslip_batch_operating_unit_condition():
                 # pylint: disable=consider-using-f-string
@@ -34,6 +43,13 @@ Solution: Ensure the payslip operating unit is the same as the batch operating u
                 raise ValidationError(_(error_message))
 
     def _check_payslip_batch_operating_unit_condition(self):
+        """Return whether this payslip's OU matches its batch's OU.
+
+        Returns ``True`` when the payslip has no ``batch_id`` yet, since
+        there is nothing to compare against.
+
+        :return: ``True`` if the condition holds, ``False`` otherwise
+        """
         self.ensure_one()
         if not self.batch_id:
             return True

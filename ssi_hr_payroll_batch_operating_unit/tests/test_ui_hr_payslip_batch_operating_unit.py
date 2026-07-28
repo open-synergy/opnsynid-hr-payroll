@@ -7,8 +7,11 @@ from odoo.tests import HttpSavepointCase, tagged
 
 @tagged("post_install", "-at_install")
 class TestUiHrPayslipBatchOperatingUnit(HttpSavepointCase):
+    """Tour test for the Operating Unit field on the payslip batch form."""
+
     @classmethod
     def setUpClass(cls):
+        """Grant the admin user batch and multi-OU access for the tour."""
         super().setUpClass()
         # Pre-Condition: the Operating Unit field on the batch form is gated by the
         # Multi Operating Unit group; without it the server strips the field from the
