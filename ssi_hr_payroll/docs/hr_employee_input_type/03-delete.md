@@ -1,8 +1,14 @@
 # Delete Employee Input Type
 
+> **Module:** ssi_hr_payroll\
+> **Model:** `hr.employee_input_type`\
+> **Menu:** Human Resource > Configuration > Payroll > Employee Input Types\
+> **Actor:** user in group `Human Resource - Configurator / Employee Input Type`\
+> **Requires:** `01-create`
+
 ## Pre-Condition
 
-- The record is not referenced by any employee input line.
+- **Data:** The record is not referenced by any employee input line.
 
 ## Flow
 

@@ -1,5 +1,10 @@
 # Create Salary Rule Category
 
+> **Module:** ssi_hr_payroll\
+> **Model:** `hr.salary_rule_category`\
+> **Menu:** Human Resource > Configuration > Payroll > Salary Rule Categories\
+> **Actor:** user in group `Human Resource - Configurator / Salary Rule Category`
+
 ## Pre-Condition
 
 - None.

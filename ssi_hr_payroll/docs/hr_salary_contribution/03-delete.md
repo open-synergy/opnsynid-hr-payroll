@@ -1,8 +1,14 @@
 # Delete Salary Contribution
 
+> **Module:** ssi_hr_payroll\
+> **Model:** `hr.salary_contribution`\
+> **Menu:** Human Resource > Configuration > Payroll > Salary Contributions\
+> **Actor:** user in group `Human Resource - Configurator / Salary Contribution`\
+> **Requires:** `01-create`
+
 ## Pre-Condition
 
-- The record is not referenced by any salary rule.
+- **Data:** The record is not referenced by any salary rule.
 
 ## Flow
 

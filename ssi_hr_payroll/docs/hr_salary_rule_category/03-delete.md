@@ -1,9 +1,15 @@
 # Delete Salary Rule Category
 
+> **Module:** ssi_hr_payroll\
+> **Model:** `hr.salary_rule_category`\
+> **Menu:** Human Resource > Configuration > Payroll > Salary Rule Categories\
+> **Actor:** user in group `Human Resource - Configurator / Salary Rule Category`\
+> **Requires:** `01-create`
+
 ## Pre-Condition
 
-- The record is not used by any salary rule.
-- The record has no child category (the **Childs** tab is empty).
+- **Data:** The record is not used by any salary rule.
+- **Record:** The record has no child category (the **Childs** tab is empty).
 
 ## Flow
 

@@ -1,10 +1,16 @@
 # Delete Salary Rule
 
+> **Module:** ssi_hr_payroll\
+> **Model:** `hr.salary_rule`\
+> **Menu:** Human Resource > Configuration > Payroll > Salary Rules\
+> **Actor:** user in group `Human Resource - Configurator / Salary Rule`\
+> **Requires:** `01-create`
+
 ## Pre-Condition
 
-- The record is not used by any salary structure.
-- The record has no child salary rule (the **Children** tab is empty).
-- The record has never produced a payslip line.
+- **Data:** The record is not used by any salary structure.
+- **Record:** The record has no child salary rule (the **Children** tab is empty).
+- **Data:** The record has never produced a payslip line.
 
 ## Flow
 

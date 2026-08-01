@@ -1,5 +1,12 @@
 # Activate Payslip Type
 
+> **Module:** ssi_hr_payroll\
+> **Model:** `hr.payslip_type`\
+> **Menu:** Human Resource > Configuration > Payroll > Types\
+> **Actor:** user in group `Human Resource - Configurator / Payslip Type`\
+> **Active:** `false` → `true`\
+> **Requires:** `04-deactivate`
+
 ## Pre-Condition
 
 - None.

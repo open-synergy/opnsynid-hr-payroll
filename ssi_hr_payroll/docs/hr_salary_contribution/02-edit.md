@@ -1,5 +1,11 @@
 # Edit Salary Contribution
 
+> **Module:** ssi_hr_payroll\
+> **Model:** `hr.salary_contribution`\
+> **Menu:** Human Resource > Configuration > Payroll > Salary Contributions\
+> **Actor:** user in group `Human Resource - Configurator / Salary Contribution`\
+> **Requires:** `01-create`
+
 ## Pre-Condition
 
 - None.

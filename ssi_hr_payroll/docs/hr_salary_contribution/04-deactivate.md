@@ -1,5 +1,12 @@
 # Deactivate Salary Contribution
 
+> **Module:** ssi_hr_payroll\
+> **Model:** `hr.salary_contribution`\
+> **Menu:** Human Resource > Configuration > Payroll > Salary Contributions\
+> **Actor:** user in group `Human Resource - Configurator / Salary Contribution`\
+> **Active:** `true` → `false`\
+> **Requires:** `01-create`
+
 ## Pre-Condition
 
 - None.

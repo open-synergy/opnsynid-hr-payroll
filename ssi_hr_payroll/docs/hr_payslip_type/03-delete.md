@@ -1,8 +1,14 @@
 # Delete Payslip Type
 
+> **Module:** ssi_hr_payroll\
+> **Model:** `hr.payslip_type`\
+> **Menu:** Human Resource > Configuration > Payroll > Types\
+> **Actor:** user in group `Human Resource - Configurator / Payslip Type`\
+> **Requires:** `01-create`
+
 ## Pre-Condition
 
-- The record is not referenced by any payslip or payslip batch.
+- **Data:** The record is not referenced by any payslip or payslip batch.
 
 ## Flow
 
