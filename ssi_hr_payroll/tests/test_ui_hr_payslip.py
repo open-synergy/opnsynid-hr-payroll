@@ -101,6 +101,7 @@ class TestUiHrPayslip(HttpSavepointCase):
         )
 
         # Payslips prepared in the starting state each tour begins from.
+        cls.payslip_edit = cls._prepare_payslip("TOUR PAYSLIP EDIT")
         cls.payslip_confirm = cls._prepare_payslip("TOUR PAYSLIP CONFIRM")
         cls.payslip_cancel = cls._prepare_payslip("TOUR PAYSLIP CANCEL")
 
@@ -145,6 +146,14 @@ class TestUiHrPayslip(HttpSavepointCase):
         self.start_tour(
             "/web",
             "ssi_hr_payroll_hr_payslip_create",
+            login="admin",
+        )
+
+    def test_edit(self):
+        """IK: docs/hr_payslip/02-edit.md"""
+        self.start_tour(
+            "/web",
+            "ssi_hr_payroll_hr_payslip_edit",
             login="admin",
         )
 

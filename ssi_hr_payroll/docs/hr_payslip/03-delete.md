@@ -1,9 +1,15 @@
 # Delete Employee Payslip
 
+> **Module:** ssi_hr_payroll\
+> **Model:** `hr.payslip`\
+> **Menu:** Human Resource > Payroll > Payslips\
+> **Actor:** user in group `Payslip / User`\
+> **Requires:** `01-create`
+
 ## Pre-Condition
 
-- Record is in **Draft** status.
-- Document number is still **/** (not yet generated).
+- **Record:** Status is **Draft**.
+- **Record:** Document number is still **/** (not yet generated).
 
 ## Flow
 

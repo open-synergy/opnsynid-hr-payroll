@@ -43,6 +43,10 @@
             />
             <script
                 type="text/javascript"
+                src="/ssi_hr_payroll/static/tests/tours/hr_payslip_edit_tour.js"
+            />
+            <script
+                type="text/javascript"
                 src="/ssi_hr_payroll/static/tests/tours/hr_payslip_confirm_tour.js"
             />
             <script
