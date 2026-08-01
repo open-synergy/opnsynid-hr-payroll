@@ -1,7 +1,12 @@
 # Create Employee Payslip
 
-> **Module:** ssi_hr_payroll_work_log **Extends:** ssi_hr_payroll — model `hr_payslip`,
-> aksi `01-create`
+> **Module:** ssi_hr_payroll_work_log
+>
+> **Extends:** ssi_hr_payroll — model `hr.payslip`, action `01-create`
+
+## Additional Pre-Condition
+
+- **Module:** `ssi_hr_payroll_work_log` is installed.
 
 ## Additional Fields
 

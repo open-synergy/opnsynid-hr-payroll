@@ -1,9 +1,20 @@
 # Confirm Employee Payslip
 
+> **Module:** ssi_hr_payroll\
+> **Model:** `hr.payslip`\
+> **Menu:** Human Resource > Payroll > Payslips\
+> **Actor:** user in group `Payslip / User`\
+> **State:** `draft` → `confirm`\
+> **Requires:** `01-create`
+
 ## Pre-Condition
 
-- Record is in **Draft** status.
-- User has _Can Confirm_ access right.
+- **Record:** Status is **Draft**.
+- **Config:** An active `policy.template` for this model grants `confirm_ok` for state
+  `draft` to group `Payslip / User`.
+- **Config:** An active `approval.template` for this model matches this record, with an
+  approver group configured for its approval level.
+- **Access:** User has _Can Confirm_ access right.
 
 ## Flow
 

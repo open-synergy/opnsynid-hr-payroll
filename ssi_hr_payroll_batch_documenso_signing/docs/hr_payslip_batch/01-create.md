@@ -1,7 +1,11 @@
 # Create Employee Payslip Batch
 
-> **Module:** ssi_hr_payroll_batch_documenso_signing **Extends:** ssi_hr_payroll_batch —
-> model `hr_payslip_batch`, aksi `01-create`
+> **Module:** ssi_hr_payroll_batch_documenso_signing\
+> **Extends:** ssi_hr_payroll_batch — model `hr_payslip_batch`, action `01-create`
+
+## Additional Pre-Condition
+
+- **Module:** `ssi_hr_payroll_batch_documenso_signing` is installed.
 
 ## Modified Flow
 

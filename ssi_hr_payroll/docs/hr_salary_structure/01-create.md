@@ -1,10 +1,15 @@
 # Create Salary Structure
 
+> **Module:** ssi_hr_payroll\
+> **Model:** `hr.salary_structure`\
+> **Menu:** Human Resource > Configuration > Payroll > Salary Structures\
+> **Actor:** user in group `Human Resource - Configurator / Salary Structure`
+
 ## Pre-Condition
 
-- At least one Salary Rule already exists, if the **Rules** tab is going to be filled in
-  right away. A salary structure without any salary rule can still be saved, because the
-  **Salary Rules** field is not mandatory.
+- **Data:** At least one Salary Rule already exists, if the **Rules** tab is going to be
+  filled in right away. A salary structure without any salary rule can still be saved,
+  because the **Salary Rules** field is not mandatory.
 
 ## Flow
 

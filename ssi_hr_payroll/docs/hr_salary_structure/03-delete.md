@@ -1,10 +1,16 @@
 # Delete Salary Structure
 
+> **Module:** ssi_hr_payroll\
+> **Model:** `hr.salary_structure`\
+> **Menu:** Human Resource > Configuration > Payroll > Salary Structures\
+> **Actor:** user in group `Human Resource - Configurator / Salary Structure`\
+> **Requires:** `01-create`
+
 ## Pre-Condition
 
-- The record is not used by any payslip.
-- The record has no child salary structure (no other salary structure selects this
-  record as its **Parent**).
+- **Data:** The record is not used by any payslip.
+- **Data:** The record has no child salary structure (no other salary structure selects
+  this record as its **Parent**).
 
 ## Flow
 

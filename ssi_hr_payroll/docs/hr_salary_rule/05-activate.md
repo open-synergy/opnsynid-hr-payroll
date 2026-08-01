@@ -1,5 +1,12 @@
 # Activate Salary Rule
 
+> **Module:** ssi_hr_payroll\
+> **Model:** `hr.salary_rule`\
+> **Menu:** Human Resource > Configuration > Payroll > Salary Rules\
+> **Actor:** user in group `Human Resource - Configurator / Salary Rule`\
+> **Active:** `false` → `true`\
+> **Requires:** `04-deactivate`
+
 ## Pre-Condition
 
 - None.

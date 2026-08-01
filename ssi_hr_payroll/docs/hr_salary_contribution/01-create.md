@@ -1,9 +1,14 @@
 # Create Salary Contribution
 
+> **Module:** ssi_hr_payroll\
+> **Model:** `hr.salary_contribution`\
+> **Menu:** Human Resource > Configuration > Payroll > Salary Contributions\
+> **Actor:** user in group `Human Resource - Configurator / Salary Contribution`
+
 ## Pre-Condition
 
-- The receiving partner already exists in the Contact master data, if the **Partner**
-  field is going to be filled in.
+- **Data:** The receiving partner already exists in the Contact master data, if the
+  **Partner** field is going to be filled in.
 
 ## Flow
 

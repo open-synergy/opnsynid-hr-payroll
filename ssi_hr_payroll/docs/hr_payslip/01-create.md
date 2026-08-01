@@ -1,5 +1,13 @@
 # Create Employee Payslip
 
+> **Module:** ssi_hr_payroll\
+> **Model:** `hr.payslip`\
+> **Menu:** Human Resource > Payroll > Payslips\
+> **Actor:** user in group `Payslip / User`\
+> **State:** `—` → `draft`\
+> **Inline Actions:** `action_compute_payslip` (Compute Payslip), `action_reload_input_lines`
+> (Reload), `action_recompute_allowance_ref` (Reload), `action_recompute_deduction_ref` (Reload)
+
 ## Pre-Condition
 
 - None.

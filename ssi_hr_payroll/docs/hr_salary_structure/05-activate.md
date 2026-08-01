@@ -1,5 +1,12 @@
 # Activate Salary Structure
 
+> **Module:** ssi_hr_payroll\
+> **Model:** `hr.salary_structure`\
+> **Menu:** Human Resource > Configuration > Payroll > Salary Structures\
+> **Actor:** user in group `Human Resource - Configurator / Salary Structure`\
+> **Active:** `false` → `true`\
+> **Requires:** `04-deactivate`
+
 ## Pre-Condition
 
 - None.

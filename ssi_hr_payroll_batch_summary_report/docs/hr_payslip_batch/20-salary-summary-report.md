@@ -1,7 +1,11 @@
 # Print Salary Summary Report of Employee Payslip Batch
 
-> **Module:** ssi_hr_payroll_batch_summary_report **Extends:** ssi_hr_payroll_batch —
-> model `hr_payslip_batch`, new action buttons
+> **Module:** ssi_hr_payroll_batch_summary_report\
+> **Model:** `hr.payslip_batch`\
+> **Menu:** Human Resource > Payroll > Payslip Batches\
+> **Actor:** user in group `Payslip Batch / User`\
+> **Requires:** `07-start`\
+> **Extends:** ssi_hr_payroll_batch — model `hr_payslip_batch`, new action buttons
 
 This module adds two report buttons to the payslip batch form header: **Salary Summary**
 (`action_print_salary_summary`, an on-screen/PDF report) and **Export XLSX**
@@ -9,10 +13,11 @@ This module adds two report buttons to the payslip batch form header: **Salary S
 
 ## Pre-Condition
 
-- Record is **not** in **Draft** status (i.e. it has left Draft — for example after it
-  has been Started/opened). While the batch is in Draft both report buttons are hidden;
-  they appear only once the batch is no longer in Draft.
-- The batch already has payslips, so the summary has data to render.
+- **Module:** `ssi_hr_payroll_batch_summary_report` is installed.
+- **Record:** Status is **not Draft** (i.e. it has left Draft — for example after it has
+  been Started/opened). While the batch is in Draft both report buttons are hidden; they
+  appear only once the batch is no longer in Draft.
+- **Record:** The batch already has payslips, so the summary has data to render.
 
 ## Flow
 

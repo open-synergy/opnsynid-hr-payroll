@@ -1,9 +1,15 @@
 # Delete Payslip Input Type
 
+> **Module:** ssi_hr_payroll\
+> **Model:** `hr.payslip_input_type`\
+> **Menu:** Human Resource > Configuration > Payroll > Input Types\
+> **Actor:** user in group `Human Resource - Configurator / Payslip Input Type`\
+> **Requires:** `01-create`
+
 ## Pre-Condition
 
-- The record is not referenced by any payslip input line.
-- The record is not referenced by any salary rule.
+- **Data:** The record is not referenced by any payslip input line.
+- **Data:** The record is not referenced by any salary rule.
 
 ## Flow
 

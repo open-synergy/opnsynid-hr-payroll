@@ -15,7 +15,23 @@
             />
             <script
                 type="text/javascript"
+                src="/ssi_hr_payroll_batch/static/tests/tours/hr_payslip_batch_edit_tour.js"
+            />
+            <script
+                type="text/javascript"
                 src="/ssi_hr_payroll_batch/static/tests/tours/hr_payslip_batch_start_tour.js"
+            />
+            <script
+                type="text/javascript"
+                src="/ssi_hr_payroll_batch/static/tests/tours/hr_payslip_batch_recompute_tour.js"
+            />
+            <script
+                type="text/javascript"
+                src="/ssi_hr_payroll_batch/static/tests/tours/hr_payslip_batch_export_input_tour.js"
+            />
+            <script
+                type="text/javascript"
+                src="/ssi_hr_payroll_batch/static/tests/tours/hr_payslip_batch_import_input_tour.js"
             />
             <script
                 type="text/javascript"

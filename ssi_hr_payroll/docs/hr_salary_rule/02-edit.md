@@ -1,5 +1,11 @@
 # Edit Salary Rule
 
+> **Module:** ssi_hr_payroll\
+> **Model:** `hr.salary_rule`\
+> **Menu:** Human Resource > Configuration > Payroll > Salary Rules\
+> **Actor:** user in group `Human Resource - Configurator / Salary Rule`\
+> **Requires:** `01-create`
+
 ## Pre-Condition
 
 - None.

@@ -1,9 +1,14 @@
 # Create Salary Rule
 
+> **Module:** ssi_hr_payroll\
+> **Model:** `hr.salary_rule`\
+> **Menu:** Human Resource > Configuration > Payroll > Salary Rules\
+> **Actor:** user in group `Human Resource - Configurator / Salary Rule`
+
 ## Pre-Condition
 
-- At least one Salary Rule Category already exists. The **Category** field is mandatory,
-  so a salary rule cannot be saved without it.
+- **Data:** At least one Salary Rule Category already exists. The **Category** field is
+  mandatory, so a salary rule cannot be saved without it.
 
 ## Flow
 

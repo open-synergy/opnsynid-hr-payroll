@@ -1,7 +1,11 @@
 # Create Employee Payslip Batch
 
-> **Module:** ssi_hr_payroll_batch_operating_unit **Extends:** ssi_hr_payroll_batch —
-> model `hr_payslip_batch`, action `01-create`
+> **Module:** ssi_hr_payroll_batch_operating_unit\
+> **Extends:** ssi_hr_payroll_batch — model `hr_payslip_batch`, action `01-create`
+
+## Additional Pre-Condition
+
+- **Module:** `ssi_hr_payroll_batch_operating_unit` is installed.
 
 ## Additional Fields
 
