@@ -29,16 +29,16 @@ Available addons
 ----------------
 addon | version | maintainers | summary
 --- | --- | --- | ---
-[ssi_hr_payroll](ssi_hr_payroll/) | 14.0.3.5.1 |  | Employee Payslip
-[ssi_hr_payroll_batch](ssi_hr_payroll_batch/) | 14.0.2.8.2 |  | Employee Payslip Batch
-[ssi_hr_payroll_batch_documenso_signing](ssi_hr_payroll_batch_documenso_signing/) | 14.0.2.1.0 |  | HR Payroll Batch - Documenso Signing Integration
-[ssi_hr_payroll_batch_operating_unit](ssi_hr_payroll_batch_operating_unit/) | 14.0.1.5.0 |  | Employee Payslip Batch + Operating Unit
-[ssi_hr_payroll_batch_summary_report](ssi_hr_payroll_batch_summary_report/) | 14.0.1.1.1 |  | Employee Payslip Batch - Salary Summary Report
-[ssi_hr_payroll_batch_work_log](ssi_hr_payroll_batch_work_log/) | 14.0.1.1.1 |  | Employee Payslip Batch - Work Log Integration
-[ssi_hr_payroll_documenso_signing](ssi_hr_payroll_documenso_signing/) | 14.0.2.1.0 |  | HR Payroll - Documenso Signing Integration
-[ssi_hr_payroll_operating_unit](ssi_hr_payroll_operating_unit/) | 14.0.2.0.0 |  | Employee Payslip + Operating Unit
-[ssi_hr_payroll_timesheet](ssi_hr_payroll_timesheet/) | 14.0.1.2.1 |  | Employee Payslip - Timesheet Integration
-[ssi_hr_payroll_work_log](ssi_hr_payroll_work_log/) | 14.0.1.1.0 |  | Employee Payslip - Work Log Integration
+[ssi_hr_payroll](ssi_hr_payroll/) | 14.0.3.5.2 |  | Employee Payslip
+[ssi_hr_payroll_batch](ssi_hr_payroll_batch/) | 14.0.2.8.3 |  | Employee Payslip Batch
+[ssi_hr_payroll_batch_documenso_signing](ssi_hr_payroll_batch_documenso_signing/) | 14.0.2.1.1 |  | HR Payroll Batch - Documenso Signing Integration
+[ssi_hr_payroll_batch_operating_unit](ssi_hr_payroll_batch_operating_unit/) | 14.0.1.5.1 |  | Employee Payslip Batch + Operating Unit
+[ssi_hr_payroll_batch_summary_report](ssi_hr_payroll_batch_summary_report/) | 14.0.1.1.2 |  | Employee Payslip Batch - Salary Summary Report
+[ssi_hr_payroll_batch_work_log](ssi_hr_payroll_batch_work_log/) | 14.0.1.1.2 |  | Employee Payslip Batch - Work Log Integration
+[ssi_hr_payroll_documenso_signing](ssi_hr_payroll_documenso_signing/) | 14.0.2.1.1 |  | HR Payroll - Documenso Signing Integration
+[ssi_hr_payroll_operating_unit](ssi_hr_payroll_operating_unit/) | 14.0.2.0.1 |  | Employee Payslip + Operating Unit
+[ssi_hr_payroll_timesheet](ssi_hr_payroll_timesheet/) | 14.0.1.2.2 |  | Employee Payslip - Timesheet Integration
+[ssi_hr_payroll_work_log](ssi_hr_payroll_work_log/) | 14.0.1.1.1 |  | Employee Payslip - Work Log Integration
 
 [//]: # (end addons)
 
