@@ -11,9 +11,20 @@
 # jadi penyebutan di komentar ikut tertimpa dan kalimatnya berubah jadi tak bermakna.
 #
 # Repo hulu bersifat PUBLIK, jadi repo di org mana pun — termasuk `open-synergy` — boleh
-# memanggilnya; reusable workflow privat hanya bisa dipanggil repo milik owner yang sama.
+# MEMANGGIL-nya; reusable workflow privat hanya bisa dipanggil repo milik owner yang sama.
 #
-# Secret yang wajib ada di repo modul: TELEGRAM_CODE_BOT_TOKEN, TELEGRAM_CHAT_ID.
+# TAPI IZIN MEMANGGIL DAN PEWARISAN SECRET ADALAH DUA ATURAN BERBEDA. `secrets: inherit`
+# hanya bekerja bila pemanggil dan reusable workflow berada di organisasi/enterprise yang
+# SAMA. Repo `open-synergy/*` memanggil workflow milik user `andhit-r` — beda owner —
+# sehingga `inherit` TIDAK meneruskan secret org dan seluruh run gagal SEBELUM job jalan:
+#   Error when evaluating 'secrets'. ...
+#   Secret TELEGRAM_CODE_BOT_TOKEN is required, but not provided while calling.
+# Karena itu kedua secret DITERUSKAN EKSPLISIT di bawah: ekspresi `${{ secrets.* }}`
+# dievaluasi di konteks pemanggil, jadi secret level repo MAUPUN level org sama-sama
+# terbaca, lintas owner sekalipun. JANGAN kembalikan ke `secrets: inherit`.
+#
+# Secret yang wajib tersedia bagi repo modul (level repo ATAU level org):
+# TELEGRAM_CODE_BOT_TOKEN, TELEGRAM_CHAT_ID.
 name: Notify Telegram on Push
 
 on:
@@ -24,4 +35,6 @@ on:
 jobs:
   notify:
     uses: andhit-r/notify-telegram/.github/workflows/notify.yml@v1
-    secrets: inherit
+    secrets:
+      TELEGRAM_CODE_BOT_TOKEN: ${{ secrets.TELEGRAM_CODE_BOT_TOKEN }}
+      TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
