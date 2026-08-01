@@ -89,10 +89,16 @@ odoo.define("ssi_hr_payroll_batch.hr_payslip_batch_edit_tour", function (require
             },
             {
                 // Reload is an object button: it auto-saves the record and writes
-                // employee_ids asynchronously. Gate on the loaded employee rows so
-                // the Save below does not race Reload's in-flight save.
+                // employee_ids asynchronously. The batch already carries its own
+                // employee before Reload runs, so gating on "a row exists" matches
+                // instantly and lets Save race Reload's in-flight write. Gate
+                // instead on an employee that can only appear AFTER
+                // allowed_employee_ids (every employee with a salary structure)
+                // replaces employee_ids — "TOUR BATCH CREATE EMP" belongs to a
+                // different batch's type and is never part of this one on its own.
                 content: "Employees are loaded",
-                trigger: ".o_field_widget[name='employee_ids'] .o_data_row",
+                trigger:
+                    ".o_field_widget[name='employee_ids'] .o_data_row:contains(TOUR BATCH CREATE EMP)",
                 run: function () {
                     // Assertion only; do not trigger the default click action.
                 },
