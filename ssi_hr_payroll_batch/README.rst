@@ -14,6 +14,9 @@ Work Instruction
 * `Edit Employee Payslip Batch <docs/hr_payslip_batch/02-edit.html>`_
 * `Delete Employee Payslip Batch <docs/hr_payslip_batch/03-delete.html>`_
 * `Open Employee Payslip Batch <docs/hr_payslip_batch/07-start.html>`_
+* `Re-Compute Employee Payslip Batch <docs/hr_payslip_batch/14-recompute.html>`_
+* `Export Payslip Input of Employee Payslip Batch <docs/hr_payslip_batch/15-export-input.html>`_
+* `Import Payslip Input of Employee Payslip Batch <docs/hr_payslip_batch/16-import-input.html>`_
 * `Confirm Employee Payslip Batch <docs/hr_payslip_batch/04-confirm.html>`_
 * `Approve Employee Payslip Batch <docs/hr_payslip_batch/05-approve.html>`_
 * `Reject Employee Payslip Batch <docs/hr_payslip_batch/06-reject.html>`_

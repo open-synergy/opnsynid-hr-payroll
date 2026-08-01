@@ -1,9 +1,16 @@
 # Reset Document Number — Employee Payslip Batch
 
+> **Module:** ssi_hr_payroll_batch\
+> **Model:** `hr.payslip_batch`\
+> **Menu:** Human Resource > Payroll > Payslip Batches\
+> **Actor:** user in group `Payslip / Validator` (module `ssi_hr_payroll`)\
+> **Requires:** `01-create`
+
 ## Pre-Condition
 
-- Record is in **Draft** status.
-- User has _Can Input Manual Document Number_ access right.
+- **Record:** Status is **Draft**.
+- **Config:** An active `sequence.template` exists for this model.
+- **Access:** User has _Can Input Manual Document Number_ access right.
 
 ## Flow
 

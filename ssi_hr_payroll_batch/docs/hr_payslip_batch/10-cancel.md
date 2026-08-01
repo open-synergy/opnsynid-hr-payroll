@@ -1,10 +1,19 @@
 # Cancel Employee Payslip Batch
 
+> **Module:** ssi_hr_payroll_batch\
+> **Model:** `hr.payslip_batch`\
+> **Menu:** Human Resource > Payroll > Payslip Batches\
+> **Actor:** user in group `Payslip / Validator` (module `ssi_hr_payroll`)\
+> **State:** `draft`/`open`/`confirm`/`done` → `cancel`\
+> **Requires:** `01-create`
+
 ## Pre-Condition
 
-- Record is in a status that allows cancellation (**Draft**, **In Progress**, **Waiting
-  for Approval**, or **Done**).
-- User has _Can Cancel_ access right.
+- **Record:** Status allows cancellation (**Draft**, **In Progress**, **Waiting for
+  Approval**, or **Done**).
+- **Config:** An active `policy.template` for this model grants `cancel_ok` for those
+  states to group `Payslip / Validator` (module `ssi_hr_payroll`).
+- **Access:** User has _Can Cancel_ access right.
 
 ## Flow
 

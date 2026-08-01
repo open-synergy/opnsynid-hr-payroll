@@ -1,5 +1,12 @@
 # Create Employee Payslip Batch
 
+> **Module:** ssi_hr_payroll_batch\
+> **Model:** `hr.payslip_batch`\
+> **Menu:** Human Resource > Payroll > Payslip Batches\
+> **Actor:** user in group `Payslip Batch / User`\
+> **State:** `—` → `draft`\
+> **Inline Actions:** `action_reload_employee` (Reload)
+
 ## Pre-Condition
 
 - None.

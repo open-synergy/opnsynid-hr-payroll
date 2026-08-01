@@ -108,6 +108,21 @@ class TestUiHrPayslipBatch(HttpSavepointCase):
         # Batches prepared in the starting state each tour begins from.
         cls.batch_start = cls._prepare_batch("TOUR BATCH START", "TOURBTCTS")
 
+        cls.batch_edit = cls._prepare_batch("TOUR BATCH EDIT", "TOURBTCTE")
+
+        cls.batch_recompute = cls._prepare_batch("TOUR BATCH RECOMPUTE", "TOURBTCTRC")
+        cls.batch_recompute.with_context(bypass_policy_check=True).action_open()
+
+        cls.batch_export_input = cls._prepare_batch(
+            "TOUR BATCH EXPORT INPUT", "TOURBTCTEI"
+        )
+        cls.batch_export_input.with_context(bypass_policy_check=True).action_open()
+
+        cls.batch_import_input = cls._prepare_batch(
+            "TOUR BATCH IMPORT INPUT", "TOURBTCTII"
+        )
+        cls.batch_import_input.with_context(bypass_policy_check=True).action_open()
+
         cls.batch_confirm = cls._prepare_batch("TOUR BATCH CONFIRM", "TOURBTCTCF")
         cls.batch_confirm.with_context(bypass_policy_check=True).action_open()
         cls.batch_confirm.action_compute_payslip()
@@ -178,6 +193,63 @@ class TestUiHrPayslipBatch(HttpSavepointCase):
         self.start_tour(
             "/web",
             "ssi_hr_payroll_batch_hr_payslip_batch_start",
+            login="admin",
+        )
+
+    def test_edit(self):
+        """Run the edit tour for ``hr.payslip_batch``.
+
+        IK: docs/hr_payslip_batch/02-edit.md
+        """
+        self.start_tour(
+            "/web",
+            "ssi_hr_payroll_batch_hr_payslip_batch_edit",
+            login="admin",
+        )
+
+    def test_recompute(self):
+        """Run the re-compute tour for ``hr.payslip_batch``.
+
+        IK: docs/hr_payslip_batch/14-recompute.md
+        """
+        self.start_tour(
+            "/web",
+            "ssi_hr_payroll_batch_hr_payslip_batch_recompute",
+            login="admin",
+        )
+
+    def test_export_input(self):
+        """Run the export input tour for ``hr.payslip_batch``.
+
+        Only asserts the Export Input button is visible and enabled on an
+        In Progress batch; does not click it. Clicking triggers an
+        ``ir.actions.act_url`` file download that a tour has no DOM signal
+        to await, and could hang headless Chrome — a deliberate,
+        documented limitation, not a disabled tour.
+
+        IK: docs/hr_payslip_batch/15-export-input.md
+        """
+        self.start_tour(
+            "/web",
+            "ssi_hr_payroll_batch_hr_payslip_batch_export_input",
+            login="admin",
+        )
+
+    def test_import_input(self):
+        """Run the import input tour for ``hr.payslip_batch``.
+
+        Only asserts the Import Input wizard opens, then closes it without
+        uploading a file. There is no reliable DOM signal a tour can use to
+        attach a file to a hidden ``<input type="file">`` across browsers;
+        the wizard's ``action_import`` behavior is covered separately by a
+        plain Python test instead — a deliberate, documented limitation,
+        not a disabled tour.
+
+        IK: docs/hr_payslip_batch/16-import-input.md
+        """
+        self.start_tour(
+            "/web",
+            "ssi_hr_payroll_batch_hr_payslip_batch_import_input",
             login="admin",
         )
 

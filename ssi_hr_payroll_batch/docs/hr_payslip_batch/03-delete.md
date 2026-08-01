@@ -1,9 +1,15 @@
 # Delete Employee Payslip Batch
 
+> **Module:** ssi_hr_payroll_batch\
+> **Model:** `hr.payslip_batch`\
+> **Menu:** Human Resource > Payroll > Payslip Batches\
+> **Actor:** user in group `Payslip Batch / User`\
+> **Requires:** `01-create`
+
 ## Pre-Condition
 
-- Record is in **Draft** status.
-- Document number is still **/** (not yet generated).
+- **Record:** Status is **Draft**.
+- **Record:** Document number is still **/** (not yet generated).
 
 ## Flow
 
