@@ -1,7 +1,12 @@
 # Create Employee Payslip
 
-> **Module:** ssi_hr_payroll_operating_unit **Extends:** ssi_hr_payroll — model
-> `hr.payslip`, action `01-create`
+> **Module:** ssi_hr_payroll_operating_unit
+>
+> **Extends:** ssi_hr_payroll — model `hr.payslip`, action `01-create`
+
+## Additional Pre-Condition
+
+- **Module:** `ssi_hr_payroll_operating_unit` is installed.
 
 ## Additional Fields
 
