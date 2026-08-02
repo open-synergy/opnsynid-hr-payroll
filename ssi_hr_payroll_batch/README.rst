@@ -25,6 +25,7 @@ Work Instruction
 * `Restart Employee Payslip Batch <docs/hr_payslip_batch/12-restart.html>`_
 * `Reset Document Number — Employee Payslip Batch <docs/hr_payslip_batch/13-reset-number.html>`_
 * `Print Employee Payslip Batch <docs/hr_payslip_batch/18-print.html>`_
+* `Reload Policy Template of Employee Payslip Batch <docs/hr_payslip_batch/19-reload-policy-template.html>`_
 * `Troubleshoot — Employee Payslip Batch <docs/hr_payslip_batch/troubleshoot.html>`_
 
 

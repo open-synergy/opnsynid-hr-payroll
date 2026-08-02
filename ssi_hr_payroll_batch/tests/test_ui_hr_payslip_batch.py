@@ -189,6 +189,15 @@ class TestUiHrPayslipBatch(HttpSavepointCase):
 
         cls.batch_print = cls._prepare_batch("TOUR BATCH PRINT", "TOURBTCTP")
 
+        # Pre-Condition for the reload-policy-template tour: any batch works,
+        # since ``action_reload_policy_template`` is not gated by state — the
+        # button is only gated by the ``base.group_system`` group on the
+        # view, and ``admin`` already belongs to it by default (see
+        # base_groups.xml).
+        cls.batch_reload_policy_template = cls._prepare_batch(
+            "TOUR BATCH RELOAD POLICY", "TOURBTCTRP"
+        )
+
     @classmethod
     def _create_type(cls, name, code):
         """Create a payslip type wired to the shared batch journal."""
@@ -363,5 +372,22 @@ class TestUiHrPayslipBatch(HttpSavepointCase):
         self.start_tour(
             "/web",
             "ssi_hr_payroll_batch_hr_payslip_batch_print",
+            login="admin",
+        )
+
+    def test_reload_policy_template(self):
+        """Assert the Reload Template Policy button on the Policies tab.
+
+        IK: docs/hr_payslip_batch/19-reload-policy-template.md
+
+        Boundary: the tour only proves the Policies tab renders the button
+        (gated by ``base.group_system``) and that clicking it leaves the
+        tab displayed with no error raised. The resulting
+        ``policy_template_id`` value, and the dependent ``*_ok`` fields it
+        recomputes, are never asserted here — that is unit test territory.
+        """
+        self.start_tour(
+            "/web",
+            "ssi_hr_payroll_batch_hr_payslip_batch_reload_policy_template",
             login="admin",
         )
