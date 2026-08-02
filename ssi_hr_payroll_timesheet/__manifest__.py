@@ -13,7 +13,6 @@
         "ssi_timesheet",
     ],
     "data": [
-        "views/assets.xml",
         "views/hr_payslip_views.xml",
     ],
     "demo": [],
