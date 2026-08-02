@@ -142,6 +142,29 @@ class TestUiHrPayslipBatch(HttpSavepointCase):
         cls.batch_restart = cls._prepare_batch("TOUR BATCH RESTART", "TOURBTCTRS")
         cls.batch_restart.with_context(bypass_policy_check=True).action_cancel()
 
+        # Pre-Condition for the restart-approval tour: ``restart_approval_ok``
+        # (see policy_template_data.xml) only grants the button when the
+        # confirmed record has NO ``approval_template_id`` yet — the
+        # stalled-without-an-approver scenario the button exists to recover
+        # from. The demo ``hr_payslip_batch_approval_template`` matches every
+        # batch, so it is deactivated for the duration of this one
+        # ``action_confirm`` call to keep ``approval_template_id`` empty,
+        # then reactivated immediately so it is available again when the
+        # tour itself clicks Restart Approval Process.
+        approval_template = cls.env.ref(
+            "ssi_hr_payroll_batch.hr_payslip_batch_approval_template"
+        ).sudo()
+        cls.batch_restart_approval = cls._prepare_batch(
+            "TOUR BATCH RESTART APPROVAL", "TOURBTCTRA"
+        )
+        cls.batch_restart_approval.with_context(bypass_policy_check=True).action_open()
+        cls.batch_restart_approval.action_compute_payslip()
+        approval_template.write({"active": False})
+        cls.batch_restart_approval.with_context(
+            bypass_policy_check=True
+        ).action_confirm()
+        approval_template.write({"active": True})
+
     @classmethod
     def _create_type(cls, name, code):
         """Create a payslip type wired to the shared batch journal."""
@@ -290,5 +313,13 @@ class TestUiHrPayslipBatch(HttpSavepointCase):
         self.start_tour(
             "/web",
             "ssi_hr_payroll_batch_hr_payslip_batch_restart",
+            login="admin",
+        )
+
+    def test_restart_approval_process(self):
+        """IK: docs/hr_payslip_batch/17-restart-approval.md"""
+        self.start_tour(
+            "/web",
+            "ssi_hr_payroll_batch_hr_payslip_batch_restart_approval",
             login="admin",
         )

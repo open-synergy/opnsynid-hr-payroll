@@ -20,6 +20,7 @@ Work Instruction
 * `Confirm Employee Payslip Batch <docs/hr_payslip_batch/04-confirm.html>`_
 * `Approve Employee Payslip Batch <docs/hr_payslip_batch/05-approve.html>`_
 * `Reject Employee Payslip Batch <docs/hr_payslip_batch/06-reject.html>`_
+* `Restart Approval Process Employee Payslip Batch <docs/hr_payslip_batch/17-restart-approval.html>`_
 * `Cancel Employee Payslip Batch <docs/hr_payslip_batch/10-cancel.html>`_
 * `Restart Employee Payslip Batch <docs/hr_payslip_batch/12-restart.html>`_
 * `Reset Document Number — Employee Payslip Batch <docs/hr_payslip_batch/13-reset-number.html>`_
