@@ -11,7 +11,7 @@ class TestUiHrEmployeeInputType(HttpSavepointCase):
 
     @classmethod
     def setUpClass(cls):
-        """Grant the configurator group to admin so the tour menu renders."""
+        """Grant the configurator group to admin and prepare print data."""
         super().setUpClass()
         # Pre-Condition: the Employee Input Types master data menu is gated by
         # the Employee Input Type configurator group. Without it the tour would
@@ -26,8 +26,54 @@ class TestUiHrEmployeeInputType(HttpSavepointCase):
             }
         )
 
+        # Pre-Condition for the print tour: a ``print_document_type``
+        # linking a report to ``hr.employee_input_type`` is required for the
+        # wizard to have a report to offer — without it the wizard still
+        # opens but the report list is empty. The tour itself never selects
+        # nor prints the report (see test_print docstring), so the report
+        # action is a placeholder that is never rendered.
+        cls.print_report_action = cls.env["ir.actions.report"].create(
+            {
+                "name": "TOUR Employee Input Type Report",
+                "model": "hr.employee_input_type",
+                "report_type": "qweb-pdf",
+                "report_name": "ssi_hr_payroll.tour_employee_input_type_report",
+            }
+        )
+        cls.env["print_document_type"].create(
+            {
+                "name": "TOUR Print Type",
+                "model_id": cls.env["ir.model"]._get_id("hr.employee_input_type"),
+                "report_ids": [(6, 0, [cls.print_report_action.id])],
+            }
+        )
+        cls.employee_input_type_print = cls.env["hr.employee_input_type"].create(
+            {
+                "name": "TOUR PRINT EMPLOYEE INPUT TYPE",
+                "code": "TOURPRNEIT",
+            }
+        )
+
     def test_create(self):
         """IK: docs/hr_employee_input_type/01-create.md"""
         self.start_tour(
             "/web", "ssi_hr_payroll_hr_employee_input_type_create", login="admin"
+        )
+
+    def test_print(self):
+        """Assert the Print wizard opens then close it, without printing.
+
+        IK: docs/hr_employee_input_type/06-print.md
+
+        Boundary: the tour only proves the ``Select Report To Print``
+        wizard opens after clicking Print, then closes it via Cancel. It
+        never selects a report nor clicks the wizard's own Print button,
+        because the resulting report action is an ``ir.actions.act_url``
+        download with no DOM "finished" signal — clicking through it
+        could hang headless Chrome. See patterns.md §Q.
+        """
+        self.start_tour(
+            "/web",
+            "ssi_hr_payroll_hr_employee_input_type_print",
+            login="admin",
         )
