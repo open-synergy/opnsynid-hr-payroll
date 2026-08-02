@@ -72,15 +72,14 @@ odoo.define("ssi_hr_payroll.hr_payslip_print_tour", function (require) {
             // button) are intentionally NOT executed — see the module
             // docstring above.
             //
-            // The wizard is a full act_window (transient model form with a
-            // many2one and a computed radio field), rendered through a
-            // server round trip after the Print button click — slower than
-            // a plain confirmation dialog, so it is given more than the
-            // 10s step default to appear.
+            // 14.0: do NOT prefix the trigger with ".modal" — when a modal is
+            // displayed, web_tour scopes the search to
+            // $modal_displayed.find(trigger), and $modal_displayed already
+            // IS the ".modal" element, so ".modal .modal-title" would look
+            // for a nested modal that does not exist (patterns.md §H box).
             {
                 content: "The Select Report To Print wizard is displayed",
-                trigger: ".modal .modal-title:contains('Select Report To Print')",
-                timeout: 30000,
+                trigger: ".modal-title:contains('Select Report To Print')",
                 run: function () {
                     // Assertion only; do not trigger the default click action.
                 },
