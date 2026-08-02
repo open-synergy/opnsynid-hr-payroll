@@ -124,7 +124,17 @@ class TestUiHrPayslipBatchReportButtons(HttpSavepointCase):
         return batch
 
     def test_report_buttons(self):
-        """IK: docs/hr_payslip_batch/20-salary-summary-report.md"""
+        """Run the report buttons tour for ``hr.payslip_batch``.
+
+        Only asserts the Salary Summary and Export XLSX buttons are
+        visible and enabled on a non-draft batch, and hidden on a
+        draft batch; does not click either button. Clicking either
+        one triggers a report render/download that a tour has no DOM
+        signal to await, and could hang headless Chrome — a
+        deliberate, documented limitation, not a disabled tour.
+
+        IK: docs/hr_payslip_batch/20-salary-summary-report.md
+        """
         self.start_tour(
             "/web",
             "ssi_hr_payroll_batch_summary_report_hr_payslip_batch_report_buttons",

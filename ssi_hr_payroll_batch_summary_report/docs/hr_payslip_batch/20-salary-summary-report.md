@@ -23,10 +23,20 @@ This module adds two report buttons to the payslip batch form header: **Salary S
 
 1. Open the **Human Resource > Payroll > Payslip Batches** menu.
 2. Open the batch to report.
-3. Click the **Salary Summary** button to view/print the salary summary report.
-4. Click the **Export XLSX** button to download the salary summary as an XLSX file.
+3. Click the **Salary Summary** button to view/print the salary summary report. The UI
+   test only verifies that the button is displayed and enabled; the rendered report
+   itself is outside the scope of the tour.
+4. Click the **Export XLSX** button to download the salary summary as an XLSX file. The
+   UI test only verifies that the button is displayed and enabled; the downloaded file
+   itself is outside the scope of the tour.
+5. Return to the **Payslip Batches** list.
+6. Open a batch that is still in **Draft**.
+7. Observe that neither the **Salary Summary** nor the **Export XLSX** button is
+   displayed.
 
 ## Post-Condition
 
 - The **Salary Summary** report opens for the batch.
 - The **Export XLSX** file is downloaded for the batch.
+- Neither the **Salary Summary** nor the **Export XLSX** button is displayed on a batch
+  that is still in Draft.
