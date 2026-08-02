@@ -165,6 +165,30 @@ class TestUiHrPayslipBatch(HttpSavepointCase):
         ).action_confirm()
         approval_template.write({"active": True})
 
+        # Pre-Condition for the print tour: a ``print_document_type`` linking
+        # a report to ``hr.payslip_batch`` is required for the wizard to have
+        # a report to offer — without it the wizard still opens but the
+        # report list is empty. The tour itself never selects nor prints the
+        # report (see test_print docstring), so the report action is a
+        # placeholder that is never rendered.
+        cls.print_report_action = cls.env["ir.actions.report"].create(
+            {
+                "name": "TOUR Payslip Batch Report",
+                "model": "hr.payslip_batch",
+                "report_type": "qweb-pdf",
+                "report_name": "ssi_hr_payroll_batch.tour_payslip_batch_report",
+            }
+        )
+        cls.env["print_document_type"].create(
+            {
+                "name": "TOUR Batch Print Type",
+                "model_id": cls.env["ir.model"]._get_id("hr.payslip_batch"),
+                "report_ids": [(6, 0, [cls.print_report_action.id])],
+            }
+        )
+
+        cls.batch_print = cls._prepare_batch("TOUR BATCH PRINT", "TOURBTCTP")
+
     @classmethod
     def _create_type(cls, name, code):
         """Create a payslip type wired to the shared batch journal."""
@@ -321,5 +345,23 @@ class TestUiHrPayslipBatch(HttpSavepointCase):
         self.start_tour(
             "/web",
             "ssi_hr_payroll_batch_hr_payslip_batch_restart_approval",
+            login="admin",
+        )
+
+    def test_print(self):
+        """Assert the Print wizard opens then close it, without printing.
+
+        IK: docs/hr_payslip_batch/18-print.md
+
+        Boundary: the tour only proves the ``Select Report To Print`` wizard
+        opens after clicking Print, then closes it via Cancel. It never
+        selects a report nor clicks the wizard's own Print button, because
+        the resulting report action is an ``ir.actions.act_url`` download
+        with no DOM "finished" signal — clicking through it could hang
+        headless Chrome. See patterns.md §Q.
+        """
+        self.start_tour(
+            "/web",
+            "ssi_hr_payroll_batch_hr_payslip_batch_print",
             login="admin",
         )
