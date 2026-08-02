@@ -18,6 +18,7 @@ Salary Rule Category
 * `Delete Salary Rule Category <docs/hr_salary_rule_category/03-delete.html>`_
 * `Deactivate Salary Rule Category <docs/hr_salary_rule_category/04-deactivate.html>`_
 * `Activate Salary Rule Category <docs/hr_salary_rule_category/05-activate.html>`_
+* `Print Salary Rule Category <docs/hr_salary_rule_category/06-print.html>`_
 
 Salary Rule
 -----------
@@ -27,6 +28,7 @@ Salary Rule
 * `Delete Salary Rule <docs/hr_salary_rule/03-delete.html>`_
 * `Deactivate Salary Rule <docs/hr_salary_rule/04-deactivate.html>`_
 * `Activate Salary Rule <docs/hr_salary_rule/05-activate.html>`_
+* `Print Salary Rule <docs/hr_salary_rule/06-print.html>`_
 
 Salary Structure
 ----------------
@@ -36,6 +38,7 @@ Salary Structure
 * `Delete Salary Structure <docs/hr_salary_structure/03-delete.html>`_
 * `Deactivate Salary Structure <docs/hr_salary_structure/04-deactivate.html>`_
 * `Activate Salary Structure <docs/hr_salary_structure/05-activate.html>`_
+* `Print Salary Structure <docs/hr_salary_structure/06-print.html>`_
 
 Salary Contribution
 -------------------
@@ -45,6 +48,7 @@ Salary Contribution
 * `Delete Salary Contribution <docs/hr_salary_contribution/03-delete.html>`_
 * `Deactivate Salary Contribution <docs/hr_salary_contribution/04-deactivate.html>`_
 * `Activate Salary Contribution <docs/hr_salary_contribution/05-activate.html>`_
+* `Print Salary Contribution <docs/hr_salary_contribution/06-print.html>`_
 
 Payslip Type
 ------------
@@ -54,6 +58,7 @@ Payslip Type
 * `Delete Payslip Type <docs/hr_payslip_type/03-delete.html>`_
 * `Deactivate Payslip Type <docs/hr_payslip_type/04-deactivate.html>`_
 * `Activate Payslip Type <docs/hr_payslip_type/05-activate.html>`_
+* `Print Payslip Type <docs/hr_payslip_type/06-print.html>`_
 
 Payslip Input Type
 ------------------
@@ -63,6 +68,7 @@ Payslip Input Type
 * `Delete Payslip Input Type <docs/hr_payslip_input_type/03-delete.html>`_
 * `Deactivate Payslip Input Type <docs/hr_payslip_input_type/04-deactivate.html>`_
 * `Activate Payslip Input Type <docs/hr_payslip_input_type/05-activate.html>`_
+* `Print Payslip Input Type <docs/hr_payslip_input_type/06-print.html>`_
 
 Employee Input Type
 -------------------
@@ -72,6 +78,7 @@ Employee Input Type
 * `Delete Employee Input Type <docs/hr_employee_input_type/03-delete.html>`_
 * `Deactivate Employee Input Type <docs/hr_employee_input_type/04-deactivate.html>`_
 * `Activate Employee Input Type <docs/hr_employee_input_type/05-activate.html>`_
+* `Print Employee Input Type <docs/hr_employee_input_type/06-print.html>`_
 
 Employee Payslip
 ----------------

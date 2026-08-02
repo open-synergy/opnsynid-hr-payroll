@@ -77,6 +77,34 @@
                 type="text/javascript"
                 src="/ssi_hr_payroll/static/tests/tours/hr_payslip_reload_policy_template_tour.js"
             />
+            <script
+                type="text/javascript"
+                src="/ssi_hr_payroll/static/tests/tours/hr_employee_input_type_print_tour.js"
+            />
+            <script
+                type="text/javascript"
+                src="/ssi_hr_payroll/static/tests/tours/hr_payslip_input_type_print_tour.js"
+            />
+            <script
+                type="text/javascript"
+                src="/ssi_hr_payroll/static/tests/tours/hr_payslip_type_print_tour.js"
+            />
+            <script
+                type="text/javascript"
+                src="/ssi_hr_payroll/static/tests/tours/hr_salary_contribution_print_tour.js"
+            />
+            <script
+                type="text/javascript"
+                src="/ssi_hr_payroll/static/tests/tours/hr_salary_rule_print_tour.js"
+            />
+            <script
+                type="text/javascript"
+                src="/ssi_hr_payroll/static/tests/tours/hr_salary_rule_category_print_tour.js"
+            />
+            <script
+                type="text/javascript"
+                src="/ssi_hr_payroll/static/tests/tours/hr_salary_structure_print_tour.js"
+            />
         </xpath>
     </template>
 </odoo>
