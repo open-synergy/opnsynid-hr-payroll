@@ -61,6 +61,10 @@
                 type="text/javascript"
                 src="/ssi_hr_payroll_batch/static/tests/tours/hr_payslip_batch_print_tour.js"
             />
+            <script
+                type="text/javascript"
+                src="/ssi_hr_payroll_batch/static/tests/tours/hr_payslip_batch_reload_policy_template_tour.js"
+            />
         </xpath>
     </template>
 </odoo>
