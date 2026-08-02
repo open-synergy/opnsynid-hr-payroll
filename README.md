@@ -37,7 +37,7 @@ addon | version | maintainers | summary
 [ssi_hr_payroll_batch_work_log](ssi_hr_payroll_batch_work_log/) | 14.0.1.1.2 |  | Employee Payslip Batch - Work Log Integration
 [ssi_hr_payroll_documenso_signing](ssi_hr_payroll_documenso_signing/) | 14.0.2.1.2 |  | HR Payroll - Documenso Signing Integration
 [ssi_hr_payroll_operating_unit](ssi_hr_payroll_operating_unit/) | 14.0.2.0.1 |  | Employee Payslip + Operating Unit
-[ssi_hr_payroll_timesheet](ssi_hr_payroll_timesheet/) | 14.0.1.2.2 |  | Employee Payslip - Timesheet Integration
+[ssi_hr_payroll_timesheet](ssi_hr_payroll_timesheet/) | 14.0.1.2.3 |  | Employee Payslip - Timesheet Integration
 [ssi_hr_payroll_work_log](ssi_hr_payroll_work_log/) | 14.0.1.1.1 |  | Employee Payslip - Work Log Integration
 
 [//]: # (end addons)
