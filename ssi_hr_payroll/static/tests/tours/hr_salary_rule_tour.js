@@ -68,7 +68,7 @@ odoo.define("ssi_hr_payroll.hr_salary_rule_tour", function (require) {
             {
                 content: "Fill in Code",
                 trigger: ".o_field_widget[name='code']",
-                run: "text TOUR-SR",
+                run: "text /",
             },
             {
                 content: "Select the Category",
@@ -82,24 +82,48 @@ odoo.define("ssi_hr_payroll.hr_salary_rule_tour", function (require) {
                 in_modal: false,
             },
 
-            // ── Flow 4 — (Optional) Fill in the General tab. Python Condition
+            // ── Flow 4 — (Optional) Click Generate Code to have the system
+            // assign a code from the configured sequence template. Code was
+            // left as "/" above so the button actually replaces it; typing a
+            // real code instead would leave it untouched (see
+            // docs/hr_salary_rule/01-create.md).
+            {
+                content: "Click Generate Code",
+                trigger: ".o_statusbar_buttons button[name='action_generate_code']",
+                extra_trigger: ".o_form_view.o_form_editable",
+            },
+            {
+                // The record has no id until this button auto-saves it; the
+                // breadcrumb literal "New" going away is the data-independent
+                // proof the save + reload completed
+                // (odoo-development-ui-test patterns.md §P). The generated
+                // Code value itself is not asserted — that is a value check,
+                // out of scope for a tour (odoo-development-ui-test §2).
+                content: "Record is saved by Generate Code",
+                trigger: ".o_control_panel .breadcrumb-item.active:not(:contains(New))",
+                run: function () {
+                    // Assertion only; do not trigger the default click action.
+                },
+            },
+
+            // ── Flow 5 — (Optional) Fill in the General tab. Python Condition
             // and Computation are pre-filled with default expressions, and
             // Salary Contribution is optional, so nothing is done here.
 
-            // ── Flow 5 — (Optional) Fill in the Accounting tab. Not needed to
+            // ── Flow 6 — (Optional) Fill in the Accounting tab. Not needed to
             // save the record, so nothing is done here.
 
-            // ── Flow 6 — (Optional) Fill in the Input Types tab. Not needed to
+            // ── Flow 7 — (Optional) Fill in the Input Types tab. Not needed to
             // save the record, so nothing is done here.
 
-            // ── Flow 7 — (Optional) Review the Children tab. It is filled
+            // ── Flow 8 — (Optional) Review the Children tab. It is filled
             // automatically when another salary rule selects this record as its
             // Parent, so nothing is done here.
 
-            // ── Flow 8 — (Optional) Write additional information in the Note
+            // ── Flow 9 — (Optional) Write additional information in the Note
             // tab. Not needed to save the record, so nothing is done here.
 
-            // ── Flow 9 — Click Save.
+            // ── Flow 10 — Click Save.
             {
                 content: "Save the record",
                 trigger: ".o_form_button_save",

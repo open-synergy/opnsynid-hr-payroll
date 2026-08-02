@@ -67,15 +67,39 @@ odoo.define("ssi_hr_payroll.hr_payslip_type_tour", function (require) {
             {
                 content: "Fill in Code",
                 trigger: ".o_field_widget[name='code']",
-                run: "text TOUR-PST",
+                run: "text /",
             },
 
-            // ── Flow 4 — (Optional) Fill in the accounting configuration
+            // ── Flow 4 — (Optional) Click Generate Code to have the system
+            // assign a code from the configured sequence template. Code was
+            // left as "/" above so the button actually replaces it; typing a
+            // real code instead would leave it untouched (see
+            // docs/hr_payslip_type/01-create.md).
+            {
+                content: "Click Generate Code",
+                trigger: ".o_statusbar_buttons button[name='action_generate_code']",
+                extra_trigger: ".o_form_view.o_form_editable",
+            },
+            {
+                // The record has no id until this button auto-saves it; the
+                // breadcrumb literal "New" going away is the data-independent
+                // proof the save + reload completed
+                // (odoo-development-ui-test patterns.md §P). The generated
+                // Code value itself is not asserted — that is a value check,
+                // out of scope for a tour (odoo-development-ui-test §2).
+                content: "Record is saved by Generate Code",
+                trigger: ".o_control_panel .breadcrumb-item.active:not(:contains(New))",
+                run: function () {
+                    // Assertion only; do not trigger the default click action.
+                },
+            },
+
+            // ── Flow 5 — (Optional) Fill in the accounting configuration
             // fields (Journal, Analytic Account, Debit Usage, Credit Usage).
             // This Flow step is optional in the work instruction and is not
             // needed to save the record, so no field is filled here.
 
-            // ── Flow 5 — (Optional) Configure the M2O configurator. Open the
+            // ── Flow 6 — (Optional) Configure the M2O configurator. Open the
             // Employee Configurator tab and switch Selection Method to
             // "Manual".
             {
@@ -102,7 +126,7 @@ odoo.define("ssi_hr_payroll.hr_payslip_type_tour", function (require) {
                 },
             },
 
-            // ── Flow 6 — Click Save
+            // ── Flow 7 — Click Save
             {
                 content: "Save the record",
                 trigger: ".o_form_button_save",
@@ -110,7 +134,7 @@ odoo.define("ssi_hr_payroll.hr_payslip_type_tour", function (require) {
 
             // ── Post-Condition — A new Payslip Type record is created; the
             // saved record is displayed on the form and in the breadcrumb,
-            // and the M2O configurator choice made in Flow 5 was persisted.
+            // and the M2O configurator choice made in Flow 6 was persisted.
             {
                 content: "Payslip Type record is saved and displayed",
                 trigger:

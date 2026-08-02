@@ -3,11 +3,12 @@
 > **Module:** ssi_hr_payroll\
 > **Model:** `hr.payslip_input_type`\
 > **Menu:** Human Resource > Configuration > Payroll > Input Types\
-> **Actor:** user in group `Human Resource - Configurator / Payslip Input Type`
+> **Actor:** user in group `Human Resource - Configurator / Payslip Input Type`\
+> **Inline Actions:** `action_generate_code` (Generate Code)
 
 ## Pre-Condition
 
-- None.
+- **Config:** An active `sequence.template` exists for this model.
 
 ## Flow
 
@@ -22,8 +23,12 @@
      **Amount** field when this input type is selected on a payslip input line. The
      default value is `0.0` and it may be left as is when the amount always differs per
      payslip.
-4. _(Optional)_ Write additional information in the **Note** tab.
-5. Click **Save**.
+4. _(Optional)_ Click **Generate Code** in the header to have the system assign a code
+   from the configured sequence template automatically. It only replaces a **Code**
+   value that is still `/`; if you already typed your own code in the previous step,
+   skip this step — the button leaves any other value untouched.
+5. _(Optional)_ Write additional information in the **Note** tab.
+6. Click **Save**.
 
 ## Post-Condition
 

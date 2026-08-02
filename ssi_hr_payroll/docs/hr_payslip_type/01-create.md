@@ -3,11 +3,12 @@
 > **Module:** ssi_hr_payroll\
 > **Model:** `hr.payslip_type`\
 > **Menu:** Human Resource > Configuration > Payroll > Types\
-> **Actor:** user in group `Human Resource - Configurator / Payslip Type`
+> **Actor:** user in group `Human Resource - Configurator / Payslip Type`\
+> **Inline Actions:** `action_generate_code` (Generate Code)
 
 ## Pre-Condition
 
-- None.
+- **Config:** An active `sequence.template` exists for this model.
 
 ## Flow
 
@@ -20,13 +21,17 @@
      - _Journal at Payslip_ (default): each payslip creates its own journal entry.
      - _Journal at Batch_: the batch aggregates all payslip lines into a single journal
        entry.
-4. _(Optional)_ Fill in the accounting configuration fields:
+4. _(Optional)_ Click **Generate Code** in the header to have the system assign a code
+   from the configured sequence template automatically. It only replaces a **Code**
+   value that is still `/`; if you already typed your own code in the previous step,
+   skip this step — the button leaves any other value untouched.
+5. _(Optional)_ Fill in the accounting configuration fields:
    - **Journal**: Select the default accounting journal for payslip entries of this
      type. If set, it is automatically propagated to new payslips and batches.
    - **Analytic Account**: Select the default analytic account for journal items.
    - **Debit Usage**: Select the product usage type used to resolve the debit account.
    - **Credit Usage**: Select the product usage type used to resolve the credit account.
-5. _(Optional)_ Configure which analytic accounts, debit/credit usages, and employees
+6. _(Optional)_ Configure which analytic accounts, debit/credit usages, and employees
    are allowed on payslips of this type. Open one of the configurator tabs — **Analytic
    Account Configurator**, **Debit Usage Configurator**, **Credit Usage Configurator**,
    or **Employee Configurator** — and set:
@@ -38,7 +43,7 @@
        before this configurator existed.
      - _Python Code_: enter Python code in the field that appears below (e.g. **Python
        Code**) that returns the allowed records.
-6. Click **Save**.
+7. Click **Save**.
 
 ## Post-Condition
 

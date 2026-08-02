@@ -3,13 +3,15 @@
 > **Module:** ssi_hr_payroll\
 > **Model:** `hr.salary_structure`\
 > **Menu:** Human Resource > Configuration > Payroll > Salary Structures\
-> **Actor:** user in group `Human Resource - Configurator / Salary Structure`
+> **Actor:** user in group `Human Resource - Configurator / Salary Structure`\
+> **Inline Actions:** `action_generate_code` (Generate Code)
 
 ## Pre-Condition
 
 - **Data:** At least one Salary Rule already exists, if the **Rules** tab is going to be
   filled in right away. A salary structure without any salary rule can still be saved,
   because the **Salary Rules** field is not mandatory.
+- **Config:** An active `sequence.template` exists for this model.
 
 ## Flow
 
@@ -23,12 +25,16 @@
      parent structure also apply to this structure.
    - **Active**: Enabled by default. Keep it enabled so the salary structure can be
      selected on a payslip.
-4. _(Optional)_ Fill in the **Rules** tab:
+4. _(Optional)_ Click **Generate Code** in the header to have the system assign a code
+   from the configured sequence template automatically. It only replaces a **Code**
+   value that is still `/`; if you already typed your own code in the previous step,
+   skip this step — the button leaves any other value untouched.
+5. _(Optional)_ Fill in the **Rules** tab:
    - **Salary Rules**: Select the salary rules that apply to this structure. Selecting a
      salary rule here does not remove it from any other salary structure — the same
      salary rule can be used by several structures at once.
-5. _(Optional)_ Write additional information in the **Note** tab.
-6. Click **Save**.
+6. _(Optional)_ Write additional information in the **Note** tab.
+7. Click **Save**.
 
 ## Post-Condition
 

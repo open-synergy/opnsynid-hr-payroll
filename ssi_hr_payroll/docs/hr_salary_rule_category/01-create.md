@@ -3,11 +3,12 @@
 > **Module:** ssi_hr_payroll\
 > **Model:** `hr.salary_rule_category`\
 > **Menu:** Human Resource > Configuration > Payroll > Salary Rule Categories\
-> **Actor:** user in group `Human Resource - Configurator / Salary Rule Category`
+> **Actor:** user in group `Human Resource - Configurator / Salary Rule Category`\
+> **Inline Actions:** `action_generate_code` (Generate Code)
 
 ## Pre-Condition
 
-- None.
+- **Config:** An active `sequence.template` exists for this model.
 
 ## Flow
 
@@ -21,12 +22,16 @@
      category hierarchy.
    - **Active**: Enabled by default. Keep it enabled so the category can be selected on
      salary rules.
-4. _(Optional)_ Review the **Childs** tab. It lists the categories whose **Parent** is
+4. _(Optional)_ Click **Generate Code** in the header to have the system assign a code
+   from the configured sequence template automatically. It only replaces a **Code**
+   value that is still `/`; if you already typed your own code in the previous step,
+   skip this step — the button leaves any other value untouched.
+5. _(Optional)_ Review the **Childs** tab. It lists the categories whose **Parent** is
    this record (field **Children**). The list is normally filled automatically when
    another category selects this record as its **Parent**, so it does not need to be
    filled in manually here.
-5. _(Optional)_ Write additional information in the **Note** tab.
-6. Click **Save**.
+6. _(Optional)_ Write additional information in the **Note** tab.
+7. Click **Save**.
 
 ## Post-Condition
 
