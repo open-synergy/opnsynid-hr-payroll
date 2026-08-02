@@ -4,7 +4,7 @@
 # pylint: disable=C8101
 {
     "name": "HR Payroll Batch - Documenso Signing Integration",
-    "version": "14.0.2.1.1",
+    "version": "14.0.2.1.2",
     "website": "https://simetri-sinergi.id",
     "author": "OpenSynergy Indonesia, PT. Simetri Sinergi Indonesia",
     "license": "AGPL-3",
