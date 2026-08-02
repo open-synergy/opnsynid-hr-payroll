@@ -53,6 +53,10 @@
                 type="text/javascript"
                 src="/ssi_hr_payroll_batch/static/tests/tours/hr_payslip_batch_restart_tour.js"
             />
+            <script
+                type="text/javascript"
+                src="/ssi_hr_payroll_batch/static/tests/tours/hr_payslip_batch_restart_approval_tour.js"
+            />
         </xpath>
     </template>
 </odoo>
