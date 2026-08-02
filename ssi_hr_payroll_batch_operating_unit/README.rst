@@ -10,6 +10,12 @@ Integrates hr.payslip_batch with Operating Unit support.
 Allows payslip batch documents to be scoped to a specific operating unit.
 
 
+Work Instruction
+================
+
+* `Create Employee Payslip Batch <docs/hr_payslip_batch/01-create.html>`_
+
+
 Bug Tracker
 ===========
 
