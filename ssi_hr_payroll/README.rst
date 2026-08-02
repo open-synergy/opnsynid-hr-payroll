@@ -86,6 +86,7 @@ Employee Payslip
 * `Restart Employee Payslip <docs/hr_payslip/12-restart.html>`_
 * `Reset Document Number — Employee Payslip <docs/hr_payslip/13-reset-number.html>`_
 * `Restart Approval Process Employee Payslip <docs/hr_payslip/14-restart-approval.html>`_
+* `Print Employee Payslip <docs/hr_payslip/15-print.html>`_
 * `Troubleshoot — Employee Payslip <docs/hr_payslip/troubleshoot.html>`_
 
 Installation
