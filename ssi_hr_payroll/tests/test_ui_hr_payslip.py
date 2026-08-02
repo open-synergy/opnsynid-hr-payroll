@@ -160,6 +160,15 @@ class TestUiHrPayslip(HttpSavepointCase):
 
         cls.payslip_print = cls._prepare_payslip("TOUR PAYSLIP PRINT")
 
+        # Pre-Condition for the reload-policy-template tour: any payslip
+        # works, since ``action_reload_policy_template`` is not gated by
+        # state — the button is only gated by the ``base.group_system``
+        # group on the view, and ``admin`` already belongs to it by
+        # default (see base_groups.xml).
+        cls.payslip_reload_policy_template = cls._prepare_payslip(
+            "TOUR PAYSLIP RELOAD POLICY"
+        )
+
     @classmethod
     def _prepare_payslip(cls, employee_name):
         """Create a computed draft payslip for a uniquely-named employee.
@@ -266,5 +275,22 @@ class TestUiHrPayslip(HttpSavepointCase):
         self.start_tour(
             "/web",
             "ssi_hr_payroll_hr_payslip_print",
+            login="admin",
+        )
+
+    def test_reload_policy_template(self):
+        """Assert the Reload Template Policy button on the Policies tab.
+
+        IK: docs/hr_payslip/16-reload-policy-template.md
+
+        Boundary: the tour only proves the Policies tab renders the button
+        (gated by ``base.group_system``) and that clicking it leaves the
+        tab displayed with no error raised. The resulting
+        ``policy_template_id`` value, and the dependent ``*_ok`` fields it
+        recomputes, are never asserted here — that is unit test territory.
+        """
+        self.start_tour(
+            "/web",
+            "ssi_hr_payroll_hr_payslip_reload_policy_template",
             login="admin",
         )
