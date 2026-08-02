@@ -22,6 +22,11 @@ columns, ordered by salary rule sequence. Features:
 * Dynamic columns — automatically adapts to whichever salary rules exist in the batch
 * Grand totals per salary rule column
 
+Work Instruction
+================
+
+* `Print Salary Summary Report of Employee Payslip Batch <docs/hr_payslip_batch/20-salary-summary-report.html>`_
+
 **Table of contents**
 
 .. contents::

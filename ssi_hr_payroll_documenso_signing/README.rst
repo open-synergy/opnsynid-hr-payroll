@@ -10,6 +10,12 @@ This module integrates Documenso digital signing into the HR Payroll module.
 It adds a Documenso signing tab to the payslip form view.
 
 
+Work Instruction
+================
+
+* `Create Employee Payslip <docs/hr_payslip/01-create.html>`_
+
+
 Bug Tracker
 ===========
 

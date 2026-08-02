@@ -7,6 +7,12 @@ Employee Payslip Batch - Work Log Integration
 =============================================
 
 
+Work Instruction
+================
+
+* `Create Employee Payslip Batch <docs/hr_payslip_batch/01-create.html>`_
+
+
 Installation
 ============
 

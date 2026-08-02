@@ -10,6 +10,12 @@ This module integrates Documenso digital signing into the HR Payroll Batch modul
 It adds a Documenso signing tab to the payslip batch form view.
 
 
+Work Instruction
+================
+
+* `Create Employee Payslip Batch <docs/hr_payslip_batch/01-create.html>`_
+
+
 Bug Tracker
 ===========
 

@@ -10,6 +10,12 @@ Integrates hr.payslip with Operating Unit support.
 Allows payslip documents to be scoped to a specific operating unit.
 
 
+Work Instruction
+================
+
+* `Create Employee Payslip <docs/hr_payslip/01-create.html>`_
+
+
 Bug Tracker
 ===========
 
