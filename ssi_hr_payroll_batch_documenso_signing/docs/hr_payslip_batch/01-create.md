@@ -20,7 +20,7 @@
   - a **New Signing Request** button and an **Open Signature Requests** button;
   - the list of signature requests linked to this payslip batch.
 
-## Post-Condition
+## Additional Post-Condition
 
 - Unchanged from base. Additionally, the **Signature Requests** tab is available on the
   payslip batch form for managing Documenso e-signing on the record.
