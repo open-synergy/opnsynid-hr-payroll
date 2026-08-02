@@ -26,6 +26,33 @@ class TestUiHrSalaryStructure(HttpSavepointCase):
             }
         )
 
+        # Pre-Condition for Generate Code (docs/hr_salary_structure/01-create.md
+        # and 02-edit.md): an active ``sequence.template`` for this model is
+        # required, or clicking the button raises a UserError instead of
+        # assigning a code.
+        cls.code_sequence = cls.env["ir.sequence"].create(
+            {
+                "name": "TOUR Salary Structure Code Sequence",
+                "code": "ssi_hr_payroll.tour.hr_salary_structure",
+                "prefix": "TOURSEQSS",
+                "padding": 4,
+            }
+        )
+        cls.code_sequence_template = cls.env["sequence.template"].create(
+            {
+                "name": "TOUR Salary Structure Sequence Template",
+                "model_id": cls.env["ir.model"]._get_id("hr.salary_structure"),
+                "sequence_field_id": cls.env["ir.model.fields"]
+                ._get("hr.salary_structure", "code")
+                .id,
+                "date_field_id": cls.env["ir.model.fields"]
+                ._get("hr.salary_structure", "create_date")
+                .id,
+                "sequence_selection_method": "use_sequence",
+                "sequence_id": cls.code_sequence.id,
+            }
+        )
+
         # Pre-Condition for the print tour: a ``print_document_type``
         # linking a report to ``hr.salary_structure`` is required for the
         # wizard to have a report to offer — without it the wizard still

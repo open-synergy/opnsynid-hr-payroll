@@ -3,12 +3,14 @@
 > **Module:** ssi_hr_payroll\
 > **Model:** `hr.salary_rule`\
 > **Menu:** Human Resource > Configuration > Payroll > Salary Rules\
-> **Actor:** user in group `Human Resource - Configurator / Salary Rule`
+> **Actor:** user in group `Human Resource - Configurator / Salary Rule`\
+> **Inline Actions:** `action_generate_code` (Generate Code)
 
 ## Pre-Condition
 
 - **Data:** At least one Salary Rule Category already exists. The **Category** field is
   mandatory, so a salary rule cannot be saved without it.
+- **Config:** An active `sequence.template` exists for this model.
 
 ## Flow
 
@@ -31,7 +33,11 @@
    - **Product**: _(Optional)_ Select the product associated with this salary rule.
    - **Appear on Payslip**: _(Optional)_ Enable it so the line produced by this rule is
      shown on the payslip.
-4. Fill in the **General** tab:
+4. _(Optional)_ Click **Generate Code** in the header to have the system assign a code
+   from the configured sequence template automatically. It only replaces a **Code**
+   value that is still `/`; if you already typed your own code in the previous step,
+   skip this step — the button leaves any other value untouched.
+5. Fill in the **General** tab:
    - **Python Condition**: Python expression that decides whether this salary rule is
      applied. It is already filled with a default expression whose comments list the
      variables available for the evaluation. Adjust the expression as needed.
@@ -40,7 +46,7 @@
      available for the evaluation. Adjust the expression as needed.
    - **Salary Contribution**: _(Optional)_ Select the salary contribution record linked
      to this salary rule.
-5. _(Optional)_ Fill in the **Accounting** tab. These fields are used when the payslip
+6. _(Optional)_ Fill in the **Accounting** tab. These fields are used when the payslip
    creates its accounting entry:
    - **Debit Account**: Select the account to be debited by this salary rule.
    - **Reconcile Debit Account**: Select the account used to reconcile the debit side.
@@ -50,15 +56,15 @@
    - **Reconcile Credit Account**: Select the account used to reconcile the credit side.
    - **Reconcile Credit Move**: Enable it so the credit move line is marked to be
      reconciled.
-6. _(Optional)_ Fill in the **Input Types** tab. Repeat the following step as many times
+7. _(Optional)_ Fill in the **Input Types** tab. Repeat the following step as many times
    as needed:
    - Click **Add a line**, then select the payslip input type used by this salary rule.
-7. _(Optional)_ Review the **Children** tab. It lists the salary rules whose **Parent**
+8. _(Optional)_ Review the **Children** tab. It lists the salary rules whose **Parent**
    is this record (field **Child Salary Rule**). The list is normally filled
    automatically when another salary rule selects this record as its **Parent**, so it
    does not need to be filled in manually here.
-8. _(Optional)_ Write additional information in the **Note** tab.
-9. Click **Save**.
+9. _(Optional)_ Write additional information in the **Note** tab.
+10. Click **Save**.
 
 ## Post-Condition
 
