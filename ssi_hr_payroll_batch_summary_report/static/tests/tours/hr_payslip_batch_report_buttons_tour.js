@@ -7,7 +7,8 @@ odoo.define(
 
         // IK: docs/hr_payslip_batch/20-salary-summary-report.md
         //
-        // Archetype E3 (new buttons). Per the issue's Keputusan Desain the tour
+        // Archetype E3 (new buttons). Flow steps 3-4 (non-draft) and 6-7
+        // (draft) map 1:1 to the IK. Per the issue's Keputusan Desain the tour
         // verifies the CONDITIONAL VISIBILITY of the two report buttons and does
         // NOT click them: clicking triggers a report download/render whose file
         // content cannot be verified through a tour (and would hang it). It only
@@ -87,7 +88,7 @@ odoo.define(
                     },
                 },
 
-                // ── Return to the list to inspect the draft batch.
+                // ── Flow 5 — Return to the list to inspect the draft batch.
                 {
                     content: "Go back to the Payslip Batches list",
                     trigger:
@@ -104,9 +105,9 @@ odoo.define(
                     },
                 },
 
-                // ── Negative case — Open the draft batch. The Pre-Condition record
-                // (still in Draft) is prepared in setUpClass and carries the type
-                // "TOUR SUMMARY DRAFT".
+                // ── Flow 6 — Open a batch that is still in Draft. The
+                // Pre-Condition record (still in Draft) is prepared in
+                // setUpClass and carries the type "TOUR SUMMARY DRAFT".
                 {
                     content: "Open the draft batch",
                     trigger:
@@ -122,12 +123,13 @@ odoo.define(
                     },
                 },
 
-                // ── On a draft batch both report buttons are hidden (attrs
-                // invisible adds the o_invisible_modifier / display:none). A tour
-                // trigger only matches a VISIBLE element, so the hidden button
-                // cannot be targeted directly; instead assert on the visible
-                // statusbar-buttons container that carries NO visible instance of
-                // the button (jQuery :not(:has(...:visible))).
+                // ── Flow 7 — Observe that neither report button is displayed on
+                // a draft batch (attrs invisible adds the o_invisible_modifier /
+                // display:none). A tour trigger only matches a VISIBLE element,
+                // so the hidden button cannot be targeted directly; instead
+                // assert on the visible statusbar-buttons container that
+                // carries NO visible instance of the button
+                // (jQuery :not(:has(...:visible))).
                 {
                     content: "Salary Summary button is hidden on a draft batch",
                     trigger:
