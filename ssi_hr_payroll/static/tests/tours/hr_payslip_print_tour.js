@@ -71,16 +71,27 @@ odoo.define("ssi_hr_payroll.hr_payslip_print_tour", function (require) {
             // (select the report) and Flow 5 (click the wizard's Print
             // button) are intentionally NOT executed — see the module
             // docstring above.
+            //
+            // The wizard is a full act_window (transient model form with a
+            // many2one and a computed radio field), rendered through a
+            // server round trip after the Print button click — slower than
+            // a plain confirmation dialog, so it is given more than the
+            // 10s step default to appear.
             {
                 content: "The Select Report To Print wizard is displayed",
                 trigger: ".modal .modal-title:contains('Select Report To Print')",
+                timeout: 30000,
                 run: function () {
                     // Assertion only; do not trigger the default click action.
                 },
             },
             {
                 content: "Close the wizard",
-                trigger: ".modal-footer button.oe_link:contains('Cancel')",
+                // The button is declared with class="oe_link" in the wizard
+                // XML, but the form renderer maps it to "btn btn-link" in
+                // the DOM — the "special" attribute survives that mapping
+                // and is the stable anchor.
+                trigger: ".modal-footer button[special='cancel']",
                 in_modal: true,
             },
 
