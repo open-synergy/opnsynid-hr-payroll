@@ -96,8 +96,51 @@ odoo.define("ssi_hr_payroll.hr_payslip_create_tour", function (require) {
                 in_modal: false,
             },
 
-            // ── Flow 4/5 — (Optional) Input Lines and Reference tabs. Not needed
-            // to compute and save the payslip, so nothing is done here.
+            // ── Flow 4 — (Optional) On the Input Lines tab, click Reload to
+            // re-populate input lines from the selected Salary Structure. The
+            // record is still unsaved here, so the object button forces an
+            // auto-save first; the breadcrumb dropping the literal "New"
+            // title is the data-independent proof that the save + reload
+            // completed (odoo-development-ui-test patterns.md §P).
+            {
+                content: "Open the Input Lines tab",
+                trigger: ".o_notebook .nav-link:contains(Input Lines)",
+                extra_trigger: ".o_form_view.o_form_editable",
+            },
+            {
+                content: "Click Reload on the Input Lines tab",
+                trigger: "button[name='action_reload_input_lines']",
+                extra_trigger: ".o_form_view.o_form_editable",
+            },
+            {
+                content: "Record is saved by the Reload action",
+                trigger: ".o_control_panel .breadcrumb-item.active:not(:contains(New))",
+                run: function () {
+                    // Assertion only; do not trigger the default click action.
+                },
+            },
+
+            // ── Flow 5 — (Optional) On the Reference tab, click Reload under
+            // Allowance and Reload under Deduction. Selectors and click
+            // pattern copied from the proven hr_payslip_edit_tour: the
+            // record is already saved by Flow 4, and Compute Payslip
+            // (Flow 6) re-runs both recomputations from scratch, so no
+            // additional data-delta gate is added here.
+            {
+                content: "Open the Reference tab",
+                trigger: ".o_notebook .nav-link:contains(Reference)",
+                extra_trigger: ".o_form_view.o_form_editable",
+            },
+            {
+                content: "Click Reload under Allowance",
+                trigger: "button[name='action_recompute_allowance_ref']",
+                extra_trigger: ".o_form_view.o_form_editable",
+            },
+            {
+                content: "Click Reload under Deduction",
+                trigger: "button[name='action_recompute_deduction_ref']",
+                extra_trigger: ".o_form_view.o_form_editable",
+            },
 
             // ── Flow 6 — Click Compute Payslip and confirm the dialog to compute
             // the payslip lines.
@@ -126,6 +169,23 @@ odoo.define("ssi_hr_payroll.hr_payslip_create_tour", function (require) {
                 trigger:
                     ".o_statusbar_status .o_arrow_button[data-value='draft'].btn-primary",
                 extra_trigger: ".o_form_view.o_form_readonly",
+                run: function () {
+                    // Assertion only; do not trigger the default click action.
+                },
+            },
+
+            // ── Post-Condition — Payslip lines are computed and displayed on
+            // the Details tab. The row can only exist after Compute Payslip
+            // (Flow 6) ran, since a brand-new payslip starts with no lines.
+            {
+                content: "Open the Details tab",
+                trigger: ".o_notebook .nav-link:contains(Details)",
+                extra_trigger: ".o_form_view.o_form_readonly",
+            },
+            {
+                content: "Payslip line is displayed on the Details tab",
+                trigger:
+                    ".o_field_x2many[name='line_ids'] .o_data_row:contains(TOUR Salary Rule)",
                 run: function () {
                     // Assertion only; do not trigger the default click action.
                 },
