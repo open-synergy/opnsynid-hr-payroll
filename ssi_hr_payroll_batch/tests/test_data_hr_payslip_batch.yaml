@@ -312,6 +312,15 @@ scenarios:
             type: "value"
             expected: "confirm"
 
+      - step: "Assert payslip confirmed after batch action_confirm"
+        action: "assert"
+        target: "payslip"
+        refresh: true
+        asserts:
+          state:
+            type: "value"
+            expected: "confirm"
+
       - step: "Reject batch"
         action: "call"
         target: "batch"
@@ -321,6 +330,15 @@ scenarios:
       - step: "Assert batch rejected after action_reject_approval"
         action: "assert"
         target: "batch"
+        refresh: true
+        asserts:
+          state:
+            type: "value"
+            expected: "reject"
+
+      - step: "Assert payslip rejected after batch action_reject_approval"
+        action: "assert"
+        target: "payslip"
         refresh: true
         asserts:
           state:
@@ -471,6 +489,15 @@ scenarios:
       - step: "Assert batch cancelled after action_cancel"
         action: "assert"
         target: "batch"
+        refresh: true
+        asserts:
+          state:
+            type: "value"
+            expected: "cancel"
+
+      - step: "Assert payslip cancelled after batch action_cancel"
+        action: "assert"
+        target: "payslip"
         refresh: true
         asserts:
           state:
