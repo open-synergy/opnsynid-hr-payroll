@@ -4,13 +4,17 @@
 
 from odoo_yaml_test import YamlTransactionCase
 
-from odoo.exceptions import UserError, ValidationError
-from odoo.tests import Form, tagged
+from odoo.tests import tagged
 
 
 @tagged("post_install", "-at_install")
 class TestHrPayslipBatchJournaling(YamlTransactionCase):
     """Tests for batch-level journaling (plan §5, tests 3-15 + 17-18)."""
+
+    def test_hr_payslip_batch_journaling(self):
+        """Runs the YAML default, state, lock, onchange and constraint
+        cases for batch-level journaling."""
+        self.run_yaml_scenario("test_data_hr_payslip_batch_journaling.yaml")
 
     # ------------------------------------------------------------------ #
     #  fixture helpers                                                     #
@@ -139,51 +143,16 @@ class TestHrPayslipBatchJournaling(YamlTransactionCase):
         batch.invalidate_cache()
 
     # ------------------------------------------------------------------ #
-    #  Tests 1-2: default / payslip-method regression                     #
-    # ------------------------------------------------------------------ #
-
-    def test_01_default_accounting_method_is_payslip(self):
-        """Test 1: A new batch defaults to accounting_method='payslip'."""
-        journal = self.env["account.journal"].create(
-            {"name": "T1 Journal", "code": "T1JRN", "type": "general"}
-        )
-        ptype = self.env["hr.payslip_type"].create(
-            {"name": "T1 Type", "code": "T1TYPE", "journal_id": journal.id}
-        )
-        batch = self.env["hr.payslip_batch"].create(
-            {
-                "type_id": ptype.id,
-                "date_start": "2026-02-01",
-                "date_end": "2026-02-28",
-                "date": "2026-02-28",
-            }
-        )
-        self.assertEqual(batch.accounting_method, "payslip")
-
-    # ------------------------------------------------------------------ #
-    #  Test 3: payslips are done without a move (batch method)            #
-    # ------------------------------------------------------------------ #
-
-    def test_03_payslips_done_without_move_in_batch_method(self):
-        """Test 3: Payslips are done but have no move_id when method=batch."""
-        f = self._create_batch_journaling_fixtures("T3", n_employees=1)
-        batch = f["batch"]
-        self._run_batch_to_done(batch)
-
-        self.assertEqual(batch.state, "done")
-        for payslip in batch.payslip_ids:
-            self.assertEqual(payslip.state, "done")
-            self.assertFalse(
-                payslip.move_id,
-                "Payslip should NOT have a move_id when batch method is used",
-            )
-
-    # ------------------------------------------------------------------ #
     #  Test 4: single batch move, posted & balanced                       #
     # ------------------------------------------------------------------ #
 
     def test_04_batch_move_posted_and_balanced(self):
-        """Test 4: Batch has a single posted balanced move."""
+        """Test 4: Batch has a single posted balanced move.
+
+        Pure Python -- trigger P2 (L-04: ``equals`` has no float
+        tolerance, so the ``sum()``-aggregated debit/credit totals
+        cannot be asserted equal from YAML).
+        """
         f = self._create_batch_journaling_fixtures("T4", n_employees=1)
         batch = f["batch"]
         self._run_batch_to_done(batch)
@@ -199,7 +168,13 @@ class TestHrPayslipBatchJournaling(YamlTransactionCase):
     # ------------------------------------------------------------------ #
 
     def test_05_rule_with_no_contributor_merged_across_employees(self):
-        """Test 5: RULE_BASIC (no contributor) → one debit + one credit AML."""
+        """Test 5: RULE_BASIC (no contributor) -> one debit + one credit
+        AML.
+
+        Pure Python -- trigger P3 (L-06: o2m comparisons are set-based
+        and unordered; selecting the move lines that belong to a
+        specific account requires filtering in Python).
+        """
         f = self._create_batch_journaling_fixtures("T5", n_employees=2)
         batch = f["batch"]
         self._run_batch_to_done(batch)
@@ -229,36 +204,17 @@ class TestHrPayslipBatchJournaling(YamlTransactionCase):
         self.assertAlmostEqual(credit_lines_on_rule[0].credit, 2000.0, places=2)
 
     # ------------------------------------------------------------------ #
-    #  Test 8: cancel removes the batch move                              #
-    # ------------------------------------------------------------------ #
-
-    def test_08_cancel_removes_batch_move(self):
-        """Test 8: Cancelling the batch removes its move_id."""
-        f = self._create_batch_journaling_fixtures("T8", n_employees=1)
-        batch = f["batch"]
-        self._run_batch_to_done(batch)
-
-        move_id = batch.move_id.id
-        self.assertTrue(move_id)
-
-        admin = self.env.ref("base.user_admin")
-        batch.with_user(admin).with_context(bypass_policy_check=True).action_cancel()
-        batch.invalidate_cache()
-
-        self.assertFalse(batch.move_id, "Batch move_id should be cleared after cancel")
-        move_exists = self.env["account.move"].search([("id", "=", move_id)])
-        self.assertFalse(move_exists, "account.move should be deleted after cancel")
-        self.assertFalse(
-            batch.account_entry_ids,
-            "Batch account entries should be deleted after cancel",
-        )
-
-    # ------------------------------------------------------------------ #
     #  Test 9: cancel → restart → done re-journals cleanly               #
     # ------------------------------------------------------------------ #
 
     def test_09_cancel_restart_done_rejournals_cleanly(self):
-        """Test 9: Cancel → Restart → Done produces a single fresh balanced move."""
+        """Test 9: Cancel -> Restart -> Done produces a single fresh
+        balanced move.
+
+        Pure Python -- trigger P2 (L-04: the debit/credit totals need
+        ``sum()`` and a tolerant comparison, which YAML cannot
+        express).
+        """
         f = self._create_batch_journaling_fixtures("T9", n_employees=1)
         batch = f["batch"]
         self._run_batch_to_done(batch)
@@ -291,112 +247,6 @@ class TestHrPayslipBatchJournaling(YamlTransactionCase):
         self.assertEqual(
             entry_count, 1, "Should have exactly one entry per rule, not duplicates"
         )
-
-    # ------------------------------------------------------------------ #
-    #  Test 15: lock — direct payslip action raises                       #
-    # ------------------------------------------------------------------ #
-
-    def test_15_locked_payslip_action_raises(self):
-        """Test 15: Calling payslip.action_confirm() directly while
-        batch_id is set raises."""
-        f = self._create_batch_journaling_fixtures("T15", n_employees=1)
-        batch = f["batch"]
-
-        # Open the batch to generate payslips
-        admin = self.env.ref("base.user_admin")
-        batch.with_user(admin).action_open()
-        batch.invalidate_cache()
-
-        payslip = batch.payslip_ids[0]
-        self.assertTrue(payslip.batch_id)
-
-        with self.assertRaises(UserError):
-            payslip.action_confirm()
-
-    # ------------------------------------------------------------------ #
-    #  Tests 17-18: onchange / constraint                                 #
-    # ------------------------------------------------------------------ #
-
-    def test_17_onchange_type_id_copies_accounting_method(self):
-        """Test 17: Setting type_id with accounting_method='batch' copies it to the batch."""
-        journal = self.env["account.journal"].create(
-            {"name": "T17 Journal", "code": "T17J", "type": "general"}
-        )
-        ptype_batch = self.env["hr.payslip_type"].create(
-            {
-                "name": "T17 Batch Type",
-                "code": "T17BT",
-                "accounting_method": "batch",
-                "journal_id": journal.id,
-            }
-        )
-        ptype_payslip = self.env["hr.payslip_type"].create(
-            {
-                "name": "T17 Payslip Type",
-                "code": "T17PT",
-                "accounting_method": "payslip",
-                "journal_id": journal.id,
-            }
-        )
-        form = Form(self.env["hr.payslip_batch"])
-        form.type_id = ptype_batch
-        self.assertEqual(form.accounting_method, "batch")
-        self.assertEqual(form.journal_id.id, journal.id)
-
-        form.type_id = ptype_payslip
-        self.assertEqual(form.accounting_method, "payslip")
-
-    def test_18_journal_id_constraint_batch_method_no_journal_raises(self):
-        """Test 18: Confirming a batch with method=batch and no journal_id raises."""
-        self.env.ref("account.data_account_type_expenses")
-        journal = self.env["account.journal"].create(
-            {"name": "T18 Journal", "code": "T18J", "type": "general"}
-        )
-        ptype = self.env["hr.payslip_type"].create(
-            {
-                "name": "T18 Type",
-                "code": "T18TYPE",
-                "accounting_method": "batch",
-                "journal_id": journal.id,
-            }
-        )
-        with self.assertRaises(ValidationError):
-            self.env["hr.payslip_batch"].create(
-                {
-                    "type_id": ptype.id,
-                    "accounting_method": "batch",
-                    "journal_id": False,
-                    "date_start": "2026-03-01",
-                    "date_end": "2026-03-31",
-                    "date": "2026-03-31",
-                }
-            )
-
-    def test_18b_payslip_method_without_journal_allowed(self):
-        """Test 18b: method=payslip without journal_id is allowed."""
-        journal = self.env["account.journal"].create(
-            {"name": "T18b Journal", "code": "T18BJ", "type": "general"}
-        )
-        ptype = self.env["hr.payslip_type"].create(
-            {
-                "name": "T18b Type",
-                "code": "T18BTYPE",
-                "accounting_method": "payslip",
-                "journal_id": journal.id,
-            }
-        )
-        # Should NOT raise
-        batch = self.env["hr.payslip_batch"].create(
-            {
-                "type_id": ptype.id,
-                "accounting_method": "payslip",
-                "journal_id": False,
-                "date_start": "2026-04-01",
-                "date_end": "2026-04-30",
-                "date": "2026-04-30",
-            }
-        )
-        self.assertEqual(batch.accounting_method, "payslip")
 
     # ------------------------------------------------------------------ #
     #  Task 4C: regression — paired one-sided rules without usage          #
@@ -494,12 +344,16 @@ class TestHrPayslipBatchJournaling(YamlTransactionCase):
         }
 
     def test_20_paired_one_sided_rules_no_aml_with_false_account(self):
-        """Regression Task 4C: paired one-sided rules → no AML with
+        """Regression Task 4C: paired one-sided rules -> no AML with
         account_id=False.
 
-        Proves that _create_standard_ml() override correctly skips
-        the missing side instead of creating an AML with
-        account_id=False (which would fail action_post).
+        Proves that ``_create_standard_ml()`` override correctly
+        skips the missing side instead of creating an AML with
+        account_id=False (which would fail ``action_post``).
+
+        Pure Python -- trigger P3 (L-06: asserting the absence of a
+        move line matching a criterion requires filtering the o2m in
+        Python).
         """
         f = self._create_one_sided_batch_fixtures()
         batch = f["batch"]
@@ -518,7 +372,13 @@ class TestHrPayslipBatchJournaling(YamlTransactionCase):
         )
 
     def test_21_paired_one_sided_rules_correct_aml_sides(self):
-        """Regression Task 4C: debit-only → 1 debit AML; credit-only → 1 credit AML."""
+        """Regression Task 4C: debit-only -> 1 debit AML; credit-only ->
+        1 credit AML.
+
+        Pure Python -- trigger P3 (L-06: selecting and counting move
+        lines by account requires filtering the o2m in Python, which
+        YAML cannot express).
+        """
         f = self._create_one_sided_batch_fixtures()
         batch = f["batch"]
         self._run_batch_to_done(batch)
@@ -544,7 +404,13 @@ class TestHrPayslipBatchJournaling(YamlTransactionCase):
         self.assertAlmostEqual(credit_lines[0].credit, 500.0, places=2)
 
     def test_22_paired_one_sided_rules_move_balanced(self):
-        """Regression Task 4C: paired one-sided rules produce a balanced batch move."""
+        """Regression Task 4C: paired one-sided rules produce a balanced
+        batch move.
+
+        Pure Python -- trigger P2 (L-04: the debit/credit totals need
+        ``sum()`` and a tolerant comparison, which YAML cannot
+        express).
+        """
         f = self._create_one_sided_batch_fixtures()
         batch = f["batch"]
         self._run_batch_to_done(batch)
@@ -718,7 +584,13 @@ class TestHrPayslipBatchJournaling(YamlTransactionCase):
         }
 
     def test_23_usage_overrides_gate_account_in_batch(self):
-        """Gate present + batch usage resolves → entry uses the USAGE account, not gate."""
+        """Gate present + batch usage resolves -> entry uses the USAGE
+        account, not gate.
+
+        Pure Python -- trigger P3 (L-06: asserting which specific move
+        lines exist -- and which do not -- by account requires
+        filtering the o2m in Python).
+        """
         f = self._create_gate_batch_fixtures()
         batch = f["batch"]
         self._run_batch_to_done(batch)
@@ -746,8 +618,13 @@ class TestHrPayslipBatchJournaling(YamlTransactionCase):
         )
 
     def test_24_no_gate_rule_does_not_journal_in_batch(self):
-        """Gate empty: a rule without fixed accounts must NOT journal any side,
-        even though its product usage resolves an account."""
+        """Gate empty: a rule without fixed accounts must NOT journal any
+        side, even though its product usage resolves an account.
+
+        Pure Python -- trigger P3 (L-06: asserting the absence of move
+        lines on specific accounts requires filtering the o2m in
+        Python).
+        """
         f = self._create_gate_batch_fixtures()
         batch = f["batch"]
         self._run_batch_to_done(batch)
@@ -764,36 +641,3 @@ class TestHrPayslipBatchJournaling(YamlTransactionCase):
             ),
             "A rule without a fixed-account gate must not journal, even when usage resolves",
         )
-
-    def test_25_cancel_deletes_entries_even_without_move(self):
-        """Cancel must drop account entries even when the batch has no move_id.
-
-        Guards the early-return removal in _xx_cancel_accounting_entry: an entry
-        attached to a batch with no move (so it can never be cleaned via the move
-        path) must still be unlinked on cancel, so it is regenerated from scratch
-        on the next journaling run.
-        """
-        f = self._create_batch_journaling_fixtures("T25", n_employees=1)
-        batch = f["batch"]
-
-        entry = self.env["hr.payslip_batch_account_entry"].create(
-            {
-                "batch_id": batch.id,
-                "rule_id": f["rule"].id,
-                "debit_account_id": f["debit_acc"].id,
-                "credit_account_id": f["credit_acc"].id,
-                "amount": 100.0,
-            }
-        )
-        batch.invalidate_cache()
-        self.assertTrue(batch.account_entry_ids)
-        self.assertFalse(batch.move_id, "Precondition: batch has no move yet")
-
-        batch._xx_cancel_accounting_entry()
-        batch.invalidate_cache()
-
-        self.assertFalse(
-            entry.exists(),
-            "Entry must be deleted on cancel even when the batch has no move",
-        )
-        self.assertFalse(batch.account_entry_ids)
