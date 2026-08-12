@@ -47,7 +47,8 @@ class TestHrPayslipBatch(YamlTransactionCase):
         self.assertEqual(form.analytic_account_id.id, analytic.id)
 
     def test_onchange_analytic_account_id_cleared_when_type_changes(self):
-        """Changing type_id to one without analytic account should clear analytic_account_id."""
+        """Changing type_id to one without an analytic account must
+        clear analytic_account_id."""
         analytic = self.env["account.analytic.account"].create(
             {"name": "Test Batch OC Analytic Clear"}
         )
@@ -262,7 +263,7 @@ class TestHrPayslipBatch(YamlTransactionCase):
         workbook.close()
         output.seek(0)
 
-        wizard = self.env["hr.payslip_batch_input_import"].create(
+        wizard = self.env["import_payslip_batch_input"].create(
             {
                 "batch_id": batch.id,
                 "data": base64.b64encode(output.read()),
@@ -336,7 +337,7 @@ class TestHrPayslipBatch(YamlTransactionCase):
         workbook.close()
         output.seek(0)
 
-        wizard = self.env["hr.payslip_batch_input_import"].create(
+        wizard = self.env["import_payslip_batch_input"].create(
             {
                 "batch_id": batch.id,
                 "data": base64.b64encode(output.read()),

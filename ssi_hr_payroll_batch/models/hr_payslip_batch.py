@@ -447,6 +447,12 @@ Solution: Set a journal on the batch, or change the Accounting Method to 'Journa
         readonly=True,
     )
 
+    @ssi_decorator.insert_on_form_view()
+    def _insert_form_element(self, view_arch):
+        if self._automatically_insert_view_element:
+            view_arch = self._reconfigure_statusbar_visible(view_arch)
+        return view_arch
+
     @api.model
     def _get_policy_field(self):
         res = super(HrPayslipBatch, self)._get_policy_field()
@@ -645,7 +651,7 @@ Solution: Set a journal on the batch, or change the Accounting Method to 'Journa
         (see ``_get_batch_input_type_ids``), filled with the input
         amount. The spreadsheet is stored as an ``ir.attachment`` on
         this record and can be re-imported via
-        ``hr.payslip_batch_input_import`` after being edited.
+        ``import_payslip_batch_input`` after being edited.
 
         :return: an ``ir.actions.act_url`` dict pointing to the
             generated attachment

@@ -297,7 +297,8 @@ class TestHrPayslipBatchJournaling(YamlTransactionCase):
     # ------------------------------------------------------------------ #
 
     def test_15_locked_payslip_action_raises(self):
-        """Test 15: Calling payslip.action_confirm() directly while batch_id is set raises."""
+        """Test 15: Calling payslip.action_confirm() directly while
+        batch_id is set raises."""
         f = self._create_batch_journaling_fixtures("T15", n_employees=1)
         batch = f["batch"]
 
@@ -493,10 +494,12 @@ class TestHrPayslipBatchJournaling(YamlTransactionCase):
         }
 
     def test_20_paired_one_sided_rules_no_aml_with_false_account(self):
-        """Regression Task 4C: paired one-sided rules → no AML with account_id=False.
+        """Regression Task 4C: paired one-sided rules → no AML with
+        account_id=False.
 
-        Proves that _create_standard_ml() override correctly skips the missing side
-        instead of creating an AML with account_id=False (which would fail action_post).
+        Proves that _create_standard_ml() override correctly skips
+        the missing side instead of creating an AML with
+        account_id=False (which would fail action_post).
         """
         f = self._create_one_sided_batch_fixtures()
         batch = f["batch"]

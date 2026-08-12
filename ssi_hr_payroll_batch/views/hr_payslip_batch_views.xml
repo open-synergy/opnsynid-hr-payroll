@@ -216,6 +216,17 @@
                             <field name="debit_move_line_id" />
                             <field name="credit_move_line_id" />
                         </tree>
+                        <form>
+                            <group name="grp_account_entry" colspan="4" cols="2">
+                                <field name="rule_id" />
+                                <field name="partner_id" />
+                                <field name="debit_account_id" />
+                                <field name="credit_account_id" />
+                                <field name="amount" />
+                                <field name="debit_move_line_id" />
+                                <field name="credit_move_line_id" />
+                            </group>
+                        </form>
                     </field>
                 </page>
             </xpath>

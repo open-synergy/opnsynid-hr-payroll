@@ -657,3 +657,83 @@ scenarios:
           analytic_account_id:
             type: "value"
             operator: "is_falsy"
+
+  - name: "HR Payslip Batch - Import wizard ACL"
+    steps:
+      - step: "Create payroll journal"
+        action: "create"
+        model: "account.journal"
+        save_as: "journal"
+        values:
+          name: "Batch ACL Test Journal"
+          code: "TBACL"
+          type: "general"
+
+      - step: "Create payslip type"
+        action: "create"
+        model: "hr.payslip_type"
+        save_as: "payslip_type"
+        values:
+          name: "Batch ACL Test Type"
+          code: "TSTBTCHACLTYPE"
+          journal_id: "REC: journal"
+
+      - step: "Create payslip batch"
+        action: "create"
+        model: "hr.payslip_batch"
+        save_as: "batch"
+        as_user: "base.user_admin"
+        values:
+          type_id: "REC: payslip_type"
+          date_start: "2024-09-01"
+          date_end: "2024-09-30"
+          date: "2024-09-30"
+
+      - step: "Create user with hr_payslip_batch_user_group"
+        action: "create"
+        model: "res.users"
+        save_as: "batch_user"
+        values:
+          name: "Batch ACL Allowed User"
+          login: "batch_acl_allowed@example.com"
+          groups_id:
+            - - 6
+              - 0
+              - - "REF: ssi_hr_payroll_batch.hr_payslip_batch_user_group"
+
+      - step: "Create import wizard as allowed user"
+        action: "create"
+        model: "import_payslip_batch_input"
+        save_as: "import_wizard"
+        as_user: "batch_user"
+        values:
+          batch_id: "REC: batch"
+
+      - step: "Assert wizard created with batch reference"
+        action: "assert"
+        target: "import_wizard"
+        asserts:
+          batch_id:
+            type: "m2o"
+            expected: "REC: batch"
+
+      - step: "Create user without hr_payslip_batch_user_group"
+        action: "create"
+        model: "res.users"
+        save_as: "unauthorized_user"
+        values:
+          name: "Batch ACL Unauthorized User"
+          login: "batch_acl_unauthorized@example.com"
+          groups_id:
+            - - 6
+              - 0
+              - - "REF: base.group_user"
+
+      - step: "Create import wizard as unauthorized user is denied"
+        action: "create"
+        model: "import_payslip_batch_input"
+        as_user: "unauthorized_user"
+        expect_error:
+          type: "AccessError"
+        values:
+          batch_id: "REC: batch"

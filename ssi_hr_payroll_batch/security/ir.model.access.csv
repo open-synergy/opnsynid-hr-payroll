@@ -2,6 +2,5 @@ id,name,model_id:id,group_id:id,perm_read,perm_write,perm_create,perm_unlink
 access_hr_payslip_batch_user,hr.payslip_batch - user,model_hr_payslip_batch,hr_payslip_batch_user_group,1,1,1,1
 access_hr_payslip_batch_viewer,hr.payslip_batch - viewer,model_hr_payslip_batch,hr_payslip_batch_viewer_group,1,0,0,0
 access_hr_payslip_batch_all,hr.payslip_batch - all,model_hr_payslip_batch,,1,0,0,0
-access_hr_payslip_batch_input_import_user,hr.payslip_batch_input_import - user,model_hr_payslip_batch_input_import,hr_payslip_batch_user_group,1,1,1,1
 access_hr_payslip_batch_account_entry_user,hr.payslip_batch_account_entry - user,model_hr_payslip_batch_account_entry,hr_payslip_batch_user_group,1,1,1,1
 access_hr_payslip_batch_account_entry_viewer,hr.payslip_batch_account_entry - viewer,model_hr_payslip_batch_account_entry,hr_payslip_batch_viewer_group,1,0,0,0
