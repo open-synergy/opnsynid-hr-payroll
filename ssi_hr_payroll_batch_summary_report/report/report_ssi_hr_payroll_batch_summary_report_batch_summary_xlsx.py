@@ -4,7 +4,7 @@
 from odoo import _, models
 
 
-class HrPayslipBatchSummaryReportXlsx(models.AbstractModel):
+class ReportSsiHrPayrollBatchSummaryReportBatchSummaryXlsx(models.AbstractModel):
     """
     Renders the Salary Summary report as an ``.xlsx`` workbook.
     Reuses the aggregation logic of ``batch_summary`` (the HTML report
