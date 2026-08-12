@@ -112,7 +112,7 @@ scenarios:
           name: "JY03 Structure"
           code: "JY03STR"
           rule_ids:
-            - "REC: rule"
+            - "REC: rule.id"
 
       - step: "Create payslip type with batch accounting method"
         action: "create"
@@ -145,7 +145,7 @@ scenarios:
           date_end: "2026-01-31"
           date: "2026-01-31"
           employee_ids:
-            - "REC: employee"
+            - "REC: employee.id"
 
       - step: "Open batch"
         action: "call"
@@ -306,7 +306,7 @@ scenarios:
           name: "JY08 Structure"
           code: "JY08STR"
           rule_ids:
-            - "REC: rule"
+            - "REC: rule.id"
 
       - step: "Create payslip type with batch accounting method"
         action: "create"
@@ -339,7 +339,7 @@ scenarios:
           date_end: "2026-01-31"
           date: "2026-01-31"
           employee_ids:
-            - "REC: employee"
+            - "REC: employee.id"
 
       - step: "Open batch"
         action: "call"
@@ -472,7 +472,7 @@ scenarios:
           date_end: "2026-01-31"
           date: "2026-01-31"
           employee_ids:
-            - "REC: employee"
+            - "REC: employee.id"
 
       - step: "Open batch to generate the payslip"
         action: "call"

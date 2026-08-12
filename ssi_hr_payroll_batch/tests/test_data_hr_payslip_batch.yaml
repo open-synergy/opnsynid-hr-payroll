@@ -871,7 +871,7 @@ scenarios:
           name: "Batch Count Structure"
           code: "TBCNTSTR"
           rule_ids:
-            - "REC: rule"
+            - "REC: rule.id"
 
       - step: "Create payslip type"
         action: "create"
@@ -901,7 +901,7 @@ scenarios:
           date_end: "2024-11-30"
           date: "2024-11-30"
           employee_ids:
-            - "REC: employee"
+            - "REC: employee.id"
 
       - step: "Open batch to generate payslips"
         action: "call"
