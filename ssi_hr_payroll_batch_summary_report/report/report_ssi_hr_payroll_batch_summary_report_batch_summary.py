@@ -4,7 +4,7 @@
 from odoo import api, models
 
 
-class HrPayslipBatchSummaryReport(models.AbstractModel):
+class ReportSsiHrPayrollBatchSummaryReportBatchSummary(models.AbstractModel):
     """
     Builds the values consumed by the Salary Summary QWeb report.
     Aggregates the payslips of one or more ``hr.payslip_batch`` records
