@@ -16,7 +16,11 @@ class TestHrPayslip(YamlTransactionCase):
         self.run_yaml_scenario("test_data_hr_payslip.yaml")
 
     def test_onchange_analytic_account_id_set_from_type(self):
-        """Setting type_id with analytic account should populate analytic_account_id."""
+        """Set ``analytic_account_id`` when ``type_id`` has one.
+
+        Setting ``type_id`` to a type with an analytic account
+        should populate ``analytic_account_id``.
+        """
         analytic = self.env["account.analytic.account"].create(
             {"name": "Test OC Analytic"}
         )
@@ -61,7 +65,11 @@ class TestHrPayslip(YamlTransactionCase):
         self.assertEqual(form.analytic_account_id.id, analytic.id)
 
     def test_onchange_analytic_account_id_cleared_when_type_changes(self):
-        """Changing type_id to one without analytic account should clear analytic_account_id."""
+        """Clear ``analytic_account_id`` when the new type has none.
+
+        Changing ``type_id`` to a type without an analytic account
+        should clear ``analytic_account_id``.
+        """
         analytic = self.env["account.analytic.account"].create(
             {"name": "Test OC Analytic Clear"}
         )

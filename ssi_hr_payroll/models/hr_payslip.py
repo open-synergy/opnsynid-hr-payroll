@@ -861,6 +861,12 @@ class HrPayslip(models.Model):
         move_lines = ML.search(criteria)
         self.write({"deduction_ref_move_line_ids": [(6, 0, move_lines.ids)]})
 
+    @ssi_decorator.insert_on_form_view()
+    def _insert_form_element(self, view_arch):
+        if self._automatically_insert_view_element:
+            view_arch = self._reconfigure_statusbar_visible(view_arch)
+        return view_arch
+
     @api.model
     def _get_policy_field(self):
         """Extend the multiple-approval policy fields for payslips.

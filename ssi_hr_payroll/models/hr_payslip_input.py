@@ -39,5 +39,10 @@ class HrPayslipInput(models.Model):  # pylint: disable=too-few-public-methods
 
     @api.onchange("input_type_id")
     def _onchange_input_type_id(self):
+        """Copy the default amount from the selected input type.
+
+        Sets ``amount`` to ``input_type_id.default_amount`` so the
+        user starts from the type's usual value instead of ``0.0``.
+        """
         if self.input_type_id:
             self.amount = self.input_type_id.default_amount

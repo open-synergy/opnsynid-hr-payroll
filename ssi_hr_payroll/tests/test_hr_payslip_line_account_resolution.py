@@ -7,16 +7,23 @@ from odoo.tests import TransactionCase, tagged
 
 @tagged("post_install", "-at_install")
 class TestHrPayslipLineAccountResolution(TransactionCase):
-    """Tests for payslip line account resolution (_get_debit_account / _get_credit_account).
+    """Tests for payslip line account resolution.
 
-    Design rule (confirmed by user) — fixed account is a per-side GATE:
-      - Debit: rule.debit_account_id is the gate. If empty → no debit line at all,
-        even when usage could resolve. If set: when payslip.debit_usage_id is filled,
-        resolve the account via usage (falling back to debit_account_id when usage
-        cannot resolve); when no usage is filled, use debit_account_id directly.
-      - Credit: symmetric with rule.credit_account_id + payslip.credit_usage_id.
-      - Consequence: a rule with no fixed account on a side never journals that side;
-        usage only OVERRIDES which account is used when the gate is present.
+    Covers ``_get_debit_account`` / ``_get_credit_account``.
+
+    Design rule (confirmed by user) — fixed account is a per-side
+    GATE:
+      - Debit: ``rule.debit_account_id`` is the gate. If empty → no
+        debit line at all, even when usage could resolve. If set:
+        when ``payslip.debit_usage_id`` is filled, resolve the
+        account via usage (falling back to ``debit_account_id`` when
+        usage cannot resolve); when no usage is filled, use
+        ``debit_account_id`` directly.
+      - Credit: symmetric with ``rule.credit_account_id`` +
+        ``payslip.credit_usage_id``.
+      - Consequence: a rule with no fixed account on a side never
+        journals that side; usage only OVERRIDES which account is
+        used when the gate is present.
     """
 
     def setUp(self):
@@ -307,7 +314,11 @@ class TestHrPayslipLineAccountResolution(TransactionCase):
     # ------------------------------------------------------------------ #
 
     def test_usage_resolves_account_via_fallback(self):
-        """Sanity: _get_account_by_product_usage returns the usage type account."""
+        """Sanity: usage lookup returns the usage type account.
+
+        ``_get_account_by_product_usage`` returns the usage type
+        account.
+        """
         account = self.product._get_product_account(self.usage.code)
         self.assertTrue(account)
 
@@ -321,26 +332,29 @@ class TestHrPayslipLineAccountResolution(TransactionCase):
     # ------------------------------------------------------------------ #
 
     def test_debit_only_rule_returns_account_for_debit(self):
-        """Positive: gate present + usage resolves → usage account OVERRIDES fixed.
+        """Gate present + usage resolves → usage OVERRIDES fixed.
 
-        rule_debit_only has debit_account_id (gate) and self.payslip has a
-        debit_usage_id that resolves to self.account_usage. The usage account must
-        win over the fixed debit_account_id.
+        ``rule_debit_only`` has ``debit_account_id`` (gate) and
+        ``self.payslip`` has a ``debit_usage_id`` that resolves to
+        ``self.account_usage``. The usage account must win over the
+        fixed ``debit_account_id``.
         """
         result = self.line_debit_only._get_debit_account()
         self.assertEqual(
             result,
             self.account_usage,
-            "Usage account must override the fixed debit_account_id when the gate is set",
+            "Usage account must override the fixed debit_account_id "
+            "when the gate is set",
         )
 
     def test_credit_only_rule_returns_account_for_credit(self):
-        """Positive: gate present + usage resolves → usage account OVERRIDES fixed."""
+        """Gate present + usage resolves → usage OVERRIDES fixed."""
         result = self.line_credit_only._get_credit_account()
         self.assertEqual(
             result,
             self.account_usage,
-            "Usage account must override the fixed credit_account_id when the gate is set",
+            "Usage account must override the fixed credit_account_id "
+            "when the gate is set",
         )
 
     # ------------------------------------------------------------------ #
@@ -351,7 +365,10 @@ class TestHrPayslipLineAccountResolution(TransactionCase):
     def test_no_fixed_account_rule_returns_false_for_debit_even_when_usage_resolves(
         self,
     ):
-        """Gate empty: rule without debit_account_id → no debit line, despite usage."""
+        """Gate empty: rule without debit_account_id → no debit line.
+
+        Applies even when usage could resolve an account.
+        """
         usage_account = self.line_usage_only._get_account_by_product_usage(
             self.payslip.debit_usage_id
         )
@@ -367,7 +384,10 @@ class TestHrPayslipLineAccountResolution(TransactionCase):
     def test_no_fixed_account_rule_returns_false_for_credit_even_when_usage_resolves(
         self,
     ):
-        """Gate empty: rule without credit_account_id → no credit line, despite usage."""
+        """Gate empty: rule without credit_account_id → no credit line.
+
+        Applies even when usage could resolve an account.
+        """
         usage_account = self.line_usage_only._get_account_by_product_usage(
             self.payslip.credit_usage_id
         )
@@ -386,8 +406,11 @@ class TestHrPayslipLineAccountResolution(TransactionCase):
     # ------------------------------------------------------------------ #
 
     def test_debit_only_rule_returns_false_for_credit_without_gate(self):
-        """Gate empty on credit side: debit-only rule (credit_account_id=False) must
-        NOT obtain a credit account via usage."""
+        """Gate empty on credit side: debit-only rule must not use usage.
+
+        A debit-only rule (``credit_account_id=False``) must NOT
+        obtain a credit account via usage.
+        """
         usage_account = self.line_debit_only._get_account_by_product_usage(
             self.payslip.credit_usage_id
         )
@@ -401,8 +424,11 @@ class TestHrPayslipLineAccountResolution(TransactionCase):
         )
 
     def test_credit_only_rule_returns_false_for_debit_without_gate(self):
-        """Gate empty on debit side: credit-only rule (debit_account_id=False) must
-        NOT obtain a debit account via usage."""
+        """Gate empty on debit side: credit-only rule must not use usage.
+
+        A credit-only rule (``debit_account_id=False``) must NOT
+        obtain a debit account via usage.
+        """
         usage_account = self.line_credit_only._get_account_by_product_usage(
             self.payslip.debit_usage_id
         )
@@ -420,7 +446,11 @@ class TestHrPayslipLineAccountResolution(TransactionCase):
     # ------------------------------------------------------------------ #
 
     def test_fallback_debit_usage_no_resolve_has_fixed_returns_fixed(self):
-        """Debit fallback: usage present but unresolvable → falls to debit_account_id."""
+        """Debit fallback: usage unresolvable → falls to fixed account.
+
+        Usage is present but unresolvable, so it falls back to
+        ``debit_account_id``.
+        """
         result = self.line_debit_only_empty_usage._get_debit_account()
         self.assertEqual(
             result,
@@ -429,7 +459,7 @@ class TestHrPayslipLineAccountResolution(TransactionCase):
         )
 
     def test_fallback_debit_usage_no_resolve_no_fixed_returns_false(self):
-        """Debit fallback: usage present but unresolvable + no fixed → False."""
+        """Debit fallback: usage unresolvable + no fixed → False."""
         result = self.line_usage_only_empty_usage._get_debit_account()
         self.assertFalse(
             result,
@@ -454,7 +484,11 @@ class TestHrPayslipLineAccountResolution(TransactionCase):
         )
 
     def test_fallback_debit_no_product_usage_present_has_fixed_returns_fixed(self):
-        """Debit fallback: rule has no product_id → usage skipped → falls to fixed."""
+        """Debit fallback: no product_id → usage skipped, uses fixed.
+
+        The rule has no ``product_id``, so usage resolution is
+        skipped and it falls back to the fixed account.
+        """
         rule_cat = self.env["hr.salary_rule_category"].search(
             [("code", "=", "TSLRCAT")], limit=1
         )
@@ -486,7 +520,7 @@ class TestHrPayslipLineAccountResolution(TransactionCase):
         )
 
     def test_fallback_debit_no_product_no_fixed_returns_false(self):
-        """Debit fallback: rule has no product_id + no fixed account → False."""
+        """Debit fallback: no product_id + no fixed account → False."""
         rule_cat = self.env["hr.salary_rule_category"].search(
             [("code", "=", "TSLRCAT")], limit=1
         )
@@ -520,7 +554,11 @@ class TestHrPayslipLineAccountResolution(TransactionCase):
     # ------------------------------------------------------------------ #
 
     def test_fallback_credit_usage_no_resolve_has_fixed_returns_fixed(self):
-        """Credit fallback: usage present but unresolvable → falls to credit_account_id."""
+        """Credit fallback: usage unresolvable → falls to fixed account.
+
+        Usage is present but unresolvable, so it falls back to
+        ``credit_account_id``.
+        """
         result = self.line_credit_only_empty_usage._get_credit_account()
         self.assertEqual(
             result,
@@ -529,7 +567,7 @@ class TestHrPayslipLineAccountResolution(TransactionCase):
         )
 
     def test_fallback_credit_usage_no_resolve_no_fixed_returns_false(self):
-        """Credit fallback: usage present but unresolvable + no fixed → False."""
+        """Credit fallback: usage unresolvable + no fixed → False."""
         result = self.line_usage_only_empty_usage._get_credit_account()
         self.assertFalse(
             result,
@@ -554,7 +592,11 @@ class TestHrPayslipLineAccountResolution(TransactionCase):
         )
 
     def test_fallback_credit_no_product_usage_present_has_fixed_returns_fixed(self):
-        """Credit fallback: rule has no product_id → usage skipped → falls to fixed."""
+        """Credit fallback: no product_id → usage skipped, uses fixed.
+
+        The rule has no ``product_id``, so usage resolution is
+        skipped and it falls back to the fixed account.
+        """
         rule_cat = self.env["hr.salary_rule_category"].search(
             [("code", "=", "TSLRCAT")], limit=1
         )
@@ -586,7 +628,7 @@ class TestHrPayslipLineAccountResolution(TransactionCase):
         )
 
     def test_fallback_credit_no_product_no_fixed_returns_false(self):
-        """Credit fallback: rule has no product_id + no fixed account → False."""
+        """Credit fallback: no product_id + no fixed account → False."""
         rule_cat = self.env["hr.salary_rule_category"].search(
             [("code", "=", "TSLRCAT")], limit=1
         )
