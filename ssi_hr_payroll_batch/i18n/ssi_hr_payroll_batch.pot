@@ -38,7 +38,7 @@ msgid ""
 msgstr ""
 
 #. module: ssi_hr_payroll_batch
-#: code:addons/ssi_hr_payroll_batch/wizards/hr_payslip_batch_input_import.py:0
+#: code:addons/ssi_hr_payroll_batch/wizards/import_payslip_batch_input.py:0
 #, python-format
 msgid ""
 "\n"
@@ -49,7 +49,7 @@ msgid ""
 msgstr ""
 
 #. module: ssi_hr_payroll_batch
-#: code:addons/ssi_hr_payroll_batch/wizards/hr_payslip_batch_input_import.py:0
+#: code:addons/ssi_hr_payroll_batch/wizards/import_payslip_batch_input.py:0
 #, python-format
 msgid ""
 "\n"
@@ -60,7 +60,7 @@ msgid ""
 msgstr ""
 
 #. module: ssi_hr_payroll_batch
-#: code:addons/ssi_hr_payroll_batch/wizards/hr_payslip_batch_input_import.py:0
+#: code:addons/ssi_hr_payroll_batch/wizards/import_payslip_batch_input.py:0
 #, python-format
 msgid ""
 "\n"
@@ -71,7 +71,7 @@ msgid ""
 msgstr ""
 
 #. module: ssi_hr_payroll_batch
-#: code:addons/ssi_hr_payroll_batch/wizards/hr_payslip_batch_input_import.py:0
+#: code:addons/ssi_hr_payroll_batch/wizards/import_payslip_batch_input.py:0
 #, python-format
 msgid ""
 "\n"
@@ -82,7 +82,7 @@ msgid ""
 msgstr ""
 
 #. module: ssi_hr_payroll_batch
-#: code:addons/ssi_hr_payroll_batch/wizards/hr_payslip_batch_input_import.py:0
+#: code:addons/ssi_hr_payroll_batch/wizards/import_payslip_batch_input.py:0
 #, python-format
 msgid ""
 "\n"
@@ -93,7 +93,7 @@ msgid ""
 msgstr ""
 
 #. module: ssi_hr_payroll_batch
-#: code:addons/ssi_hr_payroll_batch/wizards/hr_payslip_batch_input_import.py:0
+#: code:addons/ssi_hr_payroll_batch/wizards/import_payslip_batch_input.py:0
 #, python-format
 msgid ""
 "\n"
@@ -477,14 +477,14 @@ msgstr ""
 #. module: ssi_hr_payroll_batch
 #: model:ir.model.fields,field_description:ssi_hr_payroll_batch.field_hr_payslip_batch__create_uid
 #: model:ir.model.fields,field_description:ssi_hr_payroll_batch.field_hr_payslip_batch_account_entry__create_uid
-#: model:ir.model.fields,field_description:ssi_hr_payroll_batch.field_hr_payslip_batch_input_import__create_uid
+#: model:ir.model.fields,field_description:ssi_hr_payroll_batch.field_import_payslip_batch_input__create_uid
 msgid "Created by"
 msgstr ""
 
 #. module: ssi_hr_payroll_batch
 #: model:ir.model.fields,field_description:ssi_hr_payroll_batch.field_hr_payslip_batch__create_date
 #: model:ir.model.fields,field_description:ssi_hr_payroll_batch.field_hr_payslip_batch_account_entry__create_date
-#: model:ir.model.fields,field_description:ssi_hr_payroll_batch.field_hr_payslip_batch_input_import__create_date
+#: model:ir.model.fields,field_description:ssi_hr_payroll_batch.field_import_payslip_batch_input__create_date
 msgid "Created on"
 msgstr ""
 
@@ -562,7 +562,7 @@ msgstr ""
 #: model:ir.model.fields,field_description:ssi_hr_payroll_batch.field_hr_payslip__display_name
 #: model:ir.model.fields,field_description:ssi_hr_payroll_batch.field_hr_payslip_batch__display_name
 #: model:ir.model.fields,field_description:ssi_hr_payroll_batch.field_hr_payslip_batch_account_entry__display_name
-#: model:ir.model.fields,field_description:ssi_hr_payroll_batch.field_hr_payslip_batch_input_import__display_name
+#: model:ir.model.fields,field_description:ssi_hr_payroll_batch.field_import_payslip_batch_input__display_name
 msgid "Display Name"
 msgstr ""
 
@@ -606,12 +606,12 @@ msgid "Export Input"
 msgstr ""
 
 #. module: ssi_hr_payroll_batch
-#: model:ir.model.fields,field_description:ssi_hr_payroll_batch.field_hr_payslip_batch_input_import__data
+#: model:ir.model.fields,field_description:ssi_hr_payroll_batch.field_import_payslip_batch_input__data
 msgid "File"
 msgstr ""
 
 #. module: ssi_hr_payroll_batch
-#: model:ir.model.fields,field_description:ssi_hr_payroll_batch.field_hr_payslip_batch_input_import__filename
+#: model:ir.model.fields,field_description:ssi_hr_payroll_batch.field_import_payslip_batch_input__filename
 msgid "Filename"
 msgstr ""
 
@@ -639,7 +639,7 @@ msgstr ""
 #: model:ir.model.fields,field_description:ssi_hr_payroll_batch.field_hr_payslip__id
 #: model:ir.model.fields,field_description:ssi_hr_payroll_batch.field_hr_payslip_batch__id
 #: model:ir.model.fields,field_description:ssi_hr_payroll_batch.field_hr_payslip_batch_account_entry__id
-#: model:ir.model.fields,field_description:ssi_hr_payroll_batch.field_hr_payslip_batch_input_import__id
+#: model:ir.model.fields,field_description:ssi_hr_payroll_batch.field_import_payslip_batch_input__id
 msgid "ID"
 msgstr ""
 
@@ -676,7 +676,7 @@ msgid "Import Input"
 msgstr ""
 
 #. module: ssi_hr_payroll_batch
-#: model:ir.model,name:ssi_hr_payroll_batch.model_hr_payslip_batch_input_import
+#: model:ir.model,name:ssi_hr_payroll_batch.model_import_payslip_batch_input
 #: model_terms:ir.ui.view,arch_db:ssi_hr_payroll_batch.hr_payslip_batch_input_import_view_form
 msgid "Import Payslip Batch Input"
 msgstr ""
@@ -721,21 +721,21 @@ msgstr ""
 #: model:ir.model.fields,field_description:ssi_hr_payroll_batch.field_hr_payslip____last_update
 #: model:ir.model.fields,field_description:ssi_hr_payroll_batch.field_hr_payslip_batch____last_update
 #: model:ir.model.fields,field_description:ssi_hr_payroll_batch.field_hr_payslip_batch_account_entry____last_update
-#: model:ir.model.fields,field_description:ssi_hr_payroll_batch.field_hr_payslip_batch_input_import____last_update
+#: model:ir.model.fields,field_description:ssi_hr_payroll_batch.field_import_payslip_batch_input____last_update
 msgid "Last Modified on"
 msgstr ""
 
 #. module: ssi_hr_payroll_batch
 #: model:ir.model.fields,field_description:ssi_hr_payroll_batch.field_hr_payslip_batch__write_uid
 #: model:ir.model.fields,field_description:ssi_hr_payroll_batch.field_hr_payslip_batch_account_entry__write_uid
-#: model:ir.model.fields,field_description:ssi_hr_payroll_batch.field_hr_payslip_batch_input_import__write_uid
+#: model:ir.model.fields,field_description:ssi_hr_payroll_batch.field_import_payslip_batch_input__write_uid
 msgid "Last Updated by"
 msgstr ""
 
 #. module: ssi_hr_payroll_batch
 #: model:ir.model.fields,field_description:ssi_hr_payroll_batch.field_hr_payslip_batch__write_date
 #: model:ir.model.fields,field_description:ssi_hr_payroll_batch.field_hr_payslip_batch_account_entry__write_date
-#: model:ir.model.fields,field_description:ssi_hr_payroll_batch.field_hr_payslip_batch_input_import__write_date
+#: model:ir.model.fields,field_description:ssi_hr_payroll_batch.field_import_payslip_batch_input__write_date
 msgid "Last Updated on"
 msgstr ""
 
@@ -859,7 +859,7 @@ msgstr ""
 #. module: ssi_hr_payroll_batch
 #: model:ir.model.fields,field_description:ssi_hr_payroll_batch.field_hr_payslip__batch_id
 #: model:ir.model.fields,field_description:ssi_hr_payroll_batch.field_hr_payslip_batch_account_entry__batch_id
-#: model:ir.model.fields,field_description:ssi_hr_payroll_batch.field_hr_payslip_batch_input_import__batch_id
+#: model:ir.model.fields,field_description:ssi_hr_payroll_batch.field_import_payslip_batch_input__batch_id
 #: model:ir.module.category,name:ssi_hr_payroll_batch.hr_payslip_batch_data_ownership_module_category
 #: model:ir.module.category,name:ssi_hr_payroll_batch.hr_payslip_batch_module_category
 #: model_terms:ir.ui.view,arch_db:ssi_hr_payroll_batch.hr_payslip_view_search
@@ -990,7 +990,7 @@ msgid "Salary rule that generated this aggregated amount."
 msgstr ""
 
 #. module: ssi_hr_payroll_batch
-#: model:ir.model.fields,help:ssi_hr_payroll_batch.field_hr_payslip_batch_input_import__data
+#: model:ir.model.fields,help:ssi_hr_payroll_batch.field_import_payslip_batch_input__data
 msgid ""
 "Spreadsheet (.xlsx) previously exported from this payslip batch, with the "
 "manual input amounts filled in."
