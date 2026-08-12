@@ -110,51 +110,33 @@ scenarios:
         method: "action_compute_payslip"
         as_user: "base.user_admin"
 
-      - step: "Invalidate cache after compute"
-        action: "call"
-        target: "payslip"
-        method: "invalidate_cache"
-
       - step: "Reload input lines"
         action: "call"
         target: "payslip"
         method: "action_reload_input_lines"
         as_user: "base.user_admin"
 
-      - step: "Invalidate cache after reload"
-        action: "call"
-        target: "payslip"
-        method: "invalidate_cache"
-
       - step: "Confirm payslip"
         action: "call"
         target: "payslip"
         method: "action_confirm"
         as_user: "base.user_admin"
+        refresh: true
         asserts:
           state:
             type: "value"
             expected: "confirm"
-
-      - step: "Invalidate cache after confirm"
-        action: "call"
-        target: "payslip"
-        method: "invalidate_cache"
 
       - step: "Approve payslip"
         action: "call"
         target: "payslip"
         method: "action_approve_approval"
         as_user: "base.user_admin"
+        refresh: true
         asserts:
           state:
             type: "value"
             expected: "done"
-
-      - step: "Invalidate cache after done"
-        action: "call"
-        target: "payslip"
-        method: "invalidate_cache"
 
       - step: "Assert accounting entry created"
         action: "assert"
@@ -266,30 +248,22 @@ scenarios:
         target: "payslip"
         method: "action_confirm"
         as_user: "base.user_admin"
+        refresh: true
         asserts:
           state:
             type: "value"
             expected: "confirm"
-
-      - step: "Invalidate cache"
-        action: "call"
-        target: "payslip"
-        method: "invalidate_cache"
 
       - step: "Reject payslip"
         action: "call"
         target: "payslip"
         method: "action_reject_approval"
         as_user: "base.user_admin"
+        refresh: true
         asserts:
           state:
             type: "value"
             expected: "reject"
-
-      - step: "Invalidate cache after reject"
-        action: "call"
-        target: "payslip"
-        method: "invalidate_cache"
 
       - step: "Restart payslip"
         action: "call"
@@ -409,45 +383,33 @@ scenarios:
         target: "payslip"
         method: "action_confirm"
         as_user: "base.user_admin"
+        refresh: true
         asserts:
           state:
             type: "value"
             expected: "confirm"
-
-      - step: "Invalidate cache"
-        action: "call"
-        target: "payslip"
-        method: "invalidate_cache"
 
       - step: "Approve payslip to done"
         action: "call"
         target: "payslip"
         method: "action_approve_approval"
         as_user: "base.user_admin"
+        refresh: true
         asserts:
           state:
             type: "value"
             expected: "done"
-
-      - step: "Invalidate cache after done"
-        action: "call"
-        target: "payslip"
-        method: "invalidate_cache"
 
       - step: "Cancel payslip from done"
         action: "call"
         target: "payslip"
         method: "action_cancel"
         as_user: "base.user_admin"
+        refresh: true
         asserts:
           state:
             type: "value"
             expected: "cancel"
-
-      - step: "Invalidate cache after cancel"
-        action: "call"
-        target: "payslip"
-        method: "invalidate_cache"
 
       - step: "Assert accounting entry removed after cancel"
         action: "assert"
@@ -743,40 +705,27 @@ scenarios:
         method: "action_compute_payslip"
         as_user: "base.user_admin"
 
-      - step: "Invalidate cache after compute"
-        action: "call"
-        target: "payslip"
-        method: "invalidate_cache"
-
       - step: "Confirm payslip"
         action: "call"
         target: "payslip"
         method: "action_confirm"
         as_user: "base.user_admin"
+        refresh: true
         asserts:
           state:
             type: "value"
             expected: "confirm"
-
-      - step: "Invalidate cache after confirm"
-        action: "call"
-        target: "payslip"
-        method: "invalidate_cache"
 
       - step: "Approve payslip to done"
         action: "call"
         target: "payslip"
         method: "action_approve_approval"
         as_user: "base.user_admin"
+        refresh: true
         asserts:
           state:
             type: "value"
             expected: "done"
-
-      - step: "Invalidate cache after done"
-        action: "call"
-        target: "payslip"
-        method: "invalidate_cache"
 
       - step: "Assert accounting entry created despite empty fixed accounts"
         action: "assert"
@@ -918,40 +867,27 @@ scenarios:
         method: "action_compute_payslip"
         as_user: "base.user_admin"
 
-      - step: "Invalidate cache after compute"
-        action: "call"
-        target: "payslip"
-        method: "invalidate_cache"
-
       - step: "Confirm payslip"
         action: "call"
         target: "payslip"
         method: "action_confirm"
         as_user: "base.user_admin"
+        refresh: true
         asserts:
           state:
             type: "value"
             expected: "confirm"
-
-      - step: "Invalidate cache after confirm"
-        action: "call"
-        target: "payslip"
-        method: "invalidate_cache"
 
       - step: "Approve payslip to done"
         action: "call"
         target: "payslip"
         method: "action_approve_approval"
         as_user: "base.user_admin"
+        refresh: true
         asserts:
           state:
             type: "value"
             expected: "done"
-
-      - step: "Invalidate cache after done"
-        action: "call"
-        target: "payslip"
-        method: "invalidate_cache"
 
       - step: "Assert accounting entry created"
         action: "assert"
@@ -1086,40 +1022,27 @@ scenarios:
         method: "action_compute_payslip"
         as_user: "base.user_admin"
 
-      - step: "Invalidate cache after compute"
-        action: "call"
-        target: "payslip"
-        method: "invalidate_cache"
-
       - step: "Confirm payslip"
         action: "call"
         target: "payslip"
         method: "action_confirm"
         as_user: "base.user_admin"
+        refresh: true
         asserts:
           state:
             type: "value"
             expected: "confirm"
-
-      - step: "Invalidate cache after confirm"
-        action: "call"
-        target: "payslip"
-        method: "invalidate_cache"
 
       - step: "Approve payslip to done"
         action: "call"
         target: "payslip"
         method: "action_approve_approval"
         as_user: "base.user_admin"
+        refresh: true
         asserts:
           state:
             type: "value"
             expected: "done"
-
-      - step: "Invalidate cache after done"
-        action: "call"
-        target: "payslip"
-        method: "invalidate_cache"
 
       - step: "Assert accounting entry created"
         action: "assert"
@@ -1252,40 +1175,27 @@ scenarios:
         method: "action_compute_payslip"
         as_user: "base.user_admin"
 
-      - step: "Invalidate cache after compute"
-        action: "call"
-        target: "payslip"
-        method: "invalidate_cache"
-
       - step: "Confirm payslip"
         action: "call"
         target: "payslip"
         method: "action_confirm"
         as_user: "base.user_admin"
+        refresh: true
         asserts:
           state:
             type: "value"
             expected: "confirm"
-
-      - step: "Invalidate cache after confirm"
-        action: "call"
-        target: "payslip"
-        method: "invalidate_cache"
 
       - step: "Approve payslip to done"
         action: "call"
         target: "payslip"
         method: "action_approve_approval"
         as_user: "base.user_admin"
+        refresh: true
         asserts:
           state:
             type: "value"
             expected: "done"
-
-      - step: "Invalidate cache after done"
-        action: "call"
-        target: "payslip"
-        method: "invalidate_cache"
 
       - step: "Assert accounting entry created"
         action: "assert"
@@ -1314,3 +1224,173 @@ scenarios:
           - ["move_id", "=", "EVAL: registry['payslip'].move_id.id"]
           - ["account_id", "=", "EVAL: registry['default_account'].id"]
           - ["credit", ">", 0.0]
+
+  - name: "HR Payslip - Onchange sets analytic_account_id from type"
+    steps:
+      - step: "Create analytic account"
+        action: "create"
+        model: "account.analytic.account"
+        save_as: "analytic"
+        values:
+          name: "Test OC Analytic"
+
+      - step: "Create payroll journal"
+        action: "create"
+        model: "account.journal"
+        save_as: "journal"
+        values:
+          name: "Test OC Payroll Journal"
+          code: "TOCJOC"
+          type: "general"
+
+      - step: "Create payslip type with analytic account"
+        action: "create"
+        model: "hr.payslip_type"
+        save_as: "payslip_type"
+        values:
+          name: "Test OC Payslip Type"
+          code: "TOCPSTOC"
+          journal_id: "REC: journal.id"
+          analytic_account_id: "REC: analytic.id"
+
+      - step: "Create salary rule category"
+        action: "create"
+        model: "hr.salary_rule_category"
+        save_as: "category"
+        values:
+          name: "Test OC Cat"
+          code: "TOCCATOC"
+
+      - step: "Create salary rule"
+        action: "create"
+        model: "hr.salary_rule"
+        save_as: "rule"
+        values:
+          name: "Test OC Rule"
+          code: "TOCRULEOC"
+          category_id: "REC: category.id"
+          condition_python: "result = True"
+          amount_python: "result = 100.0"
+          sequence: 10
+
+      - step: "Create salary structure"
+        action: "create"
+        model: "hr.salary_structure"
+        save_as: "structure"
+        values:
+          name: "Test OC Structure"
+          code: "TOCSTROC"
+          rule_ids:
+            - "REC: rule.id"
+
+      - step: "Create employee"
+        action: "create"
+        model: "hr.employee"
+        save_as: "employee"
+        values:
+          name: "Test OC Employee"
+          salary_structure_id: "REC: structure.id"
+
+      - step: "Set employee then type with analytic account on the form"
+        action: "form"
+        model: "hr.payslip"
+        save: false
+        values:
+          employee_id: "REC: employee"
+          type_id: "REC: payslip_type"
+        asserts:
+          analytic_account_id:
+            type: "m2o"
+            expected: "REC: analytic"
+
+  - name: "HR Payslip - Onchange clears analytic_account_id when type changes"
+    steps:
+      - step: "Create analytic account"
+        action: "create"
+        model: "account.analytic.account"
+        save_as: "analytic"
+        values:
+          name: "Test OC Analytic Clear"
+
+      - step: "Create payroll journal"
+        action: "create"
+        model: "account.journal"
+        save_as: "journal"
+        values:
+          name: "Test OC Journal Clear"
+          code: "TOCJCL"
+          type: "general"
+
+      - step: "Create payslip type with analytic account"
+        action: "create"
+        model: "hr.payslip_type"
+        save_as: "payslip_type_with"
+        values:
+          name: "Test OC Type With Analytic"
+          code: "TOCPSTWITH"
+          journal_id: "REC: journal.id"
+          analytic_account_id: "REC: analytic.id"
+
+      - step: "Create payslip type without analytic account"
+        action: "create"
+        model: "hr.payslip_type"
+        save_as: "payslip_type_without"
+        values:
+          name: "Test OC Type Without Analytic"
+          code: "TOCPSTWOUT"
+          journal_id: "REC: journal.id"
+
+      - step: "Create salary rule category"
+        action: "create"
+        model: "hr.salary_rule_category"
+        save_as: "category"
+        values:
+          name: "Test OC Cat Clear"
+          code: "TOCCATCL"
+
+      - step: "Create salary rule"
+        action: "create"
+        model: "hr.salary_rule"
+        save_as: "rule"
+        values:
+          name: "Test OC Rule Clear"
+          code: "TOCRULECL"
+          category_id: "REC: category.id"
+          condition_python: "result = True"
+          amount_python: "result = 100.0"
+          sequence: 10
+
+      - step: "Create salary structure"
+        action: "create"
+        model: "hr.salary_structure"
+        save_as: "structure"
+        values:
+          name: "Test OC Structure Clear"
+          code: "TOCSTRCL"
+          rule_ids:
+            - "REC: rule.id"
+
+      - step: "Create employee"
+        action: "create"
+        model: "hr.employee"
+        save_as: "employee"
+        values:
+          name: "Test OC Employee Clear"
+          salary_structure_id: "REC: structure.id"
+
+      - step: "Set type with analytic, then switch to type without it"
+        action: "form"
+        model: "hr.payslip"
+        save: false
+        ops:
+          - set: {employee_id: "REC: employee"}
+          - set: {type_id: "REC: payslip_type_with"}
+          - assert:
+              analytic_account_id:
+                type: "value"
+                operator: "is_truthy"
+          - set: {type_id: "REC: payslip_type_without"}
+          - assert:
+              analytic_account_id:
+                type: "value"
+                operator: "is_falsy"

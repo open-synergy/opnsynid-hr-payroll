@@ -2,11 +2,13 @@
 # Copyright 2026 PT. Simetri Sinergi Indonesia
 # License AGPL-3.0 or later (http://www.gnu.org/licenses/agpl).
 
-from odoo.tests import TransactionCase, tagged
+from odoo_yaml_test import YamlTransactionCase
+
+from odoo.tests import tagged
 
 
 @tagged("post_install", "-at_install")
-class TestHrPayslipLineAccountResolution(TransactionCase):
+class TestHrPayslipLineAccountResolution(YamlTransactionCase):
     """Tests for payslip line account resolution.
 
     Covers ``_get_debit_account`` / ``_get_credit_account``.
@@ -318,12 +320,23 @@ class TestHrPayslipLineAccountResolution(TransactionCase):
 
         ``_get_account_by_product_usage`` returns the usage type
         account.
+
+        Pure Python — trigger P1 (L-01: ``action: call`` discards
+        the method's return value; L-02: an assert's actual side
+        is always a dotted ``getattr`` on a registry record, so a
+        raw return value cannot be asserted from YAML).
         """
         account = self.product._get_product_account(self.usage.code)
         self.assertTrue(account)
 
     def test_empty_usage_does_not_resolve(self):
-        """Sanity: usage_no_account resolves to False for our product."""
+        """Sanity: usage_no_account resolves to False for our product.
+
+        Pure Python — trigger P1 (L-01: ``action: call`` discards
+        the method's return value; L-02: an assert's actual side
+        is always a dotted ``getattr`` on a registry record, so a
+        raw return value cannot be asserted from YAML).
+        """
         account = self.product._get_product_account(self.usage_no_account.code)
         self.assertFalse(account)
 
@@ -338,6 +351,11 @@ class TestHrPayslipLineAccountResolution(TransactionCase):
         ``self.payslip`` has a ``debit_usage_id`` that resolves to
         ``self.account_usage``. The usage account must win over the
         fixed ``debit_account_id``.
+
+        Pure Python — trigger P1 (L-01: ``action: call`` discards
+        the method's return value; L-02: an assert's actual side
+        is always a dotted ``getattr`` on a registry record, so a
+        raw return value cannot be asserted from YAML).
         """
         result = self.line_debit_only._get_debit_account()
         self.assertEqual(
@@ -348,7 +366,13 @@ class TestHrPayslipLineAccountResolution(TransactionCase):
         )
 
     def test_credit_only_rule_returns_account_for_credit(self):
-        """Gate present + usage resolves → usage OVERRIDES fixed."""
+        """Gate present + usage resolves → usage OVERRIDES fixed.
+
+        Pure Python — trigger P1 (L-01: ``action: call`` discards
+        the method's return value; L-02: an assert's actual side
+        is always a dotted ``getattr`` on a registry record, so a
+        raw return value cannot be asserted from YAML).
+        """
         result = self.line_credit_only._get_credit_account()
         self.assertEqual(
             result,
@@ -368,6 +392,11 @@ class TestHrPayslipLineAccountResolution(TransactionCase):
         """Gate empty: rule without debit_account_id → no debit line.
 
         Applies even when usage could resolve an account.
+
+        Pure Python — trigger P1 (L-01: ``action: call`` discards
+        the method's return value; L-02: an assert's actual side
+        is always a dotted ``getattr`` on a registry record, so a
+        raw return value cannot be asserted from YAML).
         """
         usage_account = self.line_usage_only._get_account_by_product_usage(
             self.payslip.debit_usage_id
@@ -387,6 +416,11 @@ class TestHrPayslipLineAccountResolution(TransactionCase):
         """Gate empty: rule without credit_account_id → no credit line.
 
         Applies even when usage could resolve an account.
+
+        Pure Python — trigger P1 (L-01: ``action: call`` discards
+        the method's return value; L-02: an assert's actual side
+        is always a dotted ``getattr`` on a registry record, so a
+        raw return value cannot be asserted from YAML).
         """
         usage_account = self.line_usage_only._get_account_by_product_usage(
             self.payslip.credit_usage_id
@@ -410,6 +444,11 @@ class TestHrPayslipLineAccountResolution(TransactionCase):
 
         A debit-only rule (``credit_account_id=False``) must NOT
         obtain a credit account via usage.
+
+        Pure Python — trigger P1 (L-01: ``action: call`` discards
+        the method's return value; L-02: an assert's actual side
+        is always a dotted ``getattr`` on a registry record, so a
+        raw return value cannot be asserted from YAML).
         """
         usage_account = self.line_debit_only._get_account_by_product_usage(
             self.payslip.credit_usage_id
@@ -428,6 +467,11 @@ class TestHrPayslipLineAccountResolution(TransactionCase):
 
         A credit-only rule (``debit_account_id=False``) must NOT
         obtain a debit account via usage.
+
+        Pure Python — trigger P1 (L-01: ``action: call`` discards
+        the method's return value; L-02: an assert's actual side
+        is always a dotted ``getattr`` on a registry record, so a
+        raw return value cannot be asserted from YAML).
         """
         usage_account = self.line_credit_only._get_account_by_product_usage(
             self.payslip.debit_usage_id
@@ -450,6 +494,11 @@ class TestHrPayslipLineAccountResolution(TransactionCase):
 
         Usage is present but unresolvable, so it falls back to
         ``debit_account_id``.
+
+        Pure Python — trigger P1 (L-01: ``action: call`` discards
+        the method's return value; L-02: an assert's actual side
+        is always a dotted ``getattr`` on a registry record, so a
+        raw return value cannot be asserted from YAML).
         """
         result = self.line_debit_only_empty_usage._get_debit_account()
         self.assertEqual(
@@ -459,7 +508,13 @@ class TestHrPayslipLineAccountResolution(TransactionCase):
         )
 
     def test_fallback_debit_usage_no_resolve_no_fixed_returns_false(self):
-        """Debit fallback: usage unresolvable + no fixed → False."""
+        """Debit fallback: usage unresolvable + no fixed → False.
+
+        Pure Python — trigger P1 (L-01: ``action: call`` discards
+        the method's return value; L-02: an assert's actual side
+        is always a dotted ``getattr`` on a registry record, so a
+        raw return value cannot be asserted from YAML).
+        """
         result = self.line_usage_only_empty_usage._get_debit_account()
         self.assertFalse(
             result,
@@ -467,7 +522,13 @@ class TestHrPayslipLineAccountResolution(TransactionCase):
         )
 
     def test_fallback_debit_no_usage_has_fixed_returns_fixed(self):
-        """Debit fallback: no usage set → falls to debit_account_id."""
+        """Debit fallback: no usage set → falls to debit_account_id.
+
+        Pure Python — trigger P1 (L-01: ``action: call`` discards
+        the method's return value; L-02: an assert's actual side
+        is always a dotted ``getattr`` on a registry record, so a
+        raw return value cannot be asserted from YAML).
+        """
         result = self.line_debit_only_no_usage._get_debit_account()
         self.assertEqual(
             result,
@@ -476,7 +537,13 @@ class TestHrPayslipLineAccountResolution(TransactionCase):
         )
 
     def test_fallback_debit_no_usage_no_fixed_returns_false(self):
-        """Debit fallback: no usage set + no fixed account → False."""
+        """Debit fallback: no usage set + no fixed account → False.
+
+        Pure Python — trigger P1 (L-01: ``action: call`` discards
+        the method's return value; L-02: an assert's actual side
+        is always a dotted ``getattr`` on a registry record, so a
+        raw return value cannot be asserted from YAML).
+        """
         result = self.line_usage_only_no_usage._get_debit_account()
         self.assertFalse(
             result,
@@ -488,6 +555,11 @@ class TestHrPayslipLineAccountResolution(TransactionCase):
 
         The rule has no ``product_id``, so usage resolution is
         skipped and it falls back to the fixed account.
+
+        Pure Python — trigger P1 (L-01: ``action: call`` discards
+        the method's return value; L-02: an assert's actual side
+        is always a dotted ``getattr`` on a registry record, so a
+        raw return value cannot be asserted from YAML).
         """
         rule_cat = self.env["hr.salary_rule_category"].search(
             [("code", "=", "TSLRCAT")], limit=1
@@ -520,7 +592,13 @@ class TestHrPayslipLineAccountResolution(TransactionCase):
         )
 
     def test_fallback_debit_no_product_no_fixed_returns_false(self):
-        """Debit fallback: no product_id + no fixed account → False."""
+        """Debit fallback: no product_id + no fixed account → False.
+
+        Pure Python — trigger P1 (L-01: ``action: call`` discards
+        the method's return value; L-02: an assert's actual side
+        is always a dotted ``getattr`` on a registry record, so a
+        raw return value cannot be asserted from YAML).
+        """
         rule_cat = self.env["hr.salary_rule_category"].search(
             [("code", "=", "TSLRCAT")], limit=1
         )
@@ -558,6 +636,11 @@ class TestHrPayslipLineAccountResolution(TransactionCase):
 
         Usage is present but unresolvable, so it falls back to
         ``credit_account_id``.
+
+        Pure Python — trigger P1 (L-01: ``action: call`` discards
+        the method's return value; L-02: an assert's actual side
+        is always a dotted ``getattr`` on a registry record, so a
+        raw return value cannot be asserted from YAML).
         """
         result = self.line_credit_only_empty_usage._get_credit_account()
         self.assertEqual(
@@ -567,7 +650,13 @@ class TestHrPayslipLineAccountResolution(TransactionCase):
         )
 
     def test_fallback_credit_usage_no_resolve_no_fixed_returns_false(self):
-        """Credit fallback: usage unresolvable + no fixed → False."""
+        """Credit fallback: usage unresolvable + no fixed → False.
+
+        Pure Python — trigger P1 (L-01: ``action: call`` discards
+        the method's return value; L-02: an assert's actual side
+        is always a dotted ``getattr`` on a registry record, so a
+        raw return value cannot be asserted from YAML).
+        """
         result = self.line_usage_only_empty_usage._get_credit_account()
         self.assertFalse(
             result,
@@ -575,7 +664,13 @@ class TestHrPayslipLineAccountResolution(TransactionCase):
         )
 
     def test_fallback_credit_no_usage_has_fixed_returns_fixed(self):
-        """Credit fallback: no usage set → falls to credit_account_id."""
+        """Credit fallback: no usage set → falls to credit_account_id.
+
+        Pure Python — trigger P1 (L-01: ``action: call`` discards
+        the method's return value; L-02: an assert's actual side
+        is always a dotted ``getattr`` on a registry record, so a
+        raw return value cannot be asserted from YAML).
+        """
         result = self.line_credit_only_no_usage._get_credit_account()
         self.assertEqual(
             result,
@@ -584,7 +679,13 @@ class TestHrPayslipLineAccountResolution(TransactionCase):
         )
 
     def test_fallback_credit_no_usage_no_fixed_returns_false(self):
-        """Credit fallback: no usage set + no fixed account → False."""
+        """Credit fallback: no usage set + no fixed account → False.
+
+        Pure Python — trigger P1 (L-01: ``action: call`` discards
+        the method's return value; L-02: an assert's actual side
+        is always a dotted ``getattr`` on a registry record, so a
+        raw return value cannot be asserted from YAML).
+        """
         result = self.line_usage_only_no_usage._get_credit_account()
         self.assertFalse(
             result,
@@ -596,6 +697,11 @@ class TestHrPayslipLineAccountResolution(TransactionCase):
 
         The rule has no ``product_id``, so usage resolution is
         skipped and it falls back to the fixed account.
+
+        Pure Python — trigger P1 (L-01: ``action: call`` discards
+        the method's return value; L-02: an assert's actual side
+        is always a dotted ``getattr`` on a registry record, so a
+        raw return value cannot be asserted from YAML).
         """
         rule_cat = self.env["hr.salary_rule_category"].search(
             [("code", "=", "TSLRCAT")], limit=1
@@ -628,7 +734,13 @@ class TestHrPayslipLineAccountResolution(TransactionCase):
         )
 
     def test_fallback_credit_no_product_no_fixed_returns_false(self):
-        """Credit fallback: no product_id + no fixed account → False."""
+        """Credit fallback: no product_id + no fixed account → False.
+
+        Pure Python — trigger P1 (L-01: ``action: call`` discards
+        the method's return value; L-02: an assert's actual side
+        is always a dotted ``getattr`` on a registry record, so a
+        raw return value cannot be asserted from YAML).
+        """
         rule_cat = self.env["hr.salary_rule_category"].search(
             [("code", "=", "TSLRCAT")], limit=1
         )
