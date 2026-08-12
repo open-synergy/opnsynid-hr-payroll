@@ -10,7 +10,10 @@ class TestHrPayslipAccountingHook(TransactionCase):
     """Test 16: _need_accounting_entry() hook default behaviour."""
 
     def test_need_accounting_entry_default_true(self):
-        """_need_accounting_entry() must return True by default (standalone payslip)."""
+        """Return ``True`` by default for a standalone payslip.
+
+        ``_need_accounting_entry()`` must return ``True`` by default.
+        """
         payslip = self.env["hr.payslip"].new(
             {"date_start": "2026-01-01", "date_end": "2026-01-31"}
         )
