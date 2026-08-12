@@ -39,8 +39,16 @@ class TestHrPayslipBatchOperatingUnit(YamlTransactionCase):
         )
 
     def test_reload_employee_filters_by_operating_unit(self):
-        """action_reload_employee must only load employees whose operating_unit_id
-        matches the batch's operating_unit_id."""
+        """Assert action_reload_employee only loads matching-OU employees.
+
+        Pure Python — trigger P1 (L-01: ``action_reload_employee`` is
+        invoked for its side effect on ``batch.employee_ids``, a
+        recordset that the ``call`` action cannot capture since it
+        discards the return value; L-02: the negative check filters
+        the resulting recordset with a lambda, an expression the
+        ``assert`` action cannot express because its actual side is
+        always a dotted ``getattr`` on a registered record).
+        """
         company = self.env.ref("base.main_company")
         partner = self.env.ref("base.main_partner")
 
@@ -241,10 +249,21 @@ class TestHrPayslipBatchOperatingUnit(YamlTransactionCase):
         batch.invalidate_cache()
 
     def test_batch_move_has_same_operating_unit_as_batch(self):
-        """_prepare_standard_move must propagate operating_unit_id to account.move.
+        """Assert the done batch's journal entry inherits its OU.
 
-        When accounting_method is 'batch', the journal entry created at done
-        must carry the same operating_unit_id as the payslip batch.
+        When ``accounting_method`` is ``batch``, the journal entry
+        created by ``_prepare_standard_move`` at ``done`` must carry
+        the same ``operating_unit_id`` as the payslip batch.
+
+        Pure Python — trigger P1 (L-01: reaching ``done`` requires
+        chaining ``action_open``/``action_compute_payslip``/
+        ``action_confirm``/``action_approve_approval``, methods
+        the ``call`` action can invoke but whose ``move_id`` side
+        effect it cannot capture since it discards return values;
+        L-02: the actual side of the assertion is the dotted path
+        ``batch.move_id.operating_unit_id``, compared against a
+        fixture record rather than a literal, which the ``assert``
+        action's dotted-``getattr``-only actual side cannot express).
         """
         f = self._create_batch_move_ou_fixtures("TMOVOU")
         batch = f["batch"]

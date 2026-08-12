@@ -140,11 +140,6 @@ scenarios:
             type: "value"
             expected: "open"
 
-      - step: "Invalidate cache"
-        action: "call"
-        target: "batch"
-        method: "invalidate_cache"
-
       - step: "Search generated payslip"
         action: "search"
         model: "hr.payslip"
@@ -156,6 +151,7 @@ scenarios:
       - step: "Assert payslip has operating unit from batch"
         action: "assert"
         target: "payslip"
+        refresh: true
         asserts:
           operating_unit_id:
             type: "value"
