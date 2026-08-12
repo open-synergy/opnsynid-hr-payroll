@@ -122,15 +122,15 @@ scenarios:
         target: "batch"
         method: "action_open"
         as_user: "base.user_admin"
+
+      - step: "Assert batch open after action_open"
+        action: "assert"
+        target: "batch"
+        refresh: true
         asserts:
           state:
             type: "value"
             expected: "open"
-
-      - step: "Invalidate cache after open"
-        action: "call"
-        target: "batch"
-        method: "invalidate_cache"
 
       - step: "Compute payslips in batch"
         action: "call"
@@ -138,25 +138,29 @@ scenarios:
         method: "action_compute_payslip"
         as_user: "base.user_admin"
 
-      - step: "Invalidate cache after compute"
-        action: "call"
+      - step: "Assert batch still open after compute"
+        action: "assert"
         target: "batch"
-        method: "invalidate_cache"
+        refresh: true
+        asserts:
+          state:
+            type: "value"
+            expected: "open"
 
       - step: "Confirm batch"
         action: "call"
         target: "batch"
         method: "action_confirm"
         as_user: "base.user_admin"
+
+      - step: "Assert batch confirmed after action_confirm"
+        action: "assert"
+        target: "batch"
+        refresh: true
         asserts:
           state:
             type: "value"
             expected: "confirm"
-
-      - step: "Invalidate cache after confirm"
-        action: "call"
-        target: "batch"
-        method: "invalidate_cache"
 
       - step: "Approve batch to done"
         action: "call"
@@ -283,45 +287,63 @@ scenarios:
         target: "batch"
         method: "action_open"
         as_user: "base.user_admin"
+
+      - step: "Assert batch open after action_open"
+        action: "assert"
+        target: "batch"
+        refresh: true
         asserts:
           state:
             type: "value"
             expected: "open"
-
-      - step: "Invalidate cache"
-        action: "call"
-        target: "batch"
-        method: "invalidate_cache"
 
       - step: "Confirm batch"
         action: "call"
         target: "batch"
         method: "action_confirm"
         as_user: "base.user_admin"
+
+      - step: "Assert batch confirmed after action_confirm"
+        action: "assert"
+        target: "batch"
+        refresh: true
         asserts:
           state:
             type: "value"
             expected: "confirm"
 
-      - step: "Invalidate cache"
-        action: "call"
-        target: "batch"
-        method: "invalidate_cache"
+      - step: "Assert payslip confirmed after batch action_confirm"
+        action: "assert"
+        target: "payslip"
+        refresh: true
+        asserts:
+          state:
+            type: "value"
+            expected: "confirm"
 
       - step: "Reject batch"
         action: "call"
         target: "batch"
         method: "action_reject_approval"
         as_user: "base.user_admin"
+
+      - step: "Assert batch rejected after action_reject_approval"
+        action: "assert"
+        target: "batch"
+        refresh: true
         asserts:
           state:
             type: "value"
             expected: "reject"
 
-      - step: "Invalidate cache"
-        action: "call"
-        target: "batch"
-        method: "invalidate_cache"
+      - step: "Assert payslip rejected after batch action_reject_approval"
+        action: "assert"
+        target: "payslip"
+        refresh: true
+        asserts:
+          state:
+            type: "value"
+            expected: "reject"
 
       - step: "Restart batch"
         action: "call"
@@ -448,30 +470,39 @@ scenarios:
         target: "batch"
         method: "action_open"
         as_user: "base.user_admin"
+
+      - step: "Assert batch open after action_open"
+        action: "assert"
+        target: "batch"
+        refresh: true
         asserts:
           state:
             type: "value"
             expected: "open"
-
-      - step: "Invalidate cache"
-        action: "call"
-        target: "batch"
-        method: "invalidate_cache"
 
       - step: "Cancel batch"
         action: "call"
         target: "batch"
         method: "action_cancel"
         as_user: "base.user_admin"
+
+      - step: "Assert batch cancelled after action_cancel"
+        action: "assert"
+        target: "batch"
+        refresh: true
         asserts:
           state:
             type: "value"
             expected: "cancel"
 
-      - step: "Invalidate cache"
-        action: "call"
-        target: "batch"
-        method: "invalidate_cache"
+      - step: "Assert payslip cancelled after batch action_cancel"
+        action: "assert"
+        target: "payslip"
+        refresh: true
+        asserts:
+          state:
+            type: "value"
+            expected: "cancel"
 
       - step: "Restart cancelled batch"
         action: "call"
@@ -583,14 +614,10 @@ scenarios:
         method: "action_reload_employee"
         as_user: "base.user_admin"
 
-      - step: "Invalidate cache"
-        action: "call"
-        target: "batch"
-        method: "invalidate_cache"
-
       - step: "Assert batch still in draft"
         action: "assert"
         target: "batch"
+        refresh: true
         asserts:
           state:
             type: "value"
@@ -737,3 +764,355 @@ scenarios:
           type: "AccessError"
         values:
           batch_id: "REC: batch"
+
+  - name: "HR Payslip Batch - onchange_analytic_account_id set from type_id"
+    steps:
+      - step: "Create analytic account"
+        action: "create"
+        model: "account.analytic.account"
+        save_as: "analytic_account"
+        values:
+          name: "Batch OC Analytic"
+
+      - step: "Create payroll journal"
+        action: "create"
+        model: "account.journal"
+        save_as: "journal"
+        values:
+          name: "Batch OC Journal"
+          code: "TBOCJ01"
+          type: "general"
+
+      - step: "Create payslip type with analytic account"
+        action: "create"
+        model: "hr.payslip_type"
+        save_as: "payslip_type"
+        values:
+          name: "Batch OC Type"
+          code: "TBOCTYPE1"
+          journal_id: "REC: journal"
+          analytic_account_id: "REC: analytic_account"
+
+      - step: "Set type_id on form and check onchange populates analytic_account_id"
+        action: "form"
+        model: "hr.payslip_batch"
+        save: false
+        values:
+          type_id: "REC: payslip_type"
+        asserts:
+          analytic_account_id:
+            type: "m2o"
+            expected: "REC: analytic_account"
+
+  - name: "HR Payslip Batch - onchange_analytic_account_id cleared when type_id changes"
+    steps:
+      - step: "Create analytic account"
+        action: "create"
+        model: "account.analytic.account"
+        save_as: "analytic_account"
+        values:
+          name: "Batch OC Analytic Clear"
+
+      - step: "Create payroll journal"
+        action: "create"
+        model: "account.journal"
+        save_as: "journal"
+        values:
+          name: "Batch OC Journal Clear"
+          code: "TBOCJ02"
+          type: "general"
+
+      - step: "Create payslip type with analytic account"
+        action: "create"
+        model: "hr.payslip_type"
+        save_as: "payslip_type_with"
+        values:
+          name: "Batch OC Type With Analytic"
+          code: "TBOCTYPE2W"
+          journal_id: "REC: journal"
+          analytic_account_id: "REC: analytic_account"
+
+      - step: "Create payslip type without analytic account"
+        action: "create"
+        model: "hr.payslip_type"
+        save_as: "payslip_type_without"
+        values:
+          name: "Batch OC Type Without Analytic"
+          code: "TBOCTYPE2WO"
+          journal_id: "REC: journal"
+
+      - step: "Set type_id twice and check analytic_account_id is cleared"
+        action: "form"
+        model: "hr.payslip_batch"
+        save: false
+        ops:
+          - set:
+              type_id: "REC: payslip_type_with"
+          - assert:
+              analytic_account_id:
+                type: "value"
+                operator: "is_truthy"
+          - set:
+              type_id: "REC: payslip_type_without"
+          - assert:
+              analytic_account_id:
+                type: "value"
+                operator: "is_falsy"
+
+  - name: "HR Payslip Batch - payslip_count reflects generated payslips"
+    steps:
+      - step: "Create payroll journal"
+        action: "create"
+        model: "account.journal"
+        save_as: "journal"
+        values:
+          name: "Batch Count Journal"
+          code: "TBCNTJ"
+          type: "general"
+
+      - step: "Create salary rule category"
+        action: "create"
+        model: "hr.salary_rule_category"
+        save_as: "category"
+        values:
+          name: "Batch Count Category"
+          code: "TBCNTCAT"
+
+      - step: "Create salary rule"
+        action: "create"
+        model: "hr.salary_rule"
+        save_as: "rule"
+        values:
+          name: "Batch Count Rule"
+          code: "TBCNTRULE"
+          category_id: "REC: category"
+          condition_python: "result = True"
+          amount_python: "result = 100.0"
+          sequence: 10
+
+      - step: "Create salary structure"
+        action: "create"
+        model: "hr.salary_structure"
+        save_as: "structure"
+        values:
+          name: "Batch Count Structure"
+          code: "TBCNTSTR"
+          rule_ids:
+            - "REC: rule.id"
+
+      - step: "Create payslip type"
+        action: "create"
+        model: "hr.payslip_type"
+        save_as: "payslip_type"
+        values:
+          name: "Batch Count Type"
+          code: "TBCNTTYPE"
+          journal_id: "REC: journal"
+
+      - step: "Create employee with salary structure"
+        action: "create"
+        model: "hr.employee"
+        save_as: "employee"
+        values:
+          name: "Batch Count Employee"
+          salary_structure_id: "REC: structure"
+
+      - step: "Create payslip batch with one employee"
+        action: "create"
+        model: "hr.payslip_batch"
+        save_as: "batch"
+        as_user: "base.user_admin"
+        values:
+          type_id: "REC: payslip_type"
+          date_start: "2024-11-01"
+          date_end: "2024-11-30"
+          date: "2024-11-30"
+          employee_ids:
+            - "REC: employee.id"
+
+      - step: "Open batch to generate payslips"
+        action: "call"
+        target: "batch"
+        method: "action_open"
+        as_user: "base.user_admin"
+
+      - step: "Assert payslip_count is 1"
+        action: "assert"
+        target: "batch"
+        refresh: true
+        asserts:
+          payslip_count:
+            type: "value"
+            expected: 1
+
+  - name: "HR Payslip Batch - payslip_count is zero without payslips"
+    steps:
+      - step: "Create payroll journal"
+        action: "create"
+        model: "account.journal"
+        save_as: "journal"
+        values:
+          name: "Batch Empty Count Journal"
+          code: "TBECJ"
+          type: "general"
+
+      - step: "Create payslip type"
+        action: "create"
+        model: "hr.payslip_type"
+        save_as: "payslip_type"
+        values:
+          name: "Batch Empty Count Type"
+          code: "TBECTYPE"
+          journal_id: "REC: journal"
+
+      - step: "Create payslip batch without employees"
+        action: "create"
+        model: "hr.payslip_batch"
+        save_as: "batch"
+        as_user: "base.user_admin"
+        values:
+          type_id: "REC: payslip_type"
+          date_start: "2024-11-01"
+          date_end: "2024-11-30"
+          date: "2024-11-30"
+
+      - step: "Assert payslip_count is 0"
+        action: "assert"
+        target: "batch"
+        asserts:
+          payslip_count:
+            type: "value"
+            expected: 0
+
+  - name: "HR Payslip Batch - Import wizard rejects unknown input code"
+    steps:
+      - step: "Create payroll journal"
+        action: "create"
+        model: "account.journal"
+        save_as: "journal"
+        values:
+          name: "Batch Import Reject Journal"
+          code: "TBIMPRJ"
+          type: "general"
+
+      - step: "Create payslip type"
+        action: "create"
+        model: "hr.payslip_type"
+        save_as: "payslip_type"
+        values:
+          name: "Batch Import Reject Type"
+          code: "TBIMPRJTYPE"
+          journal_id: "REC: journal"
+
+      - step: "Create payslip batch"
+        action: "create"
+        model: "hr.payslip_batch"
+        save_as: "batch"
+        as_user: "base.user_admin"
+        values:
+          type_id: "REC: payslip_type"
+          date_start: "2024-11-01"
+          date_end: "2024-11-30"
+          date: "2024-11-30"
+
+      - step: "Import spreadsheet with an unrecognized input code header"
+        action: "wizard"
+        model: "import_payslip_batch_input"
+        target: "batch"
+        as_user: "base.user_admin"
+        method: "action_import"
+        expect_error:
+          type: "UserError"
+          message_contains: "Unknown input code"
+        values:
+          filename: "unknown_code.xlsx"
+          data: |-
+            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
+            LnhtbFBLBQYAAAAACQAJAD4CAADaEAAAAAA=

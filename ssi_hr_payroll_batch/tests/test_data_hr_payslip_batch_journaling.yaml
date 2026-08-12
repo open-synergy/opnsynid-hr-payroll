@@ -1,0 +1,758 @@
+scenarios:
+  - name: "HR Payslip Batch Journaling - default accounting_method is payslip"
+    steps:
+      - step: "Create journal"
+        action: "create"
+        model: "account.journal"
+        save_as: "journal"
+        values:
+          name: "JY01 Journal"
+          code: "JY01J"
+          type: "general"
+
+      - step: "Create payslip type"
+        action: "create"
+        model: "hr.payslip_type"
+        save_as: "payslip_type"
+        values:
+          name: "JY01 Type"
+          code: "JY01TYPE"
+          journal_id: "REC: journal"
+
+      - step: "Create payslip batch without setting accounting_method"
+        action: "create"
+        model: "hr.payslip_batch"
+        save_as: "batch"
+        as_user: "base.user_admin"
+        values:
+          type_id: "REC: payslip_type"
+          date_start: "2026-02-01"
+          date_end: "2026-02-28"
+          date: "2026-02-28"
+
+      - step: "Assert accounting_method defaults to payslip"
+        action: "assert"
+        target: "batch"
+        asserts:
+          accounting_method:
+            type: "value"
+            expected: "payslip"
+
+  - name: "HR Payslip Batch Journaling - batch method payslips done without a move"
+    steps:
+      - step: "Get expense account type"
+        action: "ref"
+        xml_id: "account.data_account_type_expenses"
+        save_as: "expense_account_type"
+
+      - step: "Create debit account"
+        action: "create"
+        model: "account.account"
+        save_as: "debit_account"
+        values:
+          name: "JY03 Debit"
+          code: "JY03DB"
+          user_type_id: "REC: expense_account_type"
+
+      - step: "Create credit account"
+        action: "create"
+        model: "account.account"
+        save_as: "credit_account"
+        values:
+          name: "JY03 Credit"
+          code: "JY03CR"
+          user_type_id: "REC: expense_account_type"
+
+      - step: "Create default account"
+        action: "create"
+        model: "account.account"
+        save_as: "default_account"
+        values:
+          name: "JY03 Default"
+          code: "JY03DFT"
+          user_type_id: "REC: expense_account_type"
+
+      - step: "Create journal"
+        action: "create"
+        model: "account.journal"
+        save_as: "journal"
+        values:
+          name: "JY03 Journal"
+          code: "JY03JRN"
+          type: "general"
+          default_account_id: "REC: default_account"
+
+      - step: "Create salary rule category"
+        action: "create"
+        model: "hr.salary_rule_category"
+        save_as: "category"
+        values:
+          name: "JY03 Category"
+          code: "JY03CAT"
+
+      - step: "Create salary rule"
+        action: "create"
+        model: "hr.salary_rule"
+        save_as: "rule"
+        values:
+          name: "JY03 Rule"
+          code: "JY03RULE"
+          category_id: "REC: category"
+          debit_account_id: "REC: debit_account"
+          credit_account_id: "REC: credit_account"
+          condition_python: "result = True"
+          amount_python: "result = 1000.0"
+          sequence: 10
+
+      - step: "Create salary structure"
+        action: "create"
+        model: "hr.salary_structure"
+        save_as: "structure"
+        values:
+          name: "JY03 Structure"
+          code: "JY03STR"
+          rule_ids:
+            - "REC: rule.id"
+
+      - step: "Create payslip type with batch accounting method"
+        action: "create"
+        model: "hr.payslip_type"
+        save_as: "payslip_type"
+        values:
+          name: "JY03 Type"
+          code: "JY03TYPE"
+          accounting_method: "batch"
+          journal_id: "REC: journal"
+
+      - step: "Create employee"
+        action: "create"
+        model: "hr.employee"
+        save_as: "employee"
+        values:
+          name: "JY03 Employee"
+          salary_structure_id: "REC: structure"
+
+      - step: "Create payslip batch with batch accounting method"
+        action: "create"
+        model: "hr.payslip_batch"
+        save_as: "batch"
+        as_user: "base.user_admin"
+        values:
+          type_id: "REC: payslip_type"
+          accounting_method: "batch"
+          journal_id: "REC: journal"
+          date_start: "2026-01-01"
+          date_end: "2026-01-31"
+          date: "2026-01-31"
+          employee_ids:
+            - "REC: employee.id"
+
+      - step: "Open batch"
+        action: "call"
+        target: "batch"
+        method: "action_open"
+        as_user: "base.user_admin"
+
+      - step: "Assert batch open after action_open"
+        action: "assert"
+        target: "batch"
+        refresh: true
+        asserts:
+          state:
+            type: "value"
+            expected: "open"
+
+      - step: "Compute payslips in batch"
+        action: "call"
+        target: "batch"
+        method: "action_compute_payslip"
+        as_user: "base.user_admin"
+
+      - step: "Assert batch still open after compute"
+        action: "assert"
+        target: "batch"
+        refresh: true
+        asserts:
+          state:
+            type: "value"
+            expected: "open"
+
+      - step: "Confirm batch"
+        action: "call"
+        target: "batch"
+        method: "action_confirm"
+        as_user: "base.user_admin"
+        context:
+          bypass_policy_check: true
+
+      - step: "Assert batch confirmed after action_confirm"
+        action: "assert"
+        target: "batch"
+        refresh: true
+        asserts:
+          state:
+            type: "value"
+            expected: "confirm"
+
+      - step: "Approve batch to done"
+        action: "call"
+        target: "batch"
+        method: "action_approve_approval"
+        as_user: "base.user_admin"
+        context:
+          bypass_policy_check: true
+
+      - step: "Assert batch done after action_approve_approval"
+        action: "assert"
+        target: "batch"
+        refresh: true
+        asserts:
+          state:
+            type: "value"
+            expected: "done"
+
+      - step: "Find the payslip generated for this batch"
+        action: "search"
+        model: "hr.payslip"
+        domain:
+          - - "batch_id"
+            - "="
+            - "REC: batch.id"
+        save_as: "payslip"
+        expect_count: 1
+
+      - step: "Assert payslip is done without its own move"
+        action: "assert"
+        target: "payslip"
+        asserts:
+          state:
+            type: "value"
+            expected: "done"
+          move_id:
+            type: "value"
+            operator: "is_falsy"
+
+  - name: "HR Payslip Batch Journaling - cancel removes batch move"
+    steps:
+      - step: "Get expense account type"
+        action: "ref"
+        xml_id: "account.data_account_type_expenses"
+        save_as: "expense_account_type"
+
+      - step: "Create debit account"
+        action: "create"
+        model: "account.account"
+        save_as: "debit_account"
+        values:
+          name: "JY08 Debit"
+          code: "JY08DB"
+          user_type_id: "REC: expense_account_type"
+
+      - step: "Create credit account"
+        action: "create"
+        model: "account.account"
+        save_as: "credit_account"
+        values:
+          name: "JY08 Credit"
+          code: "JY08CR"
+          user_type_id: "REC: expense_account_type"
+
+      - step: "Create default account"
+        action: "create"
+        model: "account.account"
+        save_as: "default_account"
+        values:
+          name: "JY08 Default"
+          code: "JY08DFT"
+          user_type_id: "REC: expense_account_type"
+
+      - step: "Create journal"
+        action: "create"
+        model: "account.journal"
+        save_as: "journal"
+        values:
+          name: "JY08 Journal"
+          code: "JY08JRN"
+          type: "general"
+          default_account_id: "REC: default_account"
+
+      - step: "Create salary rule category"
+        action: "create"
+        model: "hr.salary_rule_category"
+        save_as: "category"
+        values:
+          name: "JY08 Category"
+          code: "JY08CAT"
+
+      - step: "Create salary rule"
+        action: "create"
+        model: "hr.salary_rule"
+        save_as: "rule"
+        values:
+          name: "JY08 Rule"
+          code: "JY08RULE"
+          category_id: "REC: category"
+          debit_account_id: "REC: debit_account"
+          credit_account_id: "REC: credit_account"
+          condition_python: "result = True"
+          amount_python: "result = 1000.0"
+          sequence: 10
+
+      - step: "Create salary structure"
+        action: "create"
+        model: "hr.salary_structure"
+        save_as: "structure"
+        values:
+          name: "JY08 Structure"
+          code: "JY08STR"
+          rule_ids:
+            - "REC: rule.id"
+
+      - step: "Create payslip type with batch accounting method"
+        action: "create"
+        model: "hr.payslip_type"
+        save_as: "payslip_type"
+        values:
+          name: "JY08 Type"
+          code: "JY08TYPE"
+          accounting_method: "batch"
+          journal_id: "REC: journal"
+
+      - step: "Create employee"
+        action: "create"
+        model: "hr.employee"
+        save_as: "employee"
+        values:
+          name: "JY08 Employee"
+          salary_structure_id: "REC: structure"
+
+      - step: "Create payslip batch with batch accounting method"
+        action: "create"
+        model: "hr.payslip_batch"
+        save_as: "batch"
+        as_user: "base.user_admin"
+        values:
+          type_id: "REC: payslip_type"
+          accounting_method: "batch"
+          journal_id: "REC: journal"
+          date_start: "2026-01-01"
+          date_end: "2026-01-31"
+          date: "2026-01-31"
+          employee_ids:
+            - "REC: employee.id"
+
+      - step: "Open batch"
+        action: "call"
+        target: "batch"
+        method: "action_open"
+        as_user: "base.user_admin"
+
+      - step: "Compute payslips in batch"
+        action: "call"
+        target: "batch"
+        method: "action_compute_payslip"
+        as_user: "base.user_admin"
+
+      - step: "Confirm batch"
+        action: "call"
+        target: "batch"
+        method: "action_confirm"
+        as_user: "base.user_admin"
+        context:
+          bypass_policy_check: true
+
+      - step: "Approve batch to done"
+        action: "call"
+        target: "batch"
+        method: "action_approve_approval"
+        as_user: "base.user_admin"
+        context:
+          bypass_policy_check: true
+
+      - step: "Assert batch done with a move before cancel"
+        action: "assert"
+        target: "batch"
+        refresh: true
+        asserts:
+          state:
+            type: "value"
+            expected: "done"
+          move_id:
+            type: "value"
+            operator: "is_truthy"
+
+      - step: "Locate the move while it still exists"
+        action: "search"
+        model: "account.move"
+        domain:
+          - - "id"
+            - "="
+            - "REC: batch.move_id.id"
+        save_as: "existing_move"
+        expect_count: 1
+
+      - step: "Cancel batch"
+        action: "call"
+        target: "batch"
+        method: "action_cancel"
+        as_user: "base.user_admin"
+        context:
+          bypass_policy_check: true
+
+      - step: "Assert batch move_id cleared after cancel"
+        action: "assert"
+        target: "batch"
+        refresh: true
+        asserts:
+          state:
+            type: "value"
+            expected: "cancel"
+          move_id:
+            type: "value"
+            operator: "is_falsy"
+          account_entry_ids:
+            type: "o2m"
+            check: "count"
+            expected_count: 0
+
+      - step: "Assert the account.move record no longer exists"
+        action: "search"
+        model: "account.move"
+        domain:
+          - - "id"
+            - "="
+            - "REC: existing_move.id"
+        save_as: "deleted_move"
+        expect_count: 0
+
+  - name: "HR Payslip Batch Journaling - locked payslip action raises"
+    steps:
+      - step: "Create journal"
+        action: "create"
+        model: "account.journal"
+        save_as: "journal"
+        values:
+          name: "JY15 Journal"
+          code: "JY15J"
+          type: "general"
+
+      - step: "Create payslip type"
+        action: "create"
+        model: "hr.payslip_type"
+        save_as: "payslip_type"
+        values:
+          name: "JY15 Type"
+          code: "JY15TYPE"
+          journal_id: "REC: journal"
+
+      - step: "Create salary structure without rules"
+        action: "create"
+        model: "hr.salary_structure"
+        save_as: "structure"
+        values:
+          name: "JY15 Structure"
+          code: "JY15STR"
+
+      - step: "Create employee"
+        action: "create"
+        model: "hr.employee"
+        save_as: "employee"
+        values:
+          name: "JY15 Employee"
+          salary_structure_id: "REC: structure"
+
+      - step: "Create payslip batch"
+        action: "create"
+        model: "hr.payslip_batch"
+        save_as: "batch"
+        as_user: "base.user_admin"
+        values:
+          type_id: "REC: payslip_type"
+          date_start: "2026-01-01"
+          date_end: "2026-01-31"
+          date: "2026-01-31"
+          employee_ids:
+            - "REC: employee.id"
+
+      - step: "Open batch to generate the payslip"
+        action: "call"
+        target: "batch"
+        method: "action_open"
+        as_user: "base.user_admin"
+
+      - step: "Find the generated payslip"
+        action: "search"
+        model: "hr.payslip"
+        domain:
+          - - "batch_id"
+            - "="
+            - "REC: batch.id"
+        save_as: "payslip"
+        expect_count: 1
+
+      - step: "Confirming the payslip directly must raise"
+        action: "call"
+        target: "payslip"
+        method: "action_confirm"
+        expect_error:
+          type: "UserError"
+
+  - name: "HR Payslip Batch Journaling - onchange_accounting_method copies from type_id"
+    steps:
+      - step: "Create journal"
+        action: "create"
+        model: "account.journal"
+        save_as: "journal"
+        values:
+          name: "JY17 Journal"
+          code: "JY17J"
+          type: "general"
+
+      - step: "Create batch accounting method type"
+        action: "create"
+        model: "hr.payslip_type"
+        save_as: "payslip_type_batch"
+        values:
+          name: "JY17 Batch Type"
+          code: "JY17BT"
+          accounting_method: "batch"
+          journal_id: "REC: journal"
+
+      - step: "Create payslip accounting method type"
+        action: "create"
+        model: "hr.payslip_type"
+        save_as: "payslip_type_payslip"
+        values:
+          name: "JY17 Payslip Type"
+          code: "JY17PT"
+          accounting_method: "payslip"
+          journal_id: "REC: journal"
+
+      - step: "Set type_id twice and check accounting_method follows it"
+        action: "form"
+        model: "hr.payslip_batch"
+        save: false
+        ops:
+          - set:
+              type_id: "REC: payslip_type_batch"
+          - assert:
+              accounting_method:
+                type: "value"
+                expected: "batch"
+          - assert:
+              journal_id:
+                type: "m2o"
+                expected: "REC: journal"
+          - set:
+              type_id: "REC: payslip_type_payslip"
+          - assert:
+              accounting_method:
+                type: "value"
+                expected: "payslip"
+
+  - name:
+      "HR Payslip Batch Journaling - journal required when accounting_method is batch"
+    steps:
+      - step: "Create journal"
+        action: "create"
+        model: "account.journal"
+        save_as: "journal"
+        values:
+          name: "JY18 Journal"
+          code: "JY18J"
+          type: "general"
+
+      - step: "Create payslip type"
+        action: "create"
+        model: "hr.payslip_type"
+        save_as: "payslip_type"
+        values:
+          name: "JY18 Type"
+          code: "JY18TYPE"
+          accounting_method: "batch"
+          journal_id: "REC: journal"
+
+      - step: "Create batch with accounting_method batch and no journal must raise"
+        action: "create"
+        model: "hr.payslip_batch"
+        as_user: "base.user_admin"
+        expect_error:
+          type: "ValidationError"
+        values:
+          type_id: "REC: payslip_type"
+          accounting_method: "batch"
+          journal_id: false
+          date_start: "2026-03-01"
+          date_end: "2026-03-31"
+          date: "2026-03-31"
+
+  - name:
+      "HR Payslip Batch Journaling - journal optional when accounting_method is payslip"
+    steps:
+      - step: "Create journal"
+        action: "create"
+        model: "account.journal"
+        save_as: "journal"
+        values:
+          name: "JY18b Journal"
+          code: "JY18BJ"
+          type: "general"
+
+      - step: "Create payslip type"
+        action: "create"
+        model: "hr.payslip_type"
+        save_as: "payslip_type"
+        values:
+          name: "JY18b Type"
+          code: "JY18BTYPE"
+          accounting_method: "payslip"
+          journal_id: "REC: journal"
+
+      - step: "Create batch with accounting_method payslip and no journal"
+        action: "create"
+        model: "hr.payslip_batch"
+        save_as: "batch"
+        as_user: "base.user_admin"
+        values:
+          type_id: "REC: payslip_type"
+          accounting_method: "payslip"
+          journal_id: false
+          date_start: "2026-04-01"
+          date_end: "2026-04-30"
+          date: "2026-04-30"
+
+      - step: "Assert batch created with accounting_method payslip"
+        action: "assert"
+        target: "batch"
+        asserts:
+          accounting_method:
+            type: "value"
+            expected: "payslip"
+
+  - name: "HR Payslip Batch Journaling - cancel deletes entries even without a move"
+    steps:
+      - step: "Get expense account type"
+        action: "ref"
+        xml_id: "account.data_account_type_expenses"
+        save_as: "expense_account_type"
+
+      - step: "Create debit account"
+        action: "create"
+        model: "account.account"
+        save_as: "debit_account"
+        values:
+          name: "JY25 Debit"
+          code: "JY25DB"
+          user_type_id: "REC: expense_account_type"
+
+      - step: "Create credit account"
+        action: "create"
+        model: "account.account"
+        save_as: "credit_account"
+        values:
+          name: "JY25 Credit"
+          code: "JY25CR"
+          user_type_id: "REC: expense_account_type"
+
+      - step: "Create journal"
+        action: "create"
+        model: "account.journal"
+        save_as: "journal"
+        values:
+          name: "JY25 Journal"
+          code: "JY25JRN"
+          type: "general"
+
+      - step: "Create salary rule category"
+        action: "create"
+        model: "hr.salary_rule_category"
+        save_as: "category"
+        values:
+          name: "JY25 Category"
+          code: "JY25CAT"
+
+      - step: "Create salary rule"
+        action: "create"
+        model: "hr.salary_rule"
+        save_as: "rule"
+        values:
+          name: "JY25 Rule"
+          code: "JY25RULE"
+          category_id: "REC: category"
+          debit_account_id: "REC: debit_account"
+          credit_account_id: "REC: credit_account"
+          condition_python: "result = True"
+          amount_python: "result = 100.0"
+          sequence: 10
+
+      - step: "Create payslip type with batch accounting method"
+        action: "create"
+        model: "hr.payslip_type"
+        save_as: "payslip_type"
+        values:
+          name: "JY25 Type"
+          code: "JY25TYPE"
+          accounting_method: "batch"
+          journal_id: "REC: journal"
+
+      - step: "Create payslip batch, left in draft"
+        action: "create"
+        model: "hr.payslip_batch"
+        save_as: "batch"
+        as_user: "base.user_admin"
+        values:
+          type_id: "REC: payslip_type"
+          accounting_method: "batch"
+          journal_id: "REC: journal"
+          date_start: "2026-01-01"
+          date_end: "2026-01-31"
+          date: "2026-01-31"
+
+      - step: "Create an account entry directly on the draft batch"
+        action: "create"
+        model: "hr.payslip_batch_account_entry"
+        save_as: "entry"
+        values:
+          batch_id: "REC: batch"
+          rule_id: "REC: rule"
+          debit_account_id: "REC: debit_account"
+          credit_account_id: "REC: credit_account"
+          amount: 100.0
+
+      - step: "Assert the batch precondition: entry present, no move"
+        action: "assert"
+        target: "batch"
+        refresh: true
+        asserts:
+          account_entry_ids:
+            type: "o2m"
+            check: "count"
+            expected_count: 1
+          move_id:
+            type: "value"
+            operator: "is_falsy"
+
+      - step: "Reverse the accounting entry directly"
+        action: "call"
+        target: "batch"
+        method: "_xx_cancel_accounting_entry"
+
+      - step: "Assert the entry no longer exists"
+        action: "search"
+        model: "hr.payslip_batch_account_entry"
+        domain:
+          - - "id"
+            - "="
+            - "REC: entry.id"
+        save_as: "gone_entry"
+        expect_count: 0
+
+      - step: "Assert account_entry_ids is empty after cancel"
+        action: "assert"
+        target: "batch"
+        refresh: true
+        asserts:
+          account_entry_ids:
+            type: "o2m"
+            check: "count"
+            expected_count: 0

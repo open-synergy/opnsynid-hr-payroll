@@ -9,8 +9,7 @@ import xlsxwriter
 from odoo_yaml_test import YamlTransactionCase
 from openpyxl import load_workbook
 
-from odoo.exceptions import UserError
-from odoo.tests import Form, tagged
+from odoo.tests import tagged
 
 
 @tagged("post_install", "-at_install")
@@ -18,70 +17,16 @@ class TestHrPayslipBatch(YamlTransactionCase):
     """Tests ``hr.payslip_batch`` workflow, payslip counts and inputs."""
 
     def test_hr_payslip_batch(self):
-        """Runs the YAML batch workflow, reject, cancel and reload cases."""
+        """Runs the YAML batch workflow, onchange, count and import cases."""
         self.run_yaml_scenario("test_data_hr_payslip_batch.yaml")
 
-    def test_onchange_analytic_account_id_set_from_type(self):
-        """Setting type_id with analytic account should populate analytic_account_id."""
-        analytic = self.env["account.analytic.account"].create(
-            {"name": "Test Batch OC Analytic"}
-        )
-        journal = self.env["account.journal"].create(
-            {
-                "name": "Test Batch OC Journal",
-                "code": "TBOCJOC",
-                "type": "general",
-            }
-        )
-        payslip_type = self.env["hr.payslip_type"].create(
-            {
-                "name": "Test Batch OC Type",
-                "code": "TBOCTYPE",
-                "journal_id": journal.id,
-                "analytic_account_id": analytic.id,
-            }
-        )
-        form = Form(self.env["hr.payslip_batch"])
-        form.type_id = payslip_type
-        self.assertTrue(form.analytic_account_id)
-        self.assertEqual(form.analytic_account_id.id, analytic.id)
-
-    def test_onchange_analytic_account_id_cleared_when_type_changes(self):
-        """Changing type_id to one without an analytic account must
-        clear analytic_account_id."""
-        analytic = self.env["account.analytic.account"].create(
-            {"name": "Test Batch OC Analytic Clear"}
-        )
-        journal = self.env["account.journal"].create(
-            {
-                "name": "Test Batch OC Journal Clear",
-                "code": "TBOCJCL",
-                "type": "general",
-            }
-        )
-        payslip_type_with = self.env["hr.payslip_type"].create(
-            {
-                "name": "Test Batch OC Type With Analytic",
-                "code": "TBOCTWITH",
-                "journal_id": journal.id,
-                "analytic_account_id": analytic.id,
-            }
-        )
-        payslip_type_without = self.env["hr.payslip_type"].create(
-            {
-                "name": "Test Batch OC Type Without Analytic",
-                "code": "TBOCT2",
-                "journal_id": journal.id,
-            }
-        )
-        form = Form(self.env["hr.payslip_batch"])
-        form.type_id = payslip_type_with
-        self.assertTrue(form.analytic_account_id)
-        form.type_id = payslip_type_without
-        self.assertFalse(form.analytic_account_id)
-
     def test_prepare_payslip_data_includes_analytic_account(self):
-        """_prepare_payslip_data must include analytic_account_id from batch."""
+        """``_prepare_payslip_data`` must include ``analytic_account_id``.
+
+        Pure Python -- trigger P1 (L-01: ``action: call`` discards a
+        method's return value; L-02: an ``assert`` target must be a
+        stored record field, not an ad-hoc dict).
+        """
         analytic = self.env["account.analytic.account"].create(
             {"name": "Test Batch Propagation Analytic"}
         )
@@ -220,8 +165,13 @@ class TestHrPayslipBatch(YamlTransactionCase):
         return rows
 
     def test_action_export_input_contains_dynamic_columns(self):
-        """Export must produce one column per input code present in the batch,
-        plus the fixed Payslip ID and Employee columns."""
+        """Export must produce one column per input code present in the
+        batch, plus the fixed Payslip ID and Employee columns.
+
+        Pure Python -- trigger P4 (L-08: the content of a binary/
+        attachment field cannot be asserted from YAML; decoding the
+        exported xlsx requires reading its binary payload).
+        """
         batch, _input_types = self._create_batch_with_input()
         payslip = batch.payslip_ids
         self.assertEqual(len(payslip), 1)
@@ -243,8 +193,14 @@ class TestHrPayslipBatch(YamlTransactionCase):
         self.assertEqual(data_row[1], payslip.employee_id.name)
 
     def test_input_import_updates_amounts(self):
-        """Importing a spreadsheet must write the input amounts back onto the
-        matching payslip input lines."""
+        """Importing a spreadsheet must write the input amounts back onto
+        the matching payslip input lines.
+
+        Pure Python -- trigger P10 (L-09/L-10/L-11: the ``EVAL:``
+        sandbox has no ``import`` and no ``xlsxwriter``/``base64``, so
+        the uploaded xlsx fixture -- keyed by this run's dynamically
+        assigned payslip ID -- cannot be built from YAML).
+        """
         batch, input_types = self._create_batch_with_input()
         payslip = batch.payslip_ids
 
@@ -278,40 +234,14 @@ class TestHrPayslipBatch(YamlTransactionCase):
             )
             self.assertEqual(line.amount, amounts[input_type.code])
 
-    def test_payslip_count_computed(self):
-        """payslip_count must reflect the number of generated payslips."""
-        batch, _input_types = self._create_batch_with_input()
-        self.assertEqual(batch.payslip_count, 1)
-
-    def test_payslip_count_computed_empty(self):
-        """payslip_count must be zero when the batch has no payslips."""
-        journal = self.env["account.journal"].create(
-            {
-                "name": "Test Empty Count Journal",
-                "code": "TECJRN",
-                "type": "general",
-            }
-        )
-        payslip_type = self.env["hr.payslip_type"].create(
-            {
-                "name": "Test Empty Count Type",
-                "code": "TECTYPE",
-                "journal_id": journal.id,
-            }
-        )
-        batch = self.env["hr.payslip_batch"].create(
-            {
-                "type_id": payslip_type.id,
-                "date_start": "2024-11-01",
-                "date_end": "2024-11-30",
-                "date": "2024-11-30",
-            }
-        )
-        self.assertEqual(batch.payslip_count, 0)
-
     def test_action_open_payslip(self):
-        """action_open_payslip must return a window action scoped to this
-        batch's payslips."""
+        """``action_open_payslip`` must return a window action scoped to
+        this batch's payslips.
+
+        Pure Python -- trigger P1 (L-01: ``action: call`` discards the
+        returned ``ir.actions.act_window`` dict; L-02: an ``assert``
+        target must be a stored record field, not the returned dict).
+        """
         batch, _input_types = self._create_batch_with_input()
         action = batch.action_open_payslip()
         self.assertEqual(action["res_model"], "hr.payslip")
@@ -320,29 +250,3 @@ class TestHrPayslipBatch(YamlTransactionCase):
             self.env["hr.payslip"].search(action["domain"]),
             batch.payslip_ids,
         )
-
-    def test_input_import_rejects_unknown_code(self):
-        """A header column whose code is not a known input type must raise."""
-        batch, _input_types = self._create_batch_with_input()
-        payslip = batch.payslip_ids
-
-        output = io.BytesIO()
-        workbook = xlsxwriter.Workbook(output, {"in_memory": True})
-        sheet = workbook.add_worksheet("Payslip Inputs")
-        for column, header in enumerate(["Payslip ID", "Employee", "UNKNOWN_CODE"]):
-            sheet.write(0, column, header)
-        sheet.write_number(1, 0, payslip.id)
-        sheet.write_string(1, 1, payslip.employee_id.name or "")
-        sheet.write_number(1, 2, 1000.0)
-        workbook.close()
-        output.seek(0)
-
-        wizard = self.env["import_payslip_batch_input"].create(
-            {
-                "batch_id": batch.id,
-                "data": base64.b64encode(output.read()),
-                "filename": "input.xlsx",
-            }
-        )
-        with self.assertRaises(UserError):
-            wizard.action_import()
