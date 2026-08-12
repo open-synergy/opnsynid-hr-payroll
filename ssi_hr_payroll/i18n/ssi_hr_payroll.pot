@@ -164,6 +164,7 @@ msgid "All Subordinate"
 msgstr ""
 
 #. module: ssi_hr_payroll
+#: model:hr.salary_rule_category,name:ssi_hr_payroll.rule_categ_demo2
 #: model_terms:ir.ui.view,arch_db:ssi_hr_payroll.hr_payslip_view_form
 msgid "Allowance"
 msgstr ""
@@ -332,6 +333,24 @@ msgstr ""
 #: model:ir.model.fields,field_description:ssi_hr_payroll.field_hr_salary_rule_category__message_attachment_count
 #: model:ir.model.fields,field_description:ssi_hr_payroll.field_hr_salary_structure__message_attachment_count
 msgid "Attachment Count"
+msgstr ""
+
+#. module: ssi_hr_payroll
+#: model:hr.salary_rule,name:ssi_hr_payroll.salary_rule_demo1
+#: model:hr.salary_rule_category,name:ssi_hr_payroll.rule_categ_demo1
+#: model:hr.salary_structure,name:ssi_hr_payroll.hr_salary_structure_demo1
+msgid "Basic"
+msgstr ""
+
+#. module: ssi_hr_payroll
+#: model:hr.employee_input_type,name:ssi_hr_payroll.hr_employee_input_type_demo1
+#: model:hr.payslip_input_type,name:ssi_hr_payroll.hr_payslip_input_type_demo1
+msgid "Basic Salary"
+msgstr ""
+
+#. module: ssi_hr_payroll
+#: model:hr.payslip_type,name:ssi_hr_payroll.hr_payslip_type_demo2
+msgid "Bonus"
 msgstr ""
 
 #. module: ssi_hr_payroll
@@ -619,6 +638,7 @@ msgid "Debit Usages"
 msgstr ""
 
 #. module: ssi_hr_payroll
+#: model:hr.salary_rule_category,name:ssi_hr_payroll.rule_categ_demo3
 #: model_terms:ir.ui.view,arch_db:ssi_hr_payroll.hr_payslip_view_form
 msgid "Deduction"
 msgstr ""
@@ -720,6 +740,7 @@ msgid "Draft"
 msgstr ""
 
 #. module: ssi_hr_payroll
+#: model:hr.salary_contribution,name:ssi_hr_payroll.salary_contribution_demo1
 #: model:ir.model,name:ssi_hr_payroll.model_hr_employee
 #: model:ir.model.fields,field_description:ssi_hr_payroll.field_hr_payslip__employee_id
 msgid "Employee"
@@ -750,6 +771,12 @@ msgstr ""
 #: model:ir.actions.act_window,name:ssi_hr_payroll.hr_employee_input_type_action
 #: model:ir.ui.menu,name:ssi_hr_payroll.hr_employee_input_type_menu
 msgid "Employee Input Types"
+msgstr ""
+
+#. module: ssi_hr_payroll
+#: model:hr.payslip_input_type,name:ssi_hr_payroll.hr_payslip_input_type_demo4
+#: model:hr.salary_rule,name:ssi_hr_payroll.salary_rule_demo6
+msgid "Employee Loan"
 msgstr ""
 
 #. module: ssi_hr_payroll
@@ -870,8 +897,19 @@ msgid "Font awesome icon e.g. fa-tasks"
 msgstr ""
 
 #. module: ssi_hr_payroll
+#: model:hr.salary_structure,name:ssi_hr_payroll.hr_salary_structure_demo2
+msgid "Full Time Employee"
+msgstr ""
+
+#. module: ssi_hr_payroll
 #: model_terms:ir.ui.view,arch_db:ssi_hr_payroll.hr_salary_rule_view_form
 msgid "General"
+msgstr ""
+
+#. module: ssi_hr_payroll
+#: model:hr.salary_rule,name:ssi_hr_payroll.salary_rule_demo2
+#: model:hr.salary_rule_category,name:ssi_hr_payroll.rule_categ_demo4
+msgid "Gross"
 msgstr ""
 
 #. module: ssi_hr_payroll
@@ -1121,6 +1159,13 @@ msgid ""
 msgstr ""
 
 #. module: ssi_hr_payroll
+#: model:hr.employee_input_type,name:ssi_hr_payroll.hr_employee_input_type_demo3
+#: model:hr.payslip_input_type,name:ssi_hr_payroll.hr_payslip_input_type_demo3
+#: model:hr.salary_rule,name:ssi_hr_payroll.salary_rule_demo5
+msgid "Meal Allowance"
+msgstr ""
+
+#. module: ssi_hr_payroll
 #: model:ir.model.fields,field_description:ssi_hr_payroll.field_hr_employee_input_type__message_has_error
 #: model:ir.model.fields,field_description:ssi_hr_payroll.field_hr_payslip__message_has_error
 #: model:ir.model.fields,field_description:ssi_hr_payroll.field_hr_payslip_input_type__message_has_error
@@ -1190,6 +1235,12 @@ msgid "Need Validation"
 msgstr ""
 
 #. module: ssi_hr_payroll
+#: model:hr.salary_rule,name:ssi_hr_payroll.salary_rule_demo3
+#: model:hr.salary_rule_category,name:ssi_hr_payroll.rule_categ_demo5
+msgid "Net"
+msgstr ""
+
+#. module: ssi_hr_payroll
 #: model:ir.model.fields,field_description:ssi_hr_payroll.field_hr_employee_input_type__activity_date_deadline
 #: model:ir.model.fields,field_description:ssi_hr_payroll.field_hr_payslip__activity_date_deadline
 #: model:ir.model.fields,field_description:ssi_hr_payroll.field_hr_payslip_input_type__activity_date_deadline
@@ -1228,6 +1279,11 @@ msgstr ""
 #. module: ssi_hr_payroll
 #: model:ir.model.fields,field_description:ssi_hr_payroll.field_hr_payslip__next_approval_ids
 msgid "Next Approvals"
+msgstr ""
+
+#. module: ssi_hr_payroll
+#: model:hr.payslip_type,name:ssi_hr_payroll.hr_payslip_type_demo1
+msgid "Normal"
 msgstr ""
 
 #. module: ssi_hr_payroll
@@ -1738,6 +1794,13 @@ msgid ""
 "  Manual number assignment can be done in 'Draft' state\n"
 "  Only user with 'Can Manualy Assign Number' policy can manually assign number.\n"
 "* Transaction with number other than '/' can not be deleted."
+msgstr ""
+
+#. module: ssi_hr_payroll
+#: model:hr.employee_input_type,name:ssi_hr_payroll.hr_employee_input_type_demo2
+#: model:hr.payslip_input_type,name:ssi_hr_payroll.hr_payslip_input_type_demo2
+#: model:hr.salary_rule,name:ssi_hr_payroll.salary_rule_demo4
+msgid "Transportation Allowance"
 msgstr ""
 
 #. module: ssi_hr_payroll
