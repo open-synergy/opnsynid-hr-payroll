@@ -11,7 +11,7 @@ odoo.define("ssi_hr_payroll_batch.hr_payslip_batch_import_input_tour", function 
     // closes it — it never uploads a file. There is no DOM signal a tour
     // can use to attach a real file to a hidden <input type="file">
     // reliably across browsers, and doing so is unit-test territory
-    // (hr.payslip_batch_input_import.action_import is covered by a plain
+    // (import_payslip_batch_input.action_import is covered by a plain
     // Python test instead). See the IK Flow for the full click-flow.
     tour.register(
         "ssi_hr_payroll_batch_hr_payslip_batch_import_input",

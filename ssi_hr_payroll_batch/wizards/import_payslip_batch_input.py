@@ -14,7 +14,7 @@ except ImportError:
     load_workbook = None
 
 
-class HrPayslipBatchInputImport(models.TransientModel):
+class ImportPayslipBatchInput(models.TransientModel):
     """
     Wizard that re-imports payslip input amounts from an xlsx file.
 
@@ -25,7 +25,7 @@ class HrPayslipBatchInputImport(models.TransientModel):
     each draft payslip.
     """
 
-    _name = "hr.payslip_batch_input_import"
+    _name = "import_payslip_batch_input"
     _description = "Import Payslip Batch Input"
 
     batch_id = fields.Many2one(

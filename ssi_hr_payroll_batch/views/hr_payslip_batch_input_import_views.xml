@@ -4,8 +4,8 @@
      License AGPL-3.0 or later (http://www.gnu.org/licenses/agpl). -->
 <odoo>
     <record id="hr_payslip_batch_input_import_view_form" model="ir.ui.view">
-        <field name="name">hr.payslip_batch_input_import form</field>
-        <field name="model">hr.payslip_batch_input_import</field>
+        <field name="name">import_payslip_batch_input form</field>
+        <field name="model">import_payslip_batch_input</field>
         <field name="arch" type="xml">
             <form string="Import Payslip Batch Input">
                 <group>
@@ -35,7 +35,7 @@
 
     <record id="hr_payslip_batch_input_import_action" model="ir.actions.act_window">
         <field name="name">Import Input</field>
-        <field name="res_model">hr.payslip_batch_input_import</field>
+        <field name="res_model">import_payslip_batch_input</field>
         <field name="view_mode">form</field>
         <field name="target">new</field>
     </record>
