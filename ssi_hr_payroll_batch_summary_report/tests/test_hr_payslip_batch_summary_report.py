@@ -11,32 +11,38 @@ from odoo.tests import tagged
 class TestHrPayslipBatchSummaryReport(YamlTransactionCase):
     """Test the Salary Summary report values and XLSX generation."""
 
-    @classmethod
-    def setUpClass(cls):
-        """Create rules, structure, employee, batch and payslip fixtures."""
-        super().setUpClass()
+    def setUp(self):
+        """Create rules, structure, employee, batch and payslip fixtures.
+
+        ``YamlTransactionCase`` derives from ``TransactionCase``, which
+        only provides ``self.env`` per test in ``setUp`` (unlike
+        ``SavepointCase``, which provides a class-level ``cls.env`` in
+        ``setUpClass``). Fixtures are therefore built here instead, and
+        recreated fresh for every test method.
+        """
+        super().setUp()
 
         # Salary rule category
-        cls.rule_cat = cls.env["hr.salary_rule_category"].create(
+        self.rule_cat = self.env["hr.salary_rule_category"].create(
             {"name": "SR Report Test Cat", "code": "SRRTCAT"}
         )
 
         # Two salary rules with different sequences
-        cls.rule_a = cls.env["hr.salary_rule"].create(
+        self.rule_a = self.env["hr.salary_rule"].create(
             {
                 "name": "SR Report Rule A",
                 "code": "SRRTA",
-                "category_id": cls.rule_cat.id,
+                "category_id": self.rule_cat.id,
                 "condition_python": "result = True",
                 "amount_python": "result = 500000.0",
                 "sequence": 10,
             }
         )
-        cls.rule_b = cls.env["hr.salary_rule"].create(
+        self.rule_b = self.env["hr.salary_rule"].create(
             {
                 "name": "SR Report Rule B",
                 "code": "SRRTB",
-                "category_id": cls.rule_cat.id,
+                "category_id": self.rule_cat.id,
                 "condition_python": "result = True",
                 "amount_python": "result = 250000.0",
                 "sequence": 20,
@@ -44,16 +50,16 @@ class TestHrPayslipBatchSummaryReport(YamlTransactionCase):
         )
 
         # Salary structure
-        cls.structure = cls.env["hr.salary_structure"].create(
+        self.structure = self.env["hr.salary_structure"].create(
             {
                 "name": "SR Report Structure",
                 "code": "SRRTSTR",
-                "rule_ids": [(4, cls.rule_a.id), (4, cls.rule_b.id)],
+                "rule_ids": [(4, self.rule_a.id), (4, self.rule_b.id)],
             }
         )
 
         # Journal
-        cls.journal = cls.env["account.journal"].create(
+        self.journal = self.env["account.journal"].create(
             {
                 "name": "SR Report Payroll Journal",
                 "code": "SRRTJRN",
@@ -62,68 +68,68 @@ class TestHrPayslipBatchSummaryReport(YamlTransactionCase):
         )
 
         # Payslip type
-        cls.payslip_type = cls.env["hr.payslip_type"].create(
+        self.payslip_type = self.env["hr.payslip_type"].create(
             {
                 "name": "SR Report Payslip Type",
                 "code": "SRRTTYPE",
-                "journal_id": cls.journal.id,
+                "journal_id": self.journal.id,
             }
         )
 
         # Employee
-        cls.employee = cls.env["hr.employee"].create(
+        self.employee = self.env["hr.employee"].create(
             {
                 "name": "SR Report Employee",
-                "salary_structure_id": cls.structure.id,
+                "salary_structure_id": self.structure.id,
             }
         )
 
         # Payslip batch
-        cls.batch = cls.env["hr.payslip_batch"].create(
+        self.batch = self.env["hr.payslip_batch"].create(
             {
-                "type_id": cls.payslip_type.id,
+                "type_id": self.payslip_type.id,
                 "date_start": "2024-09-01",
                 "date_end": "2024-09-30",
                 "date": "2024-09-30",
-                "employee_ids": [(4, cls.employee.id)],
+                "employee_ids": [(4, self.employee.id)],
             }
         )
 
         # Payslip linked to batch
-        cls.payslip = cls.env["hr.payslip"].create(
+        self.payslip = self.env["hr.payslip"].create(
             {
-                "employee_id": cls.employee.id,
-                "type_id": cls.payslip_type.id,
-                "structure_id": cls.structure.id,
-                "journal_id": cls.journal.id,
+                "employee_id": self.employee.id,
+                "type_id": self.payslip_type.id,
+                "structure_id": self.structure.id,
+                "journal_id": self.journal.id,
                 "date_start": "2024-09-01",
                 "date_end": "2024-09-30",
                 "date": "2024-09-30",
-                "batch_id": cls.batch.id,
+                "batch_id": self.batch.id,
             }
         )
 
         # Create payslip lines directly (bypassing computation engine)
-        cls.env["hr.payslip_line"].create(
+        self.env["hr.payslip_line"].create(
             {
-                "payslip_id": cls.payslip.id,
-                "rule_id": cls.rule_a.id,
+                "payslip_id": self.payslip.id,
+                "rule_id": self.rule_a.id,
                 "amount": 500000.0,
                 "quantity": 1.0,
                 "rate": 100.0,
             }
         )
-        cls.env["hr.payslip_line"].create(
+        self.env["hr.payslip_line"].create(
             {
-                "payslip_id": cls.payslip.id,
-                "rule_id": cls.rule_b.id,
+                "payslip_id": self.payslip.id,
+                "rule_id": self.rule_b.id,
                 "amount": 250000.0,
                 "quantity": 1.0,
                 "rate": 100.0,
             }
         )
 
-        cls.report_obj = cls.env[
+        self.report_obj = self.env[
             "report.ssi_hr_payroll_batch_summary_report.batch_summary"
         ]
 
