@@ -12,6 +12,7 @@
     "depends": [
         "ssi_hr_payroll",
         "ssi_connector_documenso_signing",
+        "web_tour",
     ],
     "data": [
         "views/assets.xml",
