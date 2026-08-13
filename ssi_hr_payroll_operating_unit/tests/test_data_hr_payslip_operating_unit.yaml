@@ -122,55 +122,38 @@ scenarios:
         method: "action_compute_payslip"
         as_user: "base.user_admin"
 
-      - step: "Invalidate cache after compute"
-        action: "call"
-        target: "payslip"
-        method: "invalidate_cache"
-
       - step: "Reload input lines"
         action: "call"
         target: "payslip"
         method: "action_reload_input_lines"
         as_user: "base.user_admin"
 
-      - step: "Invalidate cache after reload"
-        action: "call"
-        target: "payslip"
-        method: "invalidate_cache"
-
       - step: "Confirm payslip"
         action: "call"
         target: "payslip"
         method: "action_confirm"
         as_user: "base.user_admin"
+        refresh: true
         asserts:
           state:
             type: "value"
             expected: "confirm"
-
-      - step: "Invalidate cache after confirm"
-        action: "call"
-        target: "payslip"
-        method: "invalidate_cache"
 
       - step: "Approve payslip"
         action: "call"
         target: "payslip"
         method: "action_approve_approval"
         as_user: "base.user_admin"
+        refresh: true
         asserts:
           state:
             type: "value"
             expected: "done"
 
-      - step: "Invalidate cache after done"
-        action: "call"
-        target: "payslip"
-        method: "invalidate_cache"
-
       - step: "Assert accounting entry created"
         action: "assert"
         target: "payslip"
+        refresh: true
         asserts:
           move_id:
             type: "value"
