@@ -11,6 +11,7 @@
     "depends": [
         "ssi_hr_payroll_batch",
         "report_xlsx",
+        "web_tour",
     ],
     "data": [
         "report/templates/hr_payslip_batch_summary_report.xml",
