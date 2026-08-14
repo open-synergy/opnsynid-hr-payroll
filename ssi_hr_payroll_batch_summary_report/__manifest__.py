@@ -14,7 +14,7 @@
         "web_tour",
     ],
     "data": [
-        "report/templates/hr_payslip_batch_summary_report.xml",
+        "reports/templates/hr_payslip_batch_summary_report.xml",
         "reports.xml",
         "views/hr_payslip_batch_views.xml",
         "views/assets.xml",
