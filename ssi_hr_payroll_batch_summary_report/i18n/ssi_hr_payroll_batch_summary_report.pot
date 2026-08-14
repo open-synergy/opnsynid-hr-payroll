@@ -41,7 +41,7 @@ msgid "Display Name"
 msgstr ""
 
 #. module: ssi_hr_payroll_batch_summary_report
-#: code:addons/ssi_hr_payroll_batch_summary_report/report/report_ssi_hr_payroll_batch_summary_report_batch_summary_xlsx.py:0
+#: code:addons/ssi_hr_payroll_batch_summary_report/reports/report_ssi_hr_payroll_batch_summary_report_batch_summary_xlsx.py:0
 #, python-format
 msgid "Employee Name"
 msgstr ""
@@ -76,7 +76,7 @@ msgid "Nama"
 msgstr ""
 
 #. module: ssi_hr_payroll_batch_summary_report
-#: code:addons/ssi_hr_payroll_batch_summary_report/report/report_ssi_hr_payroll_batch_summary_report_batch_summary_xlsx.py:0
+#: code:addons/ssi_hr_payroll_batch_summary_report/reports/report_ssi_hr_payroll_batch_summary_report_batch_summary_xlsx.py:0
 #: model_terms:ir.ui.view,arch_db:ssi_hr_payroll_batch_summary_report.batch_summary_content
 #, python-format
 msgid "No"
@@ -93,7 +93,7 @@ msgid "Payslip Batch Salary Summary XLSX Report"
 msgstr ""
 
 #. module: ssi_hr_payroll_batch_summary_report
-#: code:addons/ssi_hr_payroll_batch_summary_report/report/report_ssi_hr_payroll_batch_summary_report_batch_summary_xlsx.py:0
+#: code:addons/ssi_hr_payroll_batch_summary_report/reports/report_ssi_hr_payroll_batch_summary_report_batch_summary_xlsx.py:0
 #, python-format
 msgid "Period: %s s/d %s"
 msgstr ""
@@ -104,13 +104,13 @@ msgid "Periode:"
 msgstr ""
 
 #. module: ssi_hr_payroll_batch_summary_report
-#: code:addons/ssi_hr_payroll_batch_summary_report/report/report_ssi_hr_payroll_batch_summary_report_batch_summary_xlsx.py:0
+#: code:addons/ssi_hr_payroll_batch_summary_report/reports/report_ssi_hr_payroll_batch_summary_report_batch_summary_xlsx.py:0
 #, python-format
 msgid "SALARY SUMMARY %s"
 msgstr ""
 
 #. module: ssi_hr_payroll_batch_summary_report
-#: code:addons/ssi_hr_payroll_batch_summary_report/report/report_ssi_hr_payroll_batch_summary_report_batch_summary_xlsx.py:0
+#: code:addons/ssi_hr_payroll_batch_summary_report/reports/report_ssi_hr_payroll_batch_summary_report_batch_summary_xlsx.py:0
 #: model:ir.actions.report,name:ssi_hr_payroll_batch_summary_report.action_report_hr_payslip_batch_summary_html
 #: model_terms:ir.ui.view,arch_db:ssi_hr_payroll_batch_summary_report.hr_payslip_batch_view_form_salary_summary
 #, python-format
@@ -128,8 +128,8 @@ msgid "Salary Summary XLSX"
 msgstr ""
 
 #. module: ssi_hr_payroll_batch_summary_report
-#: code:addons/ssi_hr_payroll_batch_summary_report/report/report_ssi_hr_payroll_batch_summary_report_batch_summary_xlsx.py:0
-#: code:addons/ssi_hr_payroll_batch_summary_report/report/report_ssi_hr_payroll_batch_summary_report_batch_summary_xlsx.py:0
+#: code:addons/ssi_hr_payroll_batch_summary_report/reports/report_ssi_hr_payroll_batch_summary_report_batch_summary_xlsx.py:0
+#: code:addons/ssi_hr_payroll_batch_summary_report/reports/report_ssi_hr_payroll_batch_summary_report_batch_summary_xlsx.py:0
 #: model_terms:ir.ui.view,arch_db:ssi_hr_payroll_batch_summary_report.batch_summary_content
 #, python-format
 msgid "Total"
