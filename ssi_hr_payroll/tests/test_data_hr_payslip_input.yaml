@@ -1,0 +1,37 @@
+scenarios:
+  - name: "HR Payslip Input - onchange_amount copies default amount"
+    steps:
+      - step: "Create payslip input type with a default amount"
+        action: "create"
+        model: "hr.payslip_input_type"
+        save_as: "payslip_input_type_onchange"
+        values:
+          name: "Onchange Payslip Input Type"
+          code: "TSTPAYONCH01"
+          default_amount: 150000.0
+
+      - step: "Pick the input type on a new payslip input form"
+        action: "form"
+        model: "hr.payslip_input"
+        save: false
+        ops:
+          - set: {input_type_id: "REC: payslip_input_type_onchange"}
+          - assert:
+              amount:
+                type: "value"
+                expected: 150000.0
+
+  - name: "HR Payslip Input - onchange_amount leaves amount untouched"
+    steps:
+      - step: "Open a new payslip input form without an input type"
+        action: "form"
+        model: "hr.payslip_input"
+        save: false
+        ops:
+          - assert:
+              input_type_id:
+                type: "value"
+                operator: "is_falsy"
+              amount:
+                type: "value"
+                operator: "is_falsy"
