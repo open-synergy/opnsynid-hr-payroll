@@ -1,0 +1,281 @@
+setup:
+  steps:
+    - step: "Get expense account type"
+      action: "ref"
+      xml_id: "account.data_account_type_expenses"
+      save_as: "expense_account_type"
+
+    - step: "Create debit account"
+      action: "create"
+      model: "account.account"
+      save_as: "debit_account"
+      values:
+        name: "PSLK Debit"
+        code: "PSLKDB"
+        user_type_id: "REC: expense_account_type"
+
+    - step: "Create credit account"
+      action: "create"
+      model: "account.account"
+      save_as: "credit_account"
+      values:
+        name: "PSLK Credit"
+        code: "PSLKCR"
+        user_type_id: "REC: expense_account_type"
+
+    - step: "Create default account"
+      action: "create"
+      model: "account.account"
+      save_as: "default_account"
+      values:
+        name: "PSLK Default"
+        code: "PSLKDFT"
+        user_type_id: "REC: expense_account_type"
+
+    - step: "Create journal"
+      action: "create"
+      model: "account.journal"
+      save_as: "journal"
+      values:
+        name: "PSLK Journal"
+        code: "PSLKJ"
+        type: "general"
+        default_account_id: "REC: default_account"
+
+    - step: "Create salary rule category"
+      action: "create"
+      model: "hr.salary_rule_category"
+      save_as: "category"
+      values:
+        name: "PSLK Category"
+        code: "PSLKCAT"
+
+    - step: "Create salary rule"
+      action: "create"
+      model: "hr.salary_rule"
+      save_as: "rule"
+      values:
+        name: "PSLK Rule"
+        code: "PSLKRULE"
+        category_id: "REC: category"
+        debit_account_id: "REC: debit_account"
+        credit_account_id: "REC: credit_account"
+        condition_python: "result = True"
+        amount_python: "result = 1000.0"
+        sequence: 10
+
+    - step: "Create salary structure"
+      action: "create"
+      model: "hr.salary_structure"
+      save_as: "structure"
+      values:
+        name: "PSLK Structure"
+        code: "PSLKSTR"
+        rule_ids:
+          - "REC: rule.id"
+
+    - step: "Create payslip type for the standalone payslip"
+      action: "create"
+      model: "hr.payslip_type"
+      save_as: "payslip_type_solo"
+      values:
+        name: "PSLK Solo Type"
+        code: "PSLKSOLO"
+        accounting_method: "payslip"
+        journal_id: "REC: journal"
+
+    - step: "Create payslip type for the batched payslip"
+      action: "create"
+      model: "hr.payslip_type"
+      save_as: "payslip_type_batch"
+      values:
+        name: "PSLK Batch Type"
+        code: "PSLKBTCH"
+        accounting_method: "batch"
+        journal_id: "REC: journal"
+
+    - step: "Create employee for the standalone payslip"
+      action: "create"
+      model: "hr.employee"
+      save_as: "employee_solo"
+      values:
+        name: "PSLK Solo Employee"
+        salary_structure_id: "REC: structure"
+
+    - step: "Create employee for the batched payslip"
+      action: "create"
+      model: "hr.employee"
+      save_as: "employee_batch"
+      values:
+        name: "PSLK Batch Employee"
+        salary_structure_id: "REC: structure"
+
+scenarios:
+  - name: "HR Payslip Lock - action_done transition and batch lock"
+    steps:
+      # ---------------------------------------------------------------
+      # Positive path: a payslip without batch_id reaches done.
+      # ---------------------------------------------------------------
+      - step: "Create a payslip that belongs to no batch"
+        action: "create"
+        model: "hr.payslip"
+        save_as: "solo_payslip"
+        as_user: "base.user_admin"
+        values:
+          employee_id: "REC: employee_solo"
+          type_id: "REC: payslip_type_solo"
+          structure_id: "REC: structure"
+          journal_id: "REC: journal"
+          date_start: "2026-06-01"
+          date_end: "2026-06-30"
+          date: "2026-06-30"
+
+      - step: "Assert the standalone payslip starts in draft without a batch"
+        action: "assert"
+        target: "solo_payslip"
+        asserts:
+          state:
+            type: "value"
+            expected: "draft"
+          batch_id:
+            type: "value"
+            operator: "is_falsy"
+
+      - step: "Compute the standalone payslip"
+        action: "call"
+        target: "solo_payslip"
+        method: "action_compute_payslip"
+        as_user: "base.user_admin"
+
+      - step: "Confirm the standalone payslip"
+        action: "call"
+        target: "solo_payslip"
+        method: "action_confirm"
+        as_user: "base.user_admin"
+        context:
+          bypass_policy_check: true
+
+      - step: "Assert the standalone payslip is confirmed"
+        action: "assert"
+        target: "solo_payslip"
+        refresh: true
+        asserts:
+          state:
+            type: "value"
+            expected: "confirm"
+
+      - step: "Finish the standalone payslip with action_done"
+        action: "call"
+        target: "solo_payslip"
+        method: "action_done"
+        as_user: "base.user_admin"
+        context:
+          bypass_policy_check: true
+
+      - step: "Assert the standalone payslip is done"
+        action: "assert"
+        target: "solo_payslip"
+        refresh: true
+        asserts:
+          state:
+            type: "value"
+            expected: "done"
+
+      # ---------------------------------------------------------------
+      # Negative path: a batched payslip refuses action_done on its own.
+      # ---------------------------------------------------------------
+      - step: "Create a payslip batch"
+        action: "create"
+        model: "hr.payslip_batch"
+        save_as: "batch"
+        as_user: "base.user_admin"
+        values:
+          type_id: "REC: payslip_type_batch"
+          accounting_method: "batch"
+          journal_id: "REC: journal"
+          date_start: "2026-07-01"
+          date_end: "2026-07-31"
+          date: "2026-07-31"
+          employee_ids:
+            - "REC: employee_batch.id"
+
+      - step: "Open the batch to generate its payslip"
+        action: "call"
+        target: "batch"
+        method: "action_open"
+        as_user: "base.user_admin"
+
+      - step: "Compute the payslips of the batch"
+        action: "call"
+        target: "batch"
+        method: "action_compute_payslip"
+        as_user: "base.user_admin"
+
+      - step: "Find the payslip generated for this batch"
+        action: "search"
+        model: "hr.payslip"
+        domain:
+          - - "batch_id"
+            - "="
+            - "REC: batch.id"
+        save_as: "batched_payslip"
+        expect_count: 1
+
+      - step: "Confirm the batched payslip through the batch context"
+        action: "call"
+        target: "batched_payslip"
+        method: "action_confirm"
+        as_user: "base.user_admin"
+        context:
+          from_batch: true
+          bypass_policy_check: true
+
+      - step: "Assert the batched payslip is confirmed"
+        action: "assert"
+        target: "batched_payslip"
+        refresh: true
+        asserts:
+          state:
+            type: "value"
+            expected: "confirm"
+
+      - step: "Finishing the batched payslip individually must raise"
+        action: "call"
+        target: "batched_payslip"
+        method: "action_done"
+        as_user: "base.user_admin"
+        context:
+          bypass_policy_check: true
+        expect_error:
+          type: "UserError"
+          message_contains: "belongs to a batch and cannot be processed individually"
+
+      - step: "Assert the rejected batched payslip stayed in confirm"
+        action: "assert"
+        target: "batched_payslip"
+        refresh: true
+        asserts:
+          state:
+            type: "value"
+            expected: "confirm"
+
+      # ---------------------------------------------------------------
+      # Control path: the same payslip passes when driven by the batch.
+      # ---------------------------------------------------------------
+      - step: "Finish the batched payslip with the from_batch context"
+        action: "call"
+        target: "batched_payslip"
+        method: "action_done"
+        as_user: "base.user_admin"
+        context:
+          from_batch: true
+          bypass_policy_check: true
+
+      - step: "Assert the batched payslip is done"
+        action: "assert"
+        target: "batched_payslip"
+        refresh: true
+        asserts:
+          state:
+            type: "value"
+            expected: "done"
