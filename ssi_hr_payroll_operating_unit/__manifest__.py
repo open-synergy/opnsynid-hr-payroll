@@ -13,6 +13,7 @@
         "ssi_hr_payroll",
         "ssi_operating_unit_mixin",
         "ssi_financial_accounting_operating_unit",
+        "web_tour",
     ],
     "data": [
         "security/res_group/res_group_data.xml",
