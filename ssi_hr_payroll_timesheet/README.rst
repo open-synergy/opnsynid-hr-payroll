@@ -7,6 +7,12 @@ Employee Payslip - Timesheet Integration
 ========================================
 
 
+Work Instruction
+================
+
+* `Create Employee Payslip <docs/hr_payslip/01-create.html>`_
+
+
 Installation
 ============
 
