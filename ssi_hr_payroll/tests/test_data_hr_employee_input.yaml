@@ -1,0 +1,37 @@
+scenarios:
+  - name: "HR Employee Input - onchange_amount copies default amount"
+    steps:
+      - step: "Create employee input type with a default amount"
+        action: "create"
+        model: "hr.employee_input_type"
+        save_as: "emp_input_type_onchange"
+        values:
+          name: "Onchange Employee Input Type"
+          code: "TSTEMPONCH01"
+          default_amount: 150000.0
+
+      - step: "Pick the input type on a new employee input form"
+        action: "form"
+        model: "hr.employee_input"
+        save: false
+        ops:
+          - set: {input_type_id: "REC: emp_input_type_onchange"}
+          - assert:
+              amount:
+                type: "value"
+                expected: 150000.0
+
+  - name: "HR Employee Input - onchange_amount leaves amount untouched"
+    steps:
+      - step: "Open a new employee input form without an input type"
+        action: "form"
+        model: "hr.employee_input"
+        save: false
+        ops:
+          - assert:
+              input_type_id:
+                type: "value"
+                operator: "is_falsy"
+              amount:
+                type: "value"
+                operator: "is_falsy"
