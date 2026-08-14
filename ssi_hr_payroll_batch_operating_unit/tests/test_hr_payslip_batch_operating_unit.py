@@ -9,10 +9,21 @@ from odoo.tests import tagged
 
 @tagged("post_install", "-at_install")
 class TestHrPayslipBatchOperatingUnit(YamlTransactionCase):
-    """Test hr.payslip_batch operating unit scoping and OU propagation."""
+    """Test payslip batch OU scoping, propagation and consistency.
+
+    Covers ``hr.payslip_batch`` operating unit scoping, OU propagation
+    to generated payslips and journal entries, and the ``hr.payslip``
+    constraint keeping a payslip OU aligned with its batch OU.
+    """
 
     def test_hr_payslip_batch_operating_unit(self):
-        """Run the YAML scenario for OU-scoped payslip batch behavior."""
+        """Run the YAML scenarios for OU-scoped payslip batch behavior.
+
+        Covers OU propagation from batch to payslip, the negative path
+        of ``_check_batch_operating_unit`` when a payslip is moved to
+        another operating unit, and the matching-OU control that keeps
+        the constraint from rejecting every write.
+        """
         self.run_yaml_scenario("test_data_hr_payslip_batch_operating_unit.yaml")
 
     def _create_salary_structure(self, suffix):

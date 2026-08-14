@@ -156,3 +156,235 @@ scenarios:
           operating_unit_id:
             type: "value"
             operator: "is_truthy"
+
+  - name: "HR Payslip Batch Operating Unit - Payslip OU must match batch OU"
+    steps:
+      - step: "Create operating unit A for negative scenario"
+        action: "create"
+        model: "operating.unit"
+        save_as: "ou_a"
+        values:
+          name: "Batch OU Negative Test OU A"
+          code: "TBOUNEGA"
+          partner_id: "REF: base.main_partner"
+          company_id: "REC: company.id"
+
+      - step: "Create operating unit B for negative scenario"
+        action: "create"
+        model: "operating.unit"
+        save_as: "ou_b"
+        values:
+          name: "Batch OU Negative Test OU B"
+          code: "TBOUNEGB"
+          partner_id: "REF: base.main_partner"
+          company_id: "REC: company.id"
+
+      - step: "Create payroll journal for negative scenario"
+        action: "create"
+        model: "account.journal"
+        save_as: "journal"
+        values:
+          name: "Batch OU Negative Test Payroll Journal"
+          code: "TBNEG"
+          type: "general"
+
+      - step: "Create salary rule category for negative scenario"
+        action: "create"
+        model: "hr.salary_rule_category"
+        save_as: "category"
+        values:
+          name: "Batch OU Negative Test Category"
+          code: "TBOUNEGCAT"
+
+      - step: "Create salary rule for negative scenario"
+        action: "create"
+        model: "hr.salary_rule"
+        save_as: "rule"
+        values:
+          name: "Batch OU Negative Test Salary Rule"
+          code: "TBOUNEGRULE"
+          category_id: "REC: category.id"
+          condition_python: "result = True"
+          amount_python: "result = 100.0"
+          sequence: 10
+
+      - step: "Create salary structure for negative scenario"
+        action: "create"
+        model: "hr.salary_structure"
+        save_as: "structure"
+        values:
+          name: "Batch OU Negative Test Salary Structure"
+          code: "TBOUNEGSTR"
+          rule_ids:
+            - "REC: rule.id"
+
+      - step: "Create payslip type for negative scenario"
+        action: "create"
+        model: "hr.payslip_type"
+        save_as: "payslip_type"
+        values:
+          name: "Batch OU Negative Test Payslip Type"
+          code: "TBOUNEGTYPE"
+          journal_id: "REC: journal.id"
+
+      - step: "Create employee on operating unit A"
+        action: "create"
+        model: "hr.employee"
+        save_as: "employee"
+        values:
+          name: "Batch OU Negative Test Employee"
+          operating_unit_id: "REC: ou_a.id"
+
+      - step: "Create payslip batch on operating unit A"
+        action: "create"
+        model: "hr.payslip_batch"
+        save_as: "batch"
+        values:
+          type_id: "REC: payslip_type.id"
+          date_start: "2024-11-01"
+          date_end: "2024-11-30"
+          date: "2024-11-30"
+          operating_unit_id: "REC: ou_a.id"
+
+      - step: "Create payslip on the batch with matching operating unit"
+        action: "create"
+        model: "hr.payslip"
+        save_as: "payslip"
+        values:
+          employee_id: "REC: employee.id"
+          type_id: "REC: payslip_type.id"
+          structure_id: "REC: structure.id"
+          journal_id: "REC: journal.id"
+          date_start: "2024-11-01"
+          date_end: "2024-11-30"
+          date: "2024-11-30"
+          operating_unit_id: "REC: ou_a.id"
+          batch_id: "REC: batch.id"
+
+      - step: "Assert payslip starts on the same operating unit as its batch"
+        action: "assert"
+        target: "payslip"
+        asserts:
+          operating_unit_id:
+            type: "m2o"
+            expected: "REC: ou_a"
+
+      - step: "Moving payslip to another operating unit must be rejected"
+        action: "write"
+        target: "payslip"
+        expect_error:
+          type: "ValidationError"
+          message_contains: "does not match batch operating unit"
+        values:
+          operating_unit_id: "REC: ou_b.id"
+
+  - name: "HR Payslip Batch Operating Unit - Matching OU write is accepted"
+    steps:
+      - step: "Create operating unit A for control scenario"
+        action: "create"
+        model: "operating.unit"
+        save_as: "ou_a"
+        values:
+          name: "Batch OU Control Test OU A"
+          code: "TBOUPOSA"
+          partner_id: "REF: base.main_partner"
+          company_id: "REC: company.id"
+
+      - step: "Create payroll journal for control scenario"
+        action: "create"
+        model: "account.journal"
+        save_as: "journal"
+        values:
+          name: "Batch OU Control Test Payroll Journal"
+          code: "TBPOS"
+          type: "general"
+
+      - step: "Create salary rule category for control scenario"
+        action: "create"
+        model: "hr.salary_rule_category"
+        save_as: "category"
+        values:
+          name: "Batch OU Control Test Category"
+          code: "TBOUPOSCAT"
+
+      - step: "Create salary rule for control scenario"
+        action: "create"
+        model: "hr.salary_rule"
+        save_as: "rule"
+        values:
+          name: "Batch OU Control Test Salary Rule"
+          code: "TBOUPOSRULE"
+          category_id: "REC: category.id"
+          condition_python: "result = True"
+          amount_python: "result = 100.0"
+          sequence: 10
+
+      - step: "Create salary structure for control scenario"
+        action: "create"
+        model: "hr.salary_structure"
+        save_as: "structure"
+        values:
+          name: "Batch OU Control Test Salary Structure"
+          code: "TBOUPOSSTR"
+          rule_ids:
+            - "REC: rule.id"
+
+      - step: "Create payslip type for control scenario"
+        action: "create"
+        model: "hr.payslip_type"
+        save_as: "payslip_type"
+        values:
+          name: "Batch OU Control Test Payslip Type"
+          code: "TBOUPOSTYPE"
+          journal_id: "REC: journal.id"
+
+      - step: "Create employee on control operating unit"
+        action: "create"
+        model: "hr.employee"
+        save_as: "employee"
+        values:
+          name: "Batch OU Control Test Employee"
+          operating_unit_id: "REC: ou_a.id"
+
+      - step: "Create payslip batch on control operating unit"
+        action: "create"
+        model: "hr.payslip_batch"
+        save_as: "batch"
+        values:
+          type_id: "REC: payslip_type.id"
+          date_start: "2024-12-01"
+          date_end: "2024-12-31"
+          date: "2024-12-31"
+          operating_unit_id: "REC: ou_a.id"
+
+      - step: "Create payslip on the control batch"
+        action: "create"
+        model: "hr.payslip"
+        save_as: "payslip"
+        values:
+          employee_id: "REC: employee.id"
+          type_id: "REC: payslip_type.id"
+          structure_id: "REC: structure.id"
+          journal_id: "REC: journal.id"
+          date_start: "2024-12-01"
+          date_end: "2024-12-31"
+          date: "2024-12-31"
+          operating_unit_id: "REC: ou_a.id"
+          batch_id: "REC: batch.id"
+
+      - step: "Writing the same operating unit as the batch is accepted"
+        action: "write"
+        target: "payslip"
+        values:
+          operating_unit_id: "REC: ou_a.id"
+
+      - step: "Assert payslip operating unit equals the batch operating unit"
+        action: "assert"
+        target: "payslip"
+        asserts:
+          operating_unit_id:
+            type: "m2o"
+            expected: "REC: ou_a"
+          batch_id.operating_unit_id.id:
+            type: "value"
+            expected: "REC: ou_a.id"
