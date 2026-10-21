@@ -1,0 +1,737 @@
+scenarios:
+  - name: "HR Payslip Batch - Multi-batch Confirm"
+    steps:
+      - step: "Get expense account type"
+        action: "ref"
+        xml_id: "account.data_account_type_expenses"
+        save_as: "expense_account_type"
+
+      - step: "Create debit account"
+        action: "create"
+        model: "account.account"
+        save_as: "debit_account"
+        values:
+          name: "Multi Confirm Debit Account"
+          code: "TSTMBC_DB"
+          user_type_id: "EVAL: registry['expense_account_type'].id"
+
+      - step: "Create credit account"
+        action: "create"
+        model: "account.account"
+        save_as: "credit_account"
+        values:
+          name: "Multi Confirm Credit Account"
+          code: "TSTMBC_CR"
+          user_type_id: "EVAL: registry['expense_account_type'].id"
+
+      - step: "Create payroll journal"
+        action: "create"
+        model: "account.journal"
+        save_as: "journal"
+        values:
+          name: "Multi Confirm Journal"
+          code: "TMBC"
+          type: "general"
+
+      - step: "Create salary rule category"
+        action: "create"
+        model: "hr.salary_rule_category"
+        save_as: "category"
+        values:
+          name: "Multi Confirm Category"
+          code: "TSTMBCCAT"
+
+      - step: "Create salary rule"
+        action: "create"
+        model: "hr.salary_rule"
+        save_as: "rule"
+        values:
+          name: "Multi Confirm Salary Rule"
+          code: "TSTMBCRULE"
+          category_id: "EVAL: registry['category'].id"
+          debit_account_id: "EVAL: registry['debit_account'].id"
+          credit_account_id: "EVAL: registry['credit_account'].id"
+          condition_python: "result = True"
+          amount_python: "result = 150.0"
+          sequence: 10
+
+      - step: "Create salary structure"
+        action: "create"
+        model: "hr.salary_structure"
+        save_as: "structure"
+        values:
+          name: "Multi Confirm Structure"
+          code: "TSTMBCSTR"
+          rule_ids:
+            - "EVAL: registry['rule'].id"
+
+      - step: "Create payslip type"
+        action: "create"
+        model: "hr.payslip_type"
+        save_as: "payslip_type"
+        values:
+          name: "Multi Confirm Payslip Type"
+          code: "TSTMBCTYPE"
+          journal_id: "EVAL: registry['journal'].id"
+
+      - step: "Create employee 1"
+        action: "create"
+        model: "hr.employee"
+        save_as: "employee_1"
+        values:
+          name: "Multi Batch Employee Confirm 1"
+
+      - step: "Create payslip batch 1"
+        action: "create"
+        model: "hr.payslip_batch"
+        save_as: "batch_1"
+        as_user: "base.user_admin"
+        values:
+          type_id: "EVAL: registry['payslip_type'].id"
+          date_start: "2024-08-01"
+          date_end: "2024-08-31"
+          date: "2024-08-31"
+          employee_ids:
+            - "EVAL: registry['employee_1'].id"
+
+      - step: "Pre-create payslip linked to batch 1"
+        action: "create"
+        model: "hr.payslip"
+        save_as: "payslip_1"
+        as_user: "base.user_admin"
+        values:
+          employee_id: "EVAL: registry['employee_1'].id"
+          type_id: "EVAL: registry['payslip_type'].id"
+          structure_id: "EVAL: registry['structure'].id"
+          journal_id: "EVAL: registry['journal'].id"
+          date_start: "2024-08-01"
+          date_end: "2024-08-31"
+          date: "2024-08-31"
+          batch_id: "EVAL: registry['batch_1'].id"
+
+      - step: "Create employee 2"
+        action: "create"
+        model: "hr.employee"
+        save_as: "employee_2"
+        values:
+          name: "Multi Batch Employee Confirm 2"
+
+      - step: "Create payslip batch 2"
+        action: "create"
+        model: "hr.payslip_batch"
+        save_as: "batch_2"
+        as_user: "base.user_admin"
+        values:
+          type_id: "EVAL: registry['payslip_type'].id"
+          date_start: "2024-09-01"
+          date_end: "2024-09-30"
+          date: "2024-09-30"
+          employee_ids:
+            - "EVAL: registry['employee_2'].id"
+
+      - step: "Pre-create payslip linked to batch 2"
+        action: "create"
+        model: "hr.payslip"
+        save_as: "payslip_2"
+        as_user: "base.user_admin"
+        values:
+          employee_id: "EVAL: registry['employee_2'].id"
+          type_id: "EVAL: registry['payslip_type'].id"
+          structure_id: "EVAL: registry['structure'].id"
+          journal_id: "EVAL: registry['journal'].id"
+          date_start: "2024-09-01"
+          date_end: "2024-09-30"
+          date: "2024-09-30"
+          batch_id: "EVAL: registry['batch_2'].id"
+
+      - step: "Open batch 1"
+        action: "call"
+        target: "batch_1"
+        method: "action_open"
+        as_user: "base.user_admin"
+
+      - step: "Open batch 2"
+        action: "call"
+        target: "batch_2"
+        method: "action_open"
+        as_user: "base.user_admin"
+
+      - step: "Select both batches as one recordset"
+        action: "search"
+        model: "hr.payslip_batch"
+        domain:
+          - ["id", "in", ["REC: batch_1.id", "REC: batch_2.id"]]
+        save_as: "batches"
+        expect_count: 2
+
+      - step: "Confirm both batches at once"
+        action: "call"
+        target: "batches"
+        method: "action_confirm"
+        as_user: "base.user_admin"
+
+      - step: "Assert batch 1 is confirm"
+        action: "assert"
+        target: "batch_1"
+        refresh: true
+        asserts:
+          state:
+            type: "value"
+            expected: "confirm"
+
+      - step: "Batch 1 has no draft payslip"
+        action: "search"
+        model: "hr.payslip"
+        domain:
+          - ["batch_id", "=", "REC: batch_1.id"]
+          - ["state", "=", ["draft"]]
+        save_as: "found_1_2776"
+        expect_count: 0
+
+      - step: "Batch 1 has its payslip confirmed"
+        action: "search"
+        model: "hr.payslip"
+        domain:
+          - ["batch_id", "=", "REC: batch_1.id"]
+          - ["state", "=", ["confirm"]]
+        save_as: "found_1_7947"
+        expect_count: 1
+
+      - step: "Assert batch 2 is confirm"
+        action: "assert"
+        target: "batch_2"
+        refresh: true
+        asserts:
+          state:
+            type: "value"
+            expected: "confirm"
+
+      - step: "Batch 2 has no draft payslip"
+        action: "search"
+        model: "hr.payslip"
+        domain:
+          - ["batch_id", "=", "REC: batch_2.id"]
+          - ["state", "=", ["draft"]]
+        save_as: "found_2_3558"
+        expect_count: 0
+
+      - step: "Batch 2 has its payslip confirmed"
+        action: "search"
+        model: "hr.payslip"
+        domain:
+          - ["batch_id", "=", "REC: batch_2.id"]
+          - ["state", "=", ["confirm"]]
+        save_as: "found_2_2133"
+        expect_count: 1
+
+  - name: "HR Payslip Batch - Multi-batch Reject"
+    steps:
+      - step: "Get expense account type"
+        action: "ref"
+        xml_id: "account.data_account_type_expenses"
+        save_as: "expense_account_type"
+
+      - step: "Create debit account"
+        action: "create"
+        model: "account.account"
+        save_as: "debit_account"
+        values:
+          name: "Multi Reject Debit Account"
+          code: "TSTMBR_DB"
+          user_type_id: "EVAL: registry['expense_account_type'].id"
+
+      - step: "Create credit account"
+        action: "create"
+        model: "account.account"
+        save_as: "credit_account"
+        values:
+          name: "Multi Reject Credit Account"
+          code: "TSTMBR_CR"
+          user_type_id: "EVAL: registry['expense_account_type'].id"
+
+      - step: "Create payroll journal"
+        action: "create"
+        model: "account.journal"
+        save_as: "journal"
+        values:
+          name: "Multi Reject Journal"
+          code: "TMBR"
+          type: "general"
+
+      - step: "Create salary rule category"
+        action: "create"
+        model: "hr.salary_rule_category"
+        save_as: "category"
+        values:
+          name: "Multi Reject Category"
+          code: "TSTMBRCAT"
+
+      - step: "Create salary rule"
+        action: "create"
+        model: "hr.salary_rule"
+        save_as: "rule"
+        values:
+          name: "Multi Reject Salary Rule"
+          code: "TSTMBRRULE"
+          category_id: "EVAL: registry['category'].id"
+          debit_account_id: "EVAL: registry['debit_account'].id"
+          credit_account_id: "EVAL: registry['credit_account'].id"
+          condition_python: "result = True"
+          amount_python: "result = 150.0"
+          sequence: 10
+
+      - step: "Create salary structure"
+        action: "create"
+        model: "hr.salary_structure"
+        save_as: "structure"
+        values:
+          name: "Multi Reject Structure"
+          code: "TSTMBRSTR"
+          rule_ids:
+            - "EVAL: registry['rule'].id"
+
+      - step: "Create payslip type"
+        action: "create"
+        model: "hr.payslip_type"
+        save_as: "payslip_type"
+        values:
+          name: "Multi Reject Payslip Type"
+          code: "TSTMBRTYPE"
+          journal_id: "EVAL: registry['journal'].id"
+
+      - step: "Create employee 1"
+        action: "create"
+        model: "hr.employee"
+        save_as: "employee_1"
+        values:
+          name: "Multi Batch Employee Reject 1"
+
+      - step: "Create payslip batch 1"
+        action: "create"
+        model: "hr.payslip_batch"
+        save_as: "batch_1"
+        as_user: "base.user_admin"
+        values:
+          type_id: "EVAL: registry['payslip_type'].id"
+          date_start: "2024-10-01"
+          date_end: "2024-10-31"
+          date: "2024-10-31"
+          employee_ids:
+            - "EVAL: registry['employee_1'].id"
+
+      - step: "Pre-create payslip linked to batch 1"
+        action: "create"
+        model: "hr.payslip"
+        save_as: "payslip_1"
+        as_user: "base.user_admin"
+        values:
+          employee_id: "EVAL: registry['employee_1'].id"
+          type_id: "EVAL: registry['payslip_type'].id"
+          structure_id: "EVAL: registry['structure'].id"
+          journal_id: "EVAL: registry['journal'].id"
+          date_start: "2024-10-01"
+          date_end: "2024-10-31"
+          date: "2024-10-31"
+          batch_id: "EVAL: registry['batch_1'].id"
+
+      - step: "Create employee 2"
+        action: "create"
+        model: "hr.employee"
+        save_as: "employee_2"
+        values:
+          name: "Multi Batch Employee Reject 2"
+
+      - step: "Create payslip batch 2"
+        action: "create"
+        model: "hr.payslip_batch"
+        save_as: "batch_2"
+        as_user: "base.user_admin"
+        values:
+          type_id: "EVAL: registry['payslip_type'].id"
+          date_start: "2024-11-01"
+          date_end: "2024-11-30"
+          date: "2024-11-30"
+          employee_ids:
+            - "EVAL: registry['employee_2'].id"
+
+      - step: "Pre-create payslip linked to batch 2"
+        action: "create"
+        model: "hr.payslip"
+        save_as: "payslip_2"
+        as_user: "base.user_admin"
+        values:
+          employee_id: "EVAL: registry['employee_2'].id"
+          type_id: "EVAL: registry['payslip_type'].id"
+          structure_id: "EVAL: registry['structure'].id"
+          journal_id: "EVAL: registry['journal'].id"
+          date_start: "2024-11-01"
+          date_end: "2024-11-30"
+          date: "2024-11-30"
+          batch_id: "EVAL: registry['batch_2'].id"
+
+      - step: "Open batch 1"
+        action: "call"
+        target: "batch_1"
+        method: "action_open"
+        as_user: "base.user_admin"
+
+      - step: "Open batch 2"
+        action: "call"
+        target: "batch_2"
+        method: "action_open"
+        as_user: "base.user_admin"
+
+      - step: "Confirm batch 1"
+        action: "call"
+        target: "batch_1"
+        method: "action_confirm"
+        as_user: "base.user_admin"
+
+      - step: "Confirm batch 2"
+        action: "call"
+        target: "batch_2"
+        method: "action_confirm"
+        as_user: "base.user_admin"
+
+      - step: "Select both batches as one recordset"
+        action: "search"
+        model: "hr.payslip_batch"
+        domain:
+          - ["id", "in", ["REC: batch_1.id", "REC: batch_2.id"]]
+        save_as: "batches"
+        expect_count: 2
+
+      - step: "Reject both batches at once"
+        action: "call"
+        target: "batches"
+        method: "action_reject_approval"
+        as_user: "base.user_admin"
+
+      - step: "Assert batch 1 is reject"
+        action: "assert"
+        target: "batch_1"
+        refresh: true
+        asserts:
+          state:
+            type: "value"
+            expected: "reject"
+
+      - step: "Batch 1 has no confirm payslip"
+        action: "search"
+        model: "hr.payslip"
+        domain:
+          - ["batch_id", "=", "REC: batch_1.id"]
+          - ["state", "=", ["confirm"]]
+        save_as: "found_1_2993"
+        expect_count: 0
+
+      - step: "Batch 1 has its payslip rejected"
+        action: "search"
+        model: "hr.payslip"
+        domain:
+          - ["batch_id", "=", "REC: batch_1.id"]
+          - ["state", "=", ["reject"]]
+        save_as: "found_1_5948"
+        expect_count: 1
+
+      - step: "Assert batch 2 is reject"
+        action: "assert"
+        target: "batch_2"
+        refresh: true
+        asserts:
+          state:
+            type: "value"
+            expected: "reject"
+
+      - step: "Batch 2 has no confirm payslip"
+        action: "search"
+        model: "hr.payslip"
+        domain:
+          - ["batch_id", "=", "REC: batch_2.id"]
+          - ["state", "=", ["confirm"]]
+        save_as: "found_2_2748"
+        expect_count: 0
+
+      - step: "Batch 2 has its payslip rejected"
+        action: "search"
+        model: "hr.payslip"
+        domain:
+          - ["batch_id", "=", "REC: batch_2.id"]
+          - ["state", "=", ["reject"]]
+        save_as: "found_2_670"
+        expect_count: 1
+
+  - name: "HR Payslip Batch - Multi-batch Cancel"
+    steps:
+      - step: "Get expense account type"
+        action: "ref"
+        xml_id: "account.data_account_type_expenses"
+        save_as: "expense_account_type"
+
+      - step: "Create debit account"
+        action: "create"
+        model: "account.account"
+        save_as: "debit_account"
+        values:
+          name: "Multi Cancel Debit Account"
+          code: "TSTMBX_DB"
+          user_type_id: "EVAL: registry['expense_account_type'].id"
+
+      - step: "Create credit account"
+        action: "create"
+        model: "account.account"
+        save_as: "credit_account"
+        values:
+          name: "Multi Cancel Credit Account"
+          code: "TSTMBX_CR"
+          user_type_id: "EVAL: registry['expense_account_type'].id"
+
+      - step: "Create payroll journal"
+        action: "create"
+        model: "account.journal"
+        save_as: "journal"
+        values:
+          name: "Multi Cancel Journal"
+          code: "TMBX"
+          type: "general"
+
+      - step: "Create salary rule category"
+        action: "create"
+        model: "hr.salary_rule_category"
+        save_as: "category"
+        values:
+          name: "Multi Cancel Category"
+          code: "TSTMBXCAT"
+
+      - step: "Create salary rule"
+        action: "create"
+        model: "hr.salary_rule"
+        save_as: "rule"
+        values:
+          name: "Multi Cancel Salary Rule"
+          code: "TSTMBXRULE"
+          category_id: "EVAL: registry['category'].id"
+          debit_account_id: "EVAL: registry['debit_account'].id"
+          credit_account_id: "EVAL: registry['credit_account'].id"
+          condition_python: "result = True"
+          amount_python: "result = 150.0"
+          sequence: 10
+
+      - step: "Create salary structure"
+        action: "create"
+        model: "hr.salary_structure"
+        save_as: "structure"
+        values:
+          name: "Multi Cancel Structure"
+          code: "TSTMBXSTR"
+          rule_ids:
+            - "EVAL: registry['rule'].id"
+
+      - step: "Create payslip type"
+        action: "create"
+        model: "hr.payslip_type"
+        save_as: "payslip_type"
+        values:
+          name: "Multi Cancel Payslip Type"
+          code: "TSTMBXTYPE"
+          journal_id: "EVAL: registry['journal'].id"
+
+      - step: "Create employee 1"
+        action: "create"
+        model: "hr.employee"
+        save_as: "employee_1"
+        values:
+          name: "Multi Batch Employee Cancel 1"
+
+      - step: "Create payslip batch 1"
+        action: "create"
+        model: "hr.payslip_batch"
+        save_as: "batch_1"
+        as_user: "base.user_admin"
+        values:
+          type_id: "EVAL: registry['payslip_type'].id"
+          date_start: "2024-12-01"
+          date_end: "2024-12-31"
+          date: "2024-12-31"
+          employee_ids:
+            - "EVAL: registry['employee_1'].id"
+
+      - step: "Pre-create payslip linked to batch 1"
+        action: "create"
+        model: "hr.payslip"
+        save_as: "payslip_1"
+        as_user: "base.user_admin"
+        values:
+          employee_id: "EVAL: registry['employee_1'].id"
+          type_id: "EVAL: registry['payslip_type'].id"
+          structure_id: "EVAL: registry['structure'].id"
+          journal_id: "EVAL: registry['journal'].id"
+          date_start: "2024-12-01"
+          date_end: "2024-12-31"
+          date: "2024-12-31"
+          batch_id: "EVAL: registry['batch_1'].id"
+
+      - step: "Create employee 2"
+        action: "create"
+        model: "hr.employee"
+        save_as: "employee_2"
+        values:
+          name: "Multi Batch Employee Cancel 2"
+
+      - step: "Create payslip batch 2"
+        action: "create"
+        model: "hr.payslip_batch"
+        save_as: "batch_2"
+        as_user: "base.user_admin"
+        values:
+          type_id: "EVAL: registry['payslip_type'].id"
+          date_start: "2024-01-01"
+          date_end: "2024-01-31"
+          date: "2024-01-31"
+          employee_ids:
+            - "EVAL: registry['employee_2'].id"
+
+      - step: "Pre-create payslip linked to batch 2"
+        action: "create"
+        model: "hr.payslip"
+        save_as: "payslip_2"
+        as_user: "base.user_admin"
+        values:
+          employee_id: "EVAL: registry['employee_2'].id"
+          type_id: "EVAL: registry['payslip_type'].id"
+          structure_id: "EVAL: registry['structure'].id"
+          journal_id: "EVAL: registry['journal'].id"
+          date_start: "2024-01-01"
+          date_end: "2024-01-31"
+          date: "2024-01-31"
+          batch_id: "EVAL: registry['batch_2'].id"
+
+      - step: "Open batch 1"
+        action: "call"
+        target: "batch_1"
+        method: "action_open"
+        as_user: "base.user_admin"
+
+      - step: "Open batch 2"
+        action: "call"
+        target: "batch_2"
+        method: "action_open"
+        as_user: "base.user_admin"
+
+      - step: "Select both batches as one recordset"
+        action: "search"
+        model: "hr.payslip_batch"
+        domain:
+          - ["id", "in", ["REC: batch_1.id", "REC: batch_2.id"]]
+        save_as: "batches"
+        expect_count: 2
+
+      - step: "Cancel both batches at once"
+        action: "call"
+        target: "batches"
+        method: "action_cancel"
+        as_user: "base.user_admin"
+
+      - step: "Assert batch 1 is cancel"
+        action: "assert"
+        target: "batch_1"
+        refresh: true
+        asserts:
+          state:
+            type: "value"
+            expected: "cancel"
+
+      - step: "Batch 1 has no non-cancel payslip"
+        action: "search"
+        model: "hr.payslip"
+        domain:
+          - ["batch_id", "=", "REC: batch_1.id"]
+          - ["state", "!=", "cancel"]
+        save_as: "found_1_5167"
+        expect_count: 0
+
+      - step: "Batch 1 has its payslip cancelled"
+        action: "search"
+        model: "hr.payslip"
+        domain:
+          - ["batch_id", "=", "REC: batch_1.id"]
+          - ["state", "=", "cancel"]
+        save_as: "found_1_7067"
+        expect_count: 1
+
+      - step: "Assert batch 2 is cancel"
+        action: "assert"
+        target: "batch_2"
+        refresh: true
+        asserts:
+          state:
+            type: "value"
+            expected: "cancel"
+
+      - step: "Batch 2 has no non-cancel payslip"
+        action: "search"
+        model: "hr.payslip"
+        domain:
+          - ["batch_id", "=", "REC: batch_2.id"]
+          - ["state", "!=", "cancel"]
+        save_as: "found_2_9522"
+        expect_count: 0
+
+      - step: "Batch 2 has its payslip cancelled"
+        action: "search"
+        model: "hr.payslip"
+        domain:
+          - ["batch_id", "=", "REC: batch_2.id"]
+          - ["state", "=", "cancel"]
+        save_as: "found_2_2669"
+        expect_count: 1
+
+      - step: "Select both batches as one recordset"
+        action: "search"
+        model: "hr.payslip_batch"
+        domain:
+          - ["id", "in", ["REC: batch_1.id", "REC: batch_2.id"]]
+        save_as: "batches"
+        expect_count: 2
+
+      - step: "Restart both batches at once"
+        action: "call"
+        target: "batches"
+        method: "action_restart"
+        as_user: "base.user_admin"
+
+      - step: "Assert batch 1 is draft"
+        action: "assert"
+        target: "batch_1"
+        refresh: true
+        asserts:
+          state:
+            type: "value"
+            expected: "draft"
+
+      - step: "Batch 1 has no cancel or reject payslip after restart"
+        action: "search"
+        model: "hr.payslip"
+        domain:
+          - ["batch_id", "=", "REC: batch_1.id"]
+          - ["state", "in", ["cancel", "reject"]]
+        save_as: "found_1_7183"
+        expect_count: 0
+
+      - step: "Assert batch 2 is draft"
+        action: "assert"
+        target: "batch_2"
+        refresh: true
+        asserts:
+          state:
+            type: "value"
+            expected: "draft"
+
+      - step: "Batch 2 has no cancel or reject payslip after restart"
+        action: "search"
+        model: "hr.payslip"
+        domain:
+          - ["batch_id", "=", "REC: batch_2.id"]
+          - ["state", "in", ["cancel", "reject"]]
+        save_as: "found_2_7536"
+        expect_count: 0
