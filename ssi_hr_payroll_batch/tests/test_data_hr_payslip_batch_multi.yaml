@@ -1,3 +1,6 @@
+options:
+  auto_refresh: true
+
 scenarios:
   - name: "HR Payslip Batch - Multi-batch Confirm"
     steps:
@@ -149,12 +152,22 @@ scenarios:
         target: "batch_1"
         method: "action_open"
         as_user: "base.user_admin"
+        refresh: true
+        asserts:
+          state:
+            type: "value"
+            expected: "open"
 
       - step: "Open batch 2"
         action: "call"
         target: "batch_2"
         method: "action_open"
         as_user: "base.user_admin"
+        refresh: true
+        asserts:
+          state:
+            type: "value"
+            expected: "open"
 
       - step: "Select both batches as one recordset"
         action: "search"
@@ -374,24 +387,44 @@ scenarios:
         target: "batch_1"
         method: "action_open"
         as_user: "base.user_admin"
+        refresh: true
+        asserts:
+          state:
+            type: "value"
+            expected: "open"
 
       - step: "Open batch 2"
         action: "call"
         target: "batch_2"
         method: "action_open"
         as_user: "base.user_admin"
+        refresh: true
+        asserts:
+          state:
+            type: "value"
+            expected: "open"
 
       - step: "Confirm batch 1"
         action: "call"
         target: "batch_1"
         method: "action_confirm"
         as_user: "base.user_admin"
+        refresh: true
+        asserts:
+          state:
+            type: "value"
+            expected: "confirm"
 
       - step: "Confirm batch 2"
         action: "call"
         target: "batch_2"
         method: "action_confirm"
         as_user: "base.user_admin"
+        refresh: true
+        asserts:
+          state:
+            type: "value"
+            expected: "confirm"
 
       - step: "Select both batches as one recordset"
         action: "search"
@@ -611,12 +644,22 @@ scenarios:
         target: "batch_1"
         method: "action_open"
         as_user: "base.user_admin"
+        refresh: true
+        asserts:
+          state:
+            type: "value"
+            expected: "open"
 
       - step: "Open batch 2"
         action: "call"
         target: "batch_2"
         method: "action_open"
         as_user: "base.user_admin"
+        refresh: true
+        asserts:
+          state:
+            type: "value"
+            expected: "open"
 
       - step: "Select both batches as one recordset"
         action: "search"
@@ -685,6 +728,24 @@ scenarios:
           - ["state", "=", "cancel"]
         save_as: "found_2_2669"
         expect_count: 1
+
+      - step: "Assert payslip 1 is cancelled before restart"
+        action: "assert"
+        target: "payslip_1"
+        refresh: true
+        asserts:
+          state:
+            type: "value"
+            expected: "cancel"
+
+      - step: "Assert payslip 2 is cancelled before restart"
+        action: "assert"
+        target: "payslip_2"
+        refresh: true
+        asserts:
+          state:
+            type: "value"
+            expected: "cancel"
 
       - step: "Select both batches as one recordset"
         action: "search"
