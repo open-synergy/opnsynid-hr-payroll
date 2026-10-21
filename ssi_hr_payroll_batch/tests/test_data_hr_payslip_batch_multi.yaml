@@ -426,6 +426,24 @@ scenarios:
             type: "value"
             expected: "confirm"
 
+      - step: "Assert payslip 1 is confirm before reject"
+        action: "assert"
+        target: "payslip_1"
+        refresh: true
+        asserts:
+          state:
+            type: "value"
+            expected: "confirm"
+
+      - step: "Assert payslip 2 is confirm before reject"
+        action: "assert"
+        target: "payslip_2"
+        refresh: true
+        asserts:
+          state:
+            type: "value"
+            expected: "confirm"
+
       - step: "Select both batches as one recordset"
         action: "search"
         model: "hr.payslip_batch"
