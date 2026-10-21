@@ -740,11 +740,15 @@ Solution: Set a journal on the batch, or change the Accounting Method to 'Journa
     def action_confirm(self):
         """Confirm the batch after confirming its draft payslips.
 
-        Drives every payslip still in ``draft`` state to ``confirm``
-        first, then only calls the inherited transition once none of
-        the batch's payslips remain in ``draft``.
+        Works on a recordset of any size. Drives every payslip still
+        in ``draft`` state of each batch to ``confirm`` first, then
+        calls the inherited transition once, only on the batches that
+        have no payslip left in ``draft``.
+
+        :return: result of the inherited transition, or ``None`` when
+            no batch is ready
         """
-        _super = super(HrPayslipBatch, self)
+        ready = self.browse()
         for document in self.sudo():
             draft_payslip_ids = document.payslip_ids.filtered(
                 lambda x: x.state == "draft"
@@ -752,7 +756,10 @@ Solution: Set a journal on the batch, or change the Accounting Method to 'Journa
             draft_payslip_ids.with_context(from_batch=True).action_confirm()
             _check_state = document._check_payslip_state(["draft"])
             if _check_state:
-                return _super.action_confirm()
+                ready |= self.browse(document.id)
+        if ready:
+            return super(HrPayslipBatch, ready).action_confirm()
+        return None
 
     def action_approve_approval(self):
         """Record batch approval.
@@ -764,11 +771,15 @@ Solution: Set a journal on the batch, or change the Accounting Method to 'Journa
     def action_reject_approval(self):
         """Reject the batch's approval after rejecting its payslips.
 
-        Drives every payslip still in ``confirm`` state to rejected
-        first, then only calls the inherited transition once none of
-        the batch's payslips remain in ``confirm``.
+        Works on a recordset of any size. Drives every payslip still
+        in ``confirm`` state of each batch to rejected first, then
+        calls the inherited transition once, only on the batches that
+        have no payslip left in ``confirm``.
+
+        :return: result of the inherited transition, or ``None`` when
+            no batch is ready
         """
-        _super = super(HrPayslipBatch, self)
+        ready = self.browse()
         for document in self.sudo():
             confirm_payslip_ids = document.payslip_ids.filtered(
                 lambda x: x.state == "confirm"
@@ -776,19 +787,25 @@ Solution: Set a journal on the batch, or change the Accounting Method to 'Journa
             confirm_payslip_ids.action_reject_approval()
             _check_state = document._check_payslip_state(["confirm"])
             if _check_state:
-                return _super.action_reject_approval()
+                ready |= self.browse(document.id)
+        if ready:
+            return super(HrPayslipBatch, ready).action_reject_approval()
+        return None
 
     def action_cancel(self, cancel_reason=False):
         """Cancel the batch after cancelling its still-open payslips.
 
-        Cancels every payslip in ``draft``, ``open``, ``confirm``, or
-        ``done`` state first, then only calls the inherited transition
-        once none of the batch's payslips remain in those states.
+        Works on a recordset of any size. Cancels every payslip in
+        ``draft``, ``open``, ``confirm``, or ``done`` state of each
+        batch first, then calls the inherited transition once, only on
+        the batches that have no payslip left in those states.
 
         :param cancel_reason: ``ssi_transaction_cancel_mixin`` cancel
             reason record propagated to each payslip
+        :return: result of the inherited transition, or ``None`` when
+            no batch is ready
         """
-        _super = super(HrPayslipBatch, self)
+        ready = self.browse()
         for document in self.sudo():
             cancel_payslip_ids = document.payslip_ids.filtered(
                 lambda x: x.state in ["draft", "open", "confirm", "done"]
@@ -800,16 +817,23 @@ Solution: Set a journal on the batch, or change the Accounting Method to 'Journa
                 ["draft", "open", "confirm", "done"]
             )
             if _check_state:
-                return _super.action_cancel(cancel_reason)
+                ready |= self.browse(document.id)
+        if ready:
+            return super(HrPayslipBatch, ready).action_cancel(cancel_reason)
+        return None
 
     def action_restart(self):
         """Restart the batch after restarting its cancelled payslips.
 
-        Restarts every payslip in ``cancel`` or ``reject`` state
-        first, then only calls the inherited transition once none of
-        the batch's payslips remain in those states.
+        Works on a recordset of any size. Restarts every payslip in
+        ``cancel`` or ``reject`` state of each batch first, then calls
+        the inherited transition once, only on the batches that have
+        no payslip left in those states.
+
+        :return: result of the inherited transition, or ``None`` when
+            no batch is ready
         """
-        _super = super(HrPayslipBatch, self)
+        ready = self.browse()
         for document in self.sudo():
             cancel_payslip_ids = document.payslip_ids.filtered(
                 lambda x: x.state in ["cancel", "reject"]
@@ -817,7 +841,10 @@ Solution: Set a journal on the batch, or change the Accounting Method to 'Journa
             cancel_payslip_ids.with_context(from_batch=True).action_restart()
             _check_state = document._check_payslip_state(["cancel", "reject"])
             if _check_state:
-                return _super.action_restart()
+                ready |= self.browse(document.id)
+        if ready:
+            return super(HrPayslipBatch, ready).action_restart()
+        return None
 
     # -- post_done_action: drive payslips to done first --
 
